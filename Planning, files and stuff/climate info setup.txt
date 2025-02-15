@@ -1,0 +1,33 @@
+-RaspberryOS usernames/passwords: 
+
+for administrator username and credential, this must to be know by the app BEFORE systems start and we need them to setup the rasp system. so i think ADMIN and 1234, or something like this.
+
+-Raspberry bitcoin side: 
+
+the point is: when the blockchain will be downloaded? before to sell? yes, but depends on how many time exist between our setup and selling/shipping. for sure the user must to be wait a little bit (few hours in case we download it before shipping, or days if we don't; 
+my opinion is the best will be bitcoind daemon must to start whenever the system poweron and start download blockchain this implies that we setted up credential before.
+NB: datum doesn't need fullnode to work, can work also in prune node. problem with prune is you must to download the entire blockchain anyway, then knots remove it...this is a fucking cost problem.
+Just in case, lightning ask for full blocks to work instead;
+
+-Raspberry Datum side:
+
+it don't ask for credential. the GUI (if needed) is avaiable at the raspIP:7156 port webpage;
+User must to insert a bitcoin address (the same your thermine app asking now).
+i need to ask to mechanic if Datum work with the bitcoin address setupped into datum config only, or this address must to be insert also into the miner settings, but i think the second one.
+
+-Minerside: 
+
+we need to ask the miner firmware type, as on that the rasp choose to send different commands based on the rules about the firmware.
+NB: as i told you, for now my system work on Alphaminer only (Vnish), but I know it can work on Braiins and LUxor too, i just need repair my broke hashboard.
+
+-Mining control side: 
+
+switching options app will be 
+menu A 1) simple mining on/off based on timer; 2) mining based on T sensor signal 3) mix of them
+menu B summer/winter scenario or day/night or high/low power scenario, one of them.  
+
+NB: if possible based on firmware commands avaiable, we can think to choose the mining power mode 1)high hasrate with high consuption (that cause more switch on off cause the time to reach the target T will be lower), 2) best J/Th setting (usually the best for heating and for financial cost), 3) a smart setting, that mean high or low when needed depends on menu B last choose.
+
+all of that for each miner and/or each room. so we need to know how many miners in which room. Maybe on the top the first question can be "single" or "multiple" miner setup.
+
+   

@@ -1,0 +1,406 @@
+- stiamo usando un raspberry pi3B+ con installato raspberry Os 64bit;
+
+- dobbiamo controllare con il raspberry l'accensione e lo spegnimento dell'attività di mining di un miner collegato in rete (le informazioni relative a dati specifici come ip, password ecc, le troverai nei codici che forniro più avanti) in base alla temperatura rilevata da un sensore collegato al raspberry sui gpio. un termostato in pratica. 
+
+- abbiamo ideato e creato una struttura di cartelle all'interno delle quali lavorare e creare i vari scripts di un software finale che sarà automatizzato, avrà una GUI grafica, eccetera.
+
+- abbiamo lavorato in ambiente virtuale env per problemi di compatibilità di alcuni softwares
+
+- ci sono scripts che si occupano di rilevare i dati attraverso mqtt mosquitto da sonoff in rete wifi
+
+- ci sono scripts che si occupano di rilevare i dati dal miner attraverso api con token
+
+- ci sono scripts che si occupano di rilevare i dati dal sensore collegato fisicamente al raspberry
+
+- vogliamo raccogliere i dati in un database di tipo influxdb, che è installato
+
+- vogliamo visualizzare i dati in graphana
+
+- questa è la struttura delle cartelle e dei files:
+
+heater_control/
+├── scripts/            # Cartella per tutti gli script Python
+│   ├── __init__.py     # Per rendere `scripts` un package Python
+│   ├── miner_control.py  # Controllo del miner (start, stop, set power)
+│   ├── sensor_read.py   # Lettura dei dati dal sensore di temperatura
+│   ├── data_collector.py # Raccoglie dati dal miner, sensori e MQTT
+│   ├── influx_writer.py  # Scrive i dati raccolti in InfluxDB
+│   ├── mqtt_handler.py   # Gestione dei messaggi MQTT da Tasmota
+│   ├── get_token.py
+│   └── thermal_control.py
+├── config/             # Configurazioni
+│   ├── miner_config.json  # Configurazione API del miner (IP, API key, ecc.)
+│   ├── sensor_config.json # Configurazione del sensore (pin GPIO, ecc.)
+│   ├── influxdb_config.json # Configurazione di InfluxDB
+│   └── mqtt_config.json    # Configurazione per MQTT (broker, topic, ecc.)
+├── data/               # Opzionale, per log o dati temporanei
+├── resources/          # Risorse come schemi, documentazione hardware, ecc.
+├── requirements.txt    # Dipendenze Python
+├── docker-compose.yml  # Se intendi usare Docker Compose per servizi multipli
+└── README.md           # Documentazione del progetto
+
+-miner_control: 
+import requests
+import json
+import asyncio
+
+# Configurazione del miner (queste dovrebbero essere lette da un file di configurazione in un progetto reale)
+MINER_IP = "192.168.178.180"  # Sostituisci con l'IP del tuo miner
+JWT_TOKEN = "dMQjN5kMVyO63a6eNDw9GNvdR07XRYWj"
+
+def get_auth_headers():
+    """Prepara le intestazioni di autenticazione."""
+    return {"Authorization": f"Bearer {JWT_TOKEN}"}
+
+async def get_miner_data():
+    """Ottiene hashrate, temperatura e frequenza dei chip dal miner."""
+    endpoint = f"http://{MINER_IP}/api/v1/summary"
+    try:
+        response = requests.get(endpoint, headers=get_auth_headers())
+        response.raise_for_status()
+        miner_data = response.json().get('miner', {})
+
+        # Hashrate
+        hashrate = miner_data.get('hr_average', None)
+
+        # Temperatura
+        pcb_temp = miner_data.get('pcb_temp', {}).get('max', 'N/A')
+        chip_temp = miner_data.get('chip_temp', {}).get('max', 'N/A')
+
+        # Frequenza dei chip (MHz)
+        chains = miner_data.get('chains', [])
+        freq_mhz = chains[0].get('frequency', 'N/A') if chains else 'N/A'
+
+        return {
+            'hashrate': hashrate,
+            'pcb_temp': pcb_temp,
+            'chip_temp': chip_temp,
+            'freq_mhz': freq_mhz
+        }
+    except requests.exceptions.RequestException as e:
+
+        return None
+
+async def main():
+    while True:
+        data = await get_miner_data()
+        if data:
+            print(f"Hashrate: {data['hashrate']} GH/s")
+            print(f"Temperatura PCB: {data['pcb_temp']}°C")
+            print(f"Temperatura Chip: {data['chip_temp']}°C")
+            print(f"Frequenza dei Chip: {data['freq_mhz']} MHz")
+        else:
+            print("Non è stato possibile ottenere i dati dal miner.")
+        await asyncio.sleep(30)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+-__init__.py è vuoto
+
+-sensor.py: 
+from w1thermsensor import W1ThermSensor
+import asyncio
+
+async def read_temperature():
+    sensor = W1ThermSensor()
+    try:
+        temp = sensor.get_temperature()
+        return temp
+    except Exception as e:
+        print(f"Errore durante la lettura della temperatura: {e}")
+        return None
+
+async def main():
+    while True:
+        temperature = await read_temperature()
+        if temperature is not None:
+            print(f"Temperatura attuale: {temperature}°C")
+        await asyncio.sleep(30)  # Leggi la temperatura ogni 30 secondi
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+data_collector.py:
+import asyncio
+import logging
+from influx_writer import write_to_influx
+
+# Configura il logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+async def get_miner_data():
+    try:
+        # Simulazione di raccolta dati dal miner
+        data = {
+            'measurement': 'miner_stats',
+            'tags': {'miner_ip': '192.168.178.180'},
+            'fields': {
+                'hashrate': 100.0,
+                'pcb_temp': 50.0,
+                'chip_temp': 60.0,
+                'freq_mhz': 700.0
+            }
+        }
+        logger.info(f"Collected miner data: {data}")
+        return data
+    except Exception as e:
+        logger.error(f"Error collecting miner data: {e}")
+        return None
+
+async def read_temperature():
+    try:
+        # Simulazione di lettura temperatura
+        data = {
+            'measurement': 'temperature',
+            'tags': {'sensor_type': 'DS1820'},
+            'fields': {'value': 25.0}
+        }
+        logger.info(f"Read temperature: {data}")
+        return data
+    except Exception as e:
+ logger.error(f"Error reading temperature: {e}")
+        return None
+
+async def mqtt_handler():
+    try:
+        # Simulazione di raccolta dati MQTT
+        data = {
+            'measurement': 'sonoff_energy',
+            'tags': {'device': 'sonoff'},
+            'fields': {
+                'power': 100,
+                'voltage': 230,
+                'current': 0.434
+            }
+        }
+
+-influx_writer.py: 
+from influxdb import InfluxDBClient
+
+# Configurazione InfluxDB
+INFLUXDB_CONFIG = {
+    'host': 'localhost',
+    'port': 8086,
+    'username': 'admin',
+    'password': 'M33k0',
+    'database': 'heater_data'
+}
+
+client = InfluxDBClient(**INFLUXDB_CONFIG)
+
+def write_to_influx(data):
+    if data:
+        client.write_points(data)
+        print(f"Dati scritti in InfluxDB: {data}")
+
+# Questo script non ha una funzione main, è utilizzato da altri script
+
+mqtt_handler.py: 
+import paho.mqtt.client as mqtt
+import json
+import asyncio
+
+# Carica la configurazione MQTT
+with open('../config/mqtt_config.json', 'r') as f:
+    mqtt_config = json.load(f)
+
+async def mqtt_client():
+    client = mqtt.Client(protocol=mqtt.MQTTv311, transport="tcp")
+
+    def on_connect(client, userdata, flags, rc):
+        print(f"Connected with result code {rc}")
+        # Subscribe to topics here
+        client.subscribe(f"tele/{mqtt_config['topic_prefix']}/SENSOR")
+
+    def on_message(client, userdata, msg):
+        payload = json.loads(msg.payload.decode())
+        if 'ENERGY' in payload:
+            energy_data = payload['ENERGY']
+            print(f"Power: {energy_data['Power']}W, Voltage: {energy_data['Voltage']}V, Current: {energy_data['Current']}A")
+        else:
+            print("No ENERGY data in the message.")
+
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    await asyncio.sleep(0.1)  # Give it a moment to connect
+    client.connect(mqtt_config['broker'], mqtt_config['port'], 60)
+
+    # We use loop_start here instead of loop_forever to be able to run in an async context
+    client.loop_start()
+
+    try:
+        while True:
+            await asyncio.sleep(1)  # Keep the script running
+    except KeyboardInterrupt:
+        print("Shutting down MQTT client...")
+
+    finally:
+        client.loop_stop()
+        client.disconnect()
+
+if __name__ == "__main__":
+    asyncio.run(mqtt_client())
+
+get_token.py: 
+import requests
+import json
+
+# Configurazione del miner (queste dovrebbero essere lette da un file di configurazione in un progetto reale)
+MINER_IP = "192.168.178.180"  # Sostituisci con l'IP del tuo miner
+PASSWORD = "admin"  # Sostituisci con la tua password
+
+def get_jwt_token():
+    """Richiede un token JWT al miner."""
+    endpoint = f"http://{MINER_IP}/api/v1/unlock"
+    payload = {"pw": PASSWORD}
+    
+    try:
+        response = requests.post(endpoint, json=payload)
+        response.raise_for_status()
+        response_data = response.json()
+
+        if 'token' in response_data:
+            return response_data['token']
+        else:
+            print("Errore: Nessun token JWT ricevuto.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Errore durante la richiesta del token: {e}")
+        return None
+
+if __name__ == "__main__":
+    token = get_jwt_token()
+    if token:
+        print(f"Token JWT ottenuto: {token}")
+    else:
+        print("Fallimento nell'ottenere il token.")
+
+-thermal_control.py: 
+import asyncio
+from w1thermsensor import W1ThermSensor
+import requests
+import json
+
+# Configurazione del miner
+MINER_IP = "192.168.178.180"
+API_ENDPOINT = f"http://{MINER_IP}/api/v1"
+
+def get_jwt_token():
+    """Ottiene un nuovo token JWT dal miner."""
+    endpoint = f"{API_ENDPOINT}/unlock"
+    payload = {"pw": "admin"}  # Password del miner
+    try:
+        response = requests.post(endpoint, json=payload)
+        response.raise_for_status()
+        return response.json()['token']
+    except requests.exceptions.RequestException as e:
+        print(f"Errore durante l'ottenimento del token: {e}")
+        return None
+
+async def read_temperature():
+    """Legge la temperatura dal sensore DS1820."""
+    sensor = W1ThermSensor()
+    try:
+        temp = sensor.get_temperature()
+        return temp
+    except Exception as e:
+        print(f"Errore durante la lettura della temperatura: {e}")
+        return None
+
+async def thermal_control(temp, min_temp, max_temp, token):
+    if temp is None:
+        return
+
+    headers = {"Authorization": f"Bearer {token}"}
+    status_endpoint = f"{API_ENDPOINT}/status"
+    try:
+   status_response = requests.get(status_endpoint, headers=headers)
+        status_response.raise_for_status()
+        miner_status = status_response.json()
+        # print(f"Risposta completa dello status: {miner_status}")  # Rimuovi quando non serve più il debug
+
+        current_status = miner_status.get('miner_state', 'unknown')
+
+        # Log dello stato attuale del miner
+        print(f"Stato attuale del miner: {current_status}")
+
+        if temp <= min_temp and current_status not in ['mining', 'starting']:  # Cambiato < in <= per includere il valore di soglia
+            endpoint = f"{API_ENDPOINT}/mining/start"
+            action = "started"
+        elif temp >= max_temp and current_status == 'mining':  # Mantenuto >= per includere la soglia massima
+            endpoint = f"{API_ENDPOINT}/mining/stop"
+            action = "stopped"
+        else:
+            return 
+
+        response = requests.post(endpoint, headers=headers)
+        response.raise_for_status()
+        print(f"Mining {action} at temperature {temp}°C")
+    except requests.exceptions.RequestException as e:
+        print(f"Errore durante il controllo del mining: {e}")
+        if 'response' in locals() and hasattr(response, 'status_code'):
+            if response.status_code == 401:
+                print("Token potrebbe essere scaduto o non valido.")
+            elif response.status_code == 500:
+                print("Errore del server durante l'avvio o l'arresto del mining. Verifica lo stato del miner manualmente.")
+            else:
+                print(f"Codice di stato della risposta: {response.status_code}")
+        else:
+            print("Nessuna risposta dal server")
+
+async def main():
+    JWT_TOKEN = get_jwt_token()
+    if JWT_TOKEN is None:
+        print("Impossibile ottenere un token JWT valido. Uscita.")
+  return
+
+    min_temp = float(input("Inserisci la temperatura minima per avviare il mining: "))
+    max_temp = float(input("Inserisci la temperatura massima per fermare il mining: "))
+
+    while True:
+        temp = await read_temperature()
+        if temp is not None:
+            print(f"Temperatura attuale: {temp}°C")
+            await thermal_control(temp, min_temp, max_temp, JWT_TOKEN)
+        else:
+            print("Impossibile leggere la temperatura.")
+        await asyncio.sleep(10)  # Controlla ogni 10 secondi per aggiornamento più frequente
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+-mqtt_config.json: 
+{
+  "broker": "localhost",
+  "port": 1883,
+  "topic_prefix": "tasmota_E0B9E2"
+}
+
+influxdb_config.json: 
+{
+  "host": "localhost",
+  "port": 8086,
+  "database": "heater_data",
+  "username": "admin",
+  "password": "M33k0"
+}
+
+client =InfluxDBClient(**INFLUXDB_CONFIG)
+
+- i files miner_config.json e sensor_config.json non sono ancora stati creati, ma gli scripts miner_control.py, sensor_read.py,mqtt_handler.py funzionano lo stesso singolarmente
+
+-la cartella data/ non è ancora stata utilizzata
+-la cartella resource/ non è ancora stata utilizzata
+
+-requirements.tx:
+influxdb
+paho-mqtt
+# altre dipendenze qui
+
+-docker-compose.yml è (giustamente, lo faremo alla fine) vuoto
+-readme.md è vuoto
+
+-tutto ciò è un riassunto da cui partire, al prossimo messaggio ti dirò a quale parte continueremo a lavorare, non ho bisogno di suggerimenti ora, però fissa questi dati e saranno quelli ai quali farò riferimento nelle richieste successive a questa.
