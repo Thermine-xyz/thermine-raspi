@@ -1,0 +1,82 @@
+from Controller import Utils
+from ..Miner import Miner
+
+import json
+import time
+
+returnJsonOk = {"result":"OK"}
+
+'''
+Returns all the registered endpoints in JSON format, keep it manually updated (latter maybe Swagger?)
+if key "content-type" not present, dafult is always application/json
+'''
+def registeredEndPoints():
+    json_array = json.loads('[]')
+    json_array.append({
+        "name":"Echo",
+        "desc":"get Echo",
+        "permission":"pub",
+        "verb":"get"
+        })
+    json_array.append({
+        "name":"Miner",
+        "desc":"get Miner (list)",
+        "permission":"pri",
+        "verb":"get"
+        })
+    json_array.append({
+        "name":"DateTime",
+        "desc":"get DateTime",
+        "permission":"pri",
+        "verb":"get"
+        })
+    json_array.append({
+        "name":"Uuid",
+        "desc":"get Uuid",
+        "permission":"pri",
+        "verb":"get"
+        })
+    json_array.append({
+        "name":"processSomething",
+        "desc":"post processSomething",
+        "permission":"pri",
+        "verb":"post"
+        })    
+    return json.dumps(json_array)
+
+def handle_get(path, headers):
+    if path == "/Echo":
+        return {"result": "OK"}, 200, 'application/json'
+    
+    elif path == "/favicon.ico":
+        return None, 200, 'image/x-icon'
+    
+    elif path == "/DateTime":
+        return {"result": Utils.nowUtc()}, 200, 'application/json'
+    
+    elif path == "/Miner":
+        return Miner.dataAsJsonString(), 200, 'application/json'
+    
+    elif path == "/RegisteredEndPoints":
+        return registeredEndPoints(), 200, 'application/json'
+    
+    elif path == "/Uuid":
+        return Utils.thermineUuid(), 200, 'application/json'
+    
+    else:
+        return 'Not found', 400, 'text/html'
+
+
+def handle_post(path, headers, post_data):
+    if path == "/processSomething":
+        json_data = json.loads(post_data.decode('utf-8'))
+        # As example, add a timestamp
+        json_data["timestamp"] = int(time.time())
+        return json_data, 200, 'application/json'
+    
+    if path == "/Miner":
+        contentStr = post_data.decode('utf-8')
+        Miner.setDataStr(contentStr);
+        return returnJsonOk, 200, 'application/json'
+    else:
+        return 'Not found', 400, 'text/html' 
