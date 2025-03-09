@@ -18,12 +18,26 @@ def registeredEndPoints():
         "permission":"pub",
         "verb":"get"
         })
+    
     json_array.append({
         "name":"Miner",
         "desc":"get Miner (list)",
         "permission":"pri",
         "verb":"get"
         })
+    json_array.append({
+        "name":"Miner/Auth",
+        "desc":"post Miner/Auth",
+        "permission":"pri",
+        "verb":"post"
+        })
+    json_array.append({
+        "name":"Miner/Echo",
+        "desc":"get Miner/Echo",
+        "permission":"pri",
+        "verb":"get"
+        })
+    
     json_array.append({
         "name":"DateTime",
         "desc":"get DateTime",
@@ -37,6 +51,12 @@ def registeredEndPoints():
         "verb":"get"
         })
     json_array.append({
+        "name":"Miner",
+        "desc":"post Miner",
+        "permission":"pri",
+        "verb":"post"
+        })
+    json_array.append({
         "name":"processSomething",
         "desc":"post processSomething",
         "permission":"pri",
@@ -46,7 +66,7 @@ def registeredEndPoints():
 
 def handle_get(path, headers):
     if path == "/Echo":
-        return {"result": "OK"}, 200, 'application/json'
+        return Utils.resultJsonOK(), 200, 'application/json'
     
     elif path == "/favicon.ico":
         return None, 200, 'image/x-icon'
@@ -56,6 +76,11 @@ def handle_get(path, headers):
     
     elif path == "/Miner":
         return Miner.dataAsJsonString(), 200, 'application/json'
+    elif path == "/Miner/Echo":
+        sHeader = headers.get('uuid')
+        if sHeader.strip() == '':
+            sHeader = headers.get('miner-json')
+        return Miner.echo(sHeader), 200, 'application/json'
     
     elif path == "/RegisteredEndPoints":
         return registeredEndPoints(), 200, 'application/json'
@@ -77,6 +102,10 @@ def handle_post(path, headers, post_data):
     if path == "/Miner":
         contentStr = post_data.decode('utf-8')
         Miner.setDataStr(contentStr);
+        return returnJsonOk, 200, 'application/json'
+    if path == "/Miner/Auth":
+        json_data = json.loads(post_data.decode('utf-8'))
+        Miner.auth(json_data);
         return returnJsonOk, 200, 'application/json'
     else:
         return 'Not found', 400, 'text/html' 

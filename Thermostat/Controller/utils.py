@@ -3,6 +3,7 @@ import os
 import time
 import uuid
 import threading
+import re
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from typing import List, Type, TypeVar
@@ -25,6 +26,33 @@ class Utils:
     def dataClassListToJson(jsonStr: str, dataClassType: Type[T]) -> List[T]:
         objListDict = json.loads(jsonStr)
         return [dataClassType(**objDict) for objDict in objListDict]
+    
+    # check if key exists
+    def jsonCheckKeyExists(jObj: dict[str, str], key: str, isRaiseExcpt: bool):
+        if key in jObj:
+            return True
+        elif isRaiseExcpt:
+            Utils.throwExceptionResourceNotFound(f"JSON key not found: {key}")
+        else:
+            return False
+    
+    # check if key exists and if it is string type
+    def jsonCheckKeyTypeStr(jObj: dict[str, str], key: str, isRaiseExcpt: bool, isAcceptEmpty: bool):
+        if Utils.jsonCheckKeyExists(jObj, key, isRaiseExcpt):
+            if isinstance(jObj[key], str):
+                if isAcceptEmpty:
+                    return True
+                elif jObj.get(key).strip() == '':
+                    if isRaiseExcpt:
+                        Utils.throwExceptionInvalidValue(f"JSON key cant be empty: {key}")
+                    else:
+                        return False
+                else:
+                    return True
+            elif isRaiseExcpt:
+                Utils.throwExceptionInvalidValue(f"JSON key is not string: {key}")
+            else:
+                return False        
     
     # Returns the thermine_config.uuid value (may be create a file for this stuff?)
     @staticmethod
@@ -88,10 +116,9 @@ class Utils:
     def pathCurrent():
         return os.path.join(os.getcwd(), 'heater_control')
 
-    # Returns a random UUID
     @staticmethod
-    def uuidRandom():
-        return str(uuid.uuid4())
+    def resultJsonOK():
+        return {"result": "OK"}
 
     @staticmethod
     def throwExceptionInvalidValue(msg):
@@ -100,3 +127,23 @@ class Utils:
     @staticmethod
     def throwExceptionResourceNotFound(msg):
         raise Exception('Resource not found: ' + msg)
+    
+    # Returns if the string is a valid UUID format
+    @staticmethod
+    def uuidIsValid(s):
+        uuid_pattern = re.compile(
+            r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", 
+            re.IGNORECASE
+        )
+        return bool(uuid_pattern.match(s)) 
+    
+    # Returns a random UUID
+    @staticmethod
+    def uuidRandom():
+        return str(uuid.uuid4())
+    
+class HttpException(Exception):
+    def __init__(self, message, status_code=500):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(self.message)
