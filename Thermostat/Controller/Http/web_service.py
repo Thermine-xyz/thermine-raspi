@@ -74,7 +74,7 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
             self.send_response_generic(status_code, content_type, response_data)
 
         except HttpException as httpExc:
-            response = {"error": f"Erro de requisição: {str(httpExc.message)}"}
+            response = {"error": f"{str(httpExc.message)}"}
             self.send_response_generic(httpExc.status_code, 'application/json', response)
         except Exception as e:
             error_msg = str(e)

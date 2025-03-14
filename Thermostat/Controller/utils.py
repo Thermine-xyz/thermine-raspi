@@ -121,6 +121,10 @@ class Utils:
         return {"result": "OK"}
 
     @staticmethod
+    def throwExceptionHttpMissingHeader(msg):
+        raise HttpException(f"Missing header: {msg}", 400)
+    
+    @staticmethod
     def throwExceptionInvalidValue(msg):
         raise Exception('Invalid value: ' + msg)
     

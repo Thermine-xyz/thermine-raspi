@@ -77,9 +77,11 @@ def handle_get(path, headers):
     elif path == "/Miner":
         return Miner.dataAsJsonString(), 200, 'application/json'
     elif path == "/Miner/Echo":
-        sHeader = headers.get('uuid')
-        if sHeader.strip() == '':
-            sHeader = headers.get('miner-json')
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         return Miner.echo(sHeader), 200, 'application/json'
     
     elif path == "/RegisteredEndPoints":

@@ -65,7 +65,9 @@ class Miner:
             if jObj == None:
                 Utils.throwExceptionResourceNotFound(f"Miner UUID {s}")            
         elif isinstance(s, dict): # JSON object
-            jObj = json.loads(s)
+            jObj = s
+        else:
+            Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         
         # It is expected to have jObj with the miners data
         if jObj.get('fwtp') is None or jObj.get('fwtp').strip() == '':
