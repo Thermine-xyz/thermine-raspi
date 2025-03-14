@@ -7,8 +7,8 @@ python3 -m pip install -U readerwriterlock
 
 ## Compatibility
 
-This is a list of firmware compatibilities tested!
+This is a list of firmware compatibility we tested already!
 
-| Firmware | Version | Miner |
-| --------------------------------------------------------------------------------------------------- | ----- | ------ |
-|  [Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/)                                 | 3.9.0 |   ❌   |
+| Firmware | Miner | Version | Status |
+| ---- | ---- | ---- | ---- |
+| [Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/) | S9 | 3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;❌ |
