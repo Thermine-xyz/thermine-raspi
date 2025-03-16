@@ -43,6 +43,12 @@ def registeredEndPoints():
         "permission":"pri",
         "verb":"get"
         })
+    json_array.append({
+        "name":"Miner/Firmware/Compatibility/List",
+        "desc":"get Miner/Firmware/Compatibility/List",
+        "permission":"pri",
+        "verb":"get"
+        })
     
     json_array.append({
         "name":"DateTime",
@@ -96,6 +102,9 @@ def handle_get(path, headers):
         if sHeader is None:
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         return Miner.minerFirmware(sHeader), 200, 'application/json'
+    elif path == "/Miner/Firmware/Compatibility/List":
+        enum_values = [firmware.value for firmware in Miner.CompatibleFirmware]
+        return {"result": enum_values}, 200, 'application/json'
     
     elif path == "/RegisteredEndPoints":
         return registeredEndPoints(), 200, 'application/json'

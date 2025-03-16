@@ -5,6 +5,7 @@ import json
 
 class MinerVnish:        
     # Check if the miner is online
+    @staticmethod
     def echo(jObj):
         try:
             if not isinstance(jObj, dict):
@@ -24,6 +25,7 @@ class MinerVnish:
 
     
     # Get the token from miner, param jObj: a miner JSON Object with IP and password
+    @staticmethod
     def getJwtToken(jObj):
         try:
             if not isinstance(jObj, dict):

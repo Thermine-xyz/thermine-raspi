@@ -4,7 +4,8 @@ Some methods are managing local data, some are connecting to the miner
 For methods connecting and managing the miner it self, the method's name starts with miner
 """
 from ..utils import Utils
-from .miner_braiins import MinerBraiins
+from .miner_braiins_s9 import MinerBraiinsS9
+from .miner_braiins_v1 import MinerBraiinsV1
 from .miner_vnish import MinerVnish
 
 from enum import Enum
@@ -24,6 +25,7 @@ class Miner:
     lockFile = threading.Lock()
     class CompatibleFirmware(Enum):
         braiinsV1 = 'braiinsV1'
+        braiinsS9 = 'braiinsS9'
         vnish = 'vnish'
         # Returns the enum based on the param as name (string) of index (int), default=vnish
         @classmethod
@@ -102,16 +104,21 @@ class Miner:
             else:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
 
-        sOrigianl = json.dump(jObj)
+        sOrigianl = json.dumps(jObj)
         # Loops the compatible firwares and check the Echo for each one
+        result = False
         for fwtp in Miner.CompatibleFirmware:
-            print(fwtp)
             try:
                 jObj['fwtp'] = fwtp.value
                 Miner.minerEcho(jObj)
-            except:
+                result = True
+                return { "result": jObj['fwtp']}
+                break
+            except Exception as e:
+                print(f"minerFirmware {fwtp} error {e}")
                 pass # Do nothing, keep looping
-        Utils.throwExceptionResourceNotFound(f"Firmware for: {sOrigianl}")
+        if result == False:
+          Utils.throwExceptionResourceNotFound(f"Firmware for: {sOrigianl}")
 
     # Tries to 'ping' the miner based on the firmware type
     @staticmethod
@@ -126,7 +133,9 @@ class Miner:
         # It is expected to have jObj with the miners data
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            MinerBraiins.echo(jObj)
+            MinerBraiinsV1.echo(jObj)
+        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+            MinerBraiinsS9.echo(jObj)
         else:
             MinerVnish.echo(jObj)
 
@@ -165,12 +174,17 @@ class Miner:
                 with open(path, 'w', encoding='utf-8') as file:
                     json.dump(jObj, file, ensure_ascii=False, indent=2)
         elif isinstance(jData, dict):
+            isFound = False
             jAry = Miner.dataAsJson()
             for index, jObj in enumerate(jAry):
                 if jObj["uuid"] == jData["uuid"]:
                     jAry[index] = jData
-                    Miner.setData(jAry)
+                    isFound = True
                     break
+
+            if not isFound: # add in case new UUID
+                jAry.append(jData)
+            Miner.setData(jAry)
         else:
             Utils.throwExceptionInvalidValue(json.dumps(jData));
             
