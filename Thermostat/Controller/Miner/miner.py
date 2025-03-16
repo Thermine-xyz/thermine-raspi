@@ -1,4 +1,10 @@
+"""
+Generic methods to manage miners
+Some methods are managing local data, some are connecting to the miner
+For methods connecting and managing the miner it self, the method's name starts with miner
+"""
 from ..utils import Utils
+from .miner_braiins import MinerBraiins
 from .miner_vnish import MinerVnish
 
 from enum import Enum
@@ -16,25 +22,28 @@ class Miner:
 
     # Lock the read and write for the file, 1 proccess per time
     lockFile = threading.Lock()
+    class CompatibleFirmware(Enum):
+        braiinsV1 = 'braiinsV1'
+        vnish = 'vnish'
+        # Returns the enum based on the param as name (string) of index (int), default=vnish
+        @classmethod
+        def get(cls, param):
+            try:
+                if param == None:
+                    return cls.vnish
+                elif isinstance(param, str):
+                    if param.strip() == '':
+                        return cls.vnish
+                    else:
+                        return cls[param]
+                elif isinstance(param, int):
+                    return list(cls)[param]
+            except:
+                Utils.throwExceptionInvalidValue(f"We are not compatible with this Firmware yet: {param}")
 
     def __init__(self, uuid, ip):
         self.uuid = uuid
         self.ip = ip
-
-    # Tries to connect to miner based on the firmware type
-    @staticmethod
-    def auth(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
-        Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
-        # It is expected to have jObj with the miners data
-        if jObj.get('fwtp') is None or jObj.get('fwtp').strip() == '':
-            MinerVnish.getJwtToken(jObj)
-        else:
-            Utils.throwExceptionInvalidValue("We are not compatible with this Firmware yet")
-        
-        # Returns OK if no error was raised
-        return Utils.resultJsonOK()
     
     # Returns the full JSON Array as string
     @staticmethod
@@ -48,6 +57,19 @@ class Miner:
         else:
             return []
 
+    # Returns the miner JSON Object with same UUID
+    @staticmethod
+    def dataAsJsonObjectUuid(uuid):
+        if isinstance(uuid, str): # in case it is string, should be miner unique UUID
+            if not Utils.uuidIsValid(uuid):
+                Utils.throwExceptionInvalidValue(f"Is not miner UUID: {uuid}")
+            # Loop the current miner list, finding the uuid
+            jObj = next((jObj for jObj in Miner.dataAsJson() if jObj["uuid"] == uuid), None)
+            if jObj == None:
+                Utils.throwExceptionResourceNotFound(f"Miner UUID {uuid}")
+            return jObj
+        return None
+
     # Returns the full JSON Array as string
     @staticmethod
     def dataAsJsonString():
@@ -56,28 +78,62 @@ class Miner:
 
     # Tries to connect to miner based on the firmware type
     @staticmethod
-    def echo(s):
-        if isinstance(s, str): # in case it is string, should be miner unique UUID
-            if not Utils.uuidIsValid(s):
-                Utils.throwExceptionInvalidValue(f"Is not miner UUID: {s}")
-            # Loop the current miner list, finding the uuid
-            jObj = next((jObj for jObj in Miner.dataAsJson() if jObj["uuid"] == s), None)
-            if jObj == None:
-                Utils.throwExceptionResourceNotFound(f"Miner UUID {s}")            
-        elif isinstance(s, dict): # JSON object
-            jObj = s
-        else:
-            Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
-        
+    def minerAuth(jObj):
+        if not isinstance(jObj, dict):
+            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
         # It is expected to have jObj with the miners data
-        if jObj.get('fwtp') is None or jObj.get('fwtp').strip() == '':
-            MinerVnish.echo(jObj)
+        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
+        if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            MinerBraiins.getJwtToken(jObj)
         else:
-            Utils.throwExceptionInvalidValue("We are not compatible with this Firmware yet")
+            MinerVnish.getJwtToken(jObj)
         
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
 
+    # Finds the miner firmware looping all compatible integrations till it can Echo
+    @staticmethod
+    def minerFirmware(s):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+
+        sOrigianl = json.dump(jObj)
+        # Loops the compatible firwares and check the Echo for each one
+        for fwtp in Miner.CompatibleFirmware:
+            print(fwtp)
+            try:
+                jObj['fwtp'] = fwtp.value
+                Miner.minerEcho(jObj)
+            except:
+                pass # Do nothing, keep looping
+        Utils.throwExceptionResourceNotFound(f"Firmware for: {sOrigianl}")
+
+    # Tries to 'ping' the miner based on the firmware type
+    @staticmethod
+    def minerEcho(s):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+
+        # It is expected to have jObj with the miners data
+        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
+        if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            MinerBraiins.echo(jObj)
+        else:
+            MinerVnish.echo(jObj)
+
+        # Returns OK if no error was raised
+        return Utils.resultJsonOK()
+
+    # Returns the miner.json full path, creates it if doesn't exists
     @staticmethod
     def pathData():
         path = os.path.join(Utils.pathData(), 'miner.json')

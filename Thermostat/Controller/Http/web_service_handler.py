@@ -37,6 +37,12 @@ def registeredEndPoints():
         "permission":"pri",
         "verb":"get"
         })
+    json_array.append({
+        "name":"Miner/Firmware",
+        "desc":"get Miner/Firmware",
+        "permission":"pri",
+        "verb":"get"
+        })
     
     json_array.append({
         "name":"DateTime",
@@ -82,7 +88,14 @@ def handle_get(path, headers):
             sHeader = json.loads(headers.get('miner-json'))
         if sHeader is None:
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
-        return Miner.echo(sHeader), 200, 'application/json'
+        return Miner.minerEcho(sHeader), 200, 'application/json'
+    elif path == "/Miner/Firmware":
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
+        return Miner.minerFirmware(sHeader), 200, 'application/json'
     
     elif path == "/RegisteredEndPoints":
         return registeredEndPoints(), 200, 'application/json'
@@ -107,7 +120,7 @@ def handle_post(path, headers, post_data):
         return returnJsonOk, 200, 'application/json'
     if path == "/Miner/Auth":
         json_data = json.loads(post_data.decode('utf-8'))
-        Miner.auth(json_data);
+        Miner.minerAuth(json_data);
         return returnJsonOk, 200, 'application/json'
     else:
         return 'Not found', 400, 'text/html' 

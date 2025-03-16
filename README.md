@@ -5,6 +5,10 @@
 Read and Write files locker (semaphore)
 python3 -m pip install -U readerwriterlock
 
+gRPC
+python -m pip install grpcio
+python -m pip install grpcio-tools
+
 ## Compatibility
 
 This is a list of firmware compatibility we tested already!

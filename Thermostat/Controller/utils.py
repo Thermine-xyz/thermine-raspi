@@ -4,6 +4,7 @@ import time
 import uuid
 import threading
 import re
+import grpc
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from typing import List, Type, TypeVar
@@ -27,7 +28,13 @@ class Utils:
         objListDict = json.loads(jsonStr)
         return [dataClassType(**objDict) for objDict in objListDict]
     
+    # Creates a gRPC channel without channel-level authentication
+    @staticmethod
+    def grpcChannel(aip: str):
+        return grpc.insecure_channel(aip)
+    
     # check if key exists
+    @staticmethod
     def jsonCheckKeyExists(jObj: dict[str, str], key: str, isRaiseExcpt: bool):
         if key in jObj:
             return True
@@ -37,6 +44,7 @@ class Utils:
             return False
     
     # check if key exists and if it is string type
+    @staticmethod
     def jsonCheckKeyTypeStr(jObj: dict[str, str], key: str, isRaiseExcpt: bool, isAcceptEmpty: bool):
         if Utils.jsonCheckKeyExists(jObj, key, isRaiseExcpt):
             if isinstance(jObj[key], str):
