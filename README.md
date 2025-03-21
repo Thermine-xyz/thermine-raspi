@@ -2,12 +2,12 @@
 
 ## Prerequisites
 
-Read and Write files locker (semaphore)
+Read and Write files locker (semaphore):<br />
 python3 -m pip install -U readerwriterlock
 
-gRPC
-python -m pip install grpcio
-python -m pip install grpcio-tools
+gRPC:<br />
+python -m pip install grpcio<br />
+python -m pip install grpcio-tools<br />
 
 ## Compatibility
 
