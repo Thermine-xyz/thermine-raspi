@@ -9,6 +9,12 @@ gRPC:<br />
 python -m pip install grpcio<br />
 python -m pip install grpcio-tools<br />
 
+SSH:<br />
+pip3 install paramiko<br />
+
+S9 only:<br />
+pop install toml<br />
+
 ## Compatibility
 
 This is a list of firmware compatibility we tested already!

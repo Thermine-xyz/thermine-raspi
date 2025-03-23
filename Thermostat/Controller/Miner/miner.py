@@ -78,6 +78,27 @@ class Miner:
         jAry = Miner.dataAsJson()
         return json.dumps(jAry)
 
+    # Handles GET HTTP request for specific miners
+    @staticmethod
+    def httpHandlerS9Get(path, headers, s):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+        return MinerBraiinsS9.httpHandlerGet(path, headers, jObj)
+    # Handles PATCH HTTP request for specific miners
+    @staticmethod
+    def httpHandlerS9Patch(path, headers, s):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+        return MinerBraiinsS9.httpHandlerPatch(path, headers, jObj)
+    
     # Tries to connect to miner based on the firmware type
     @staticmethod
     def minerAuth(jObj):

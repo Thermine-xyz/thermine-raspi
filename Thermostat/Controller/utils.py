@@ -1,3 +1,7 @@
+from pathlib import Path
+from dataclasses import dataclass, asdict
+from typing import List, Type, TypeVar
+
 import json
 import os
 import time
@@ -5,9 +9,7 @@ import uuid
 import threading
 import re
 import grpc
-from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import List, Type, TypeVar
+import paramiko
 
 class Utils:
     
@@ -127,6 +129,22 @@ class Utils:
     @staticmethod
     def resultJsonOK():
         return {"result": "OK"}
+
+    @staticmethod
+    def sshExecCommand(ip: str, user: str, pwrd: str, cmd: str):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=ip, port=22, username=user, password=pwrd, timeout=2)
+        try:
+           stdin, stdout, stderr = ssh.exec_command(cmd)
+           exit_status = stdout.channel.recv_exit_status() # wait till process to finish
+           output = stdout.read().decode('utf-8').strip()
+           error = stderr.read().decode('utf-8').strip()
+           if error != None and error.strip() != '':
+               raise Exception(error)
+           return output
+        finally:
+            ssh.close;
 
     @staticmethod
     def throwExceptionHttpMissingHeader(msg):

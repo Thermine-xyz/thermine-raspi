@@ -58,7 +58,7 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             # If not public paths, check authentication
-            if self.path not in ['/Echo', '/favicon.ico']:
+            if self.path not in ['/Echo', '/favicon.ico', '/Miner/Echo']:
                 if not checkAuthentication(self.headers):
                     self.send_response_generic(403, 'text/html', 'Forbidden')
                     return
@@ -81,6 +81,28 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
             response = {"error": f"{self.path} {error_msg}"}
             self.send_response_generic(500, 'application/json', response)
 
+    def do_PATCH(self):
+        try:
+            # If not public paths, check authentication
+            if self.path not in ['/NoPublicPathYet']:
+                if not checkAuthentication(self.headers):
+                    self.send_response_generic(403, 'text/html', 'Forbidden')
+                    return
+
+            content_length = int(self.headers['Content-Length'])
+            content = self.rfile.read(content_length)
+            response_data, status_code, content_type = web_service_handler.handle_patch(self.path, self.headers, content)
+
+            self.send_response_generic(status_code, content_type, response_data)
+
+        except HttpException as httpExc:
+            response = {"error": f"Erro de requisição: {str(httpExc.message)}"}
+            self.send_response_generic(httpExc.status_code, 'application/json', response)
+        except Exception as e:
+            error_msg = str(e)
+            response = {"error": f"{self.path} {error_msg}"}
+            self.send_response_generic(500, 'application/json', response)
+
     def do_POST(self):
         try:
             # If not public paths, check authentication
@@ -90,8 +112,8 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
                     return
 
             content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            response_data, status_code, content_type = web_service_handler.handle_post(self.path, self.headers, post_data)
+            content = self.rfile.read(content_length)
+            response_data, status_code, content_type = web_service_handler.handle_post(self.path, self.headers, content)
 
             self.send_response_generic(status_code, content_type, response_data)
 

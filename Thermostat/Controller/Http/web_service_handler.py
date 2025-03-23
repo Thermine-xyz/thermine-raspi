@@ -4,8 +4,6 @@ from ..Miner import Miner
 import json
 import time
 
-returnJsonOk = {"result":"OK"}
-
 '''
 Returns all the registered endpoints in JSON format, keep it manually updated (latter maybe Swagger?)
 if key "content-type" not present, dafult is always application/json
@@ -105,6 +103,14 @@ def handle_get(path, headers):
     elif path == "/Miner/Firmware/Compatibility/List":
         enum_values = [firmware.value for firmware in Miner.CompatibleFirmware]
         return {"result": enum_values}, 200, 'application/json'
+    elif path.startswith("/Miner/S9"):
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
+        return Miner.httpHandlerS9Get(path, headers, sHeader)
+        
     
     elif path == "/RegisteredEndPoints":
         return registeredEndPoints(), 200, 'application/json'
@@ -115,6 +121,22 @@ def handle_get(path, headers):
     else:
         return 'Not found', 400, 'text/html'
 
+def handle_patch(path, headers, post_data):
+    if path == "/processSomething":
+        json_data = json.loads(post_data.decode('utf-8'))
+        # As example, add a timestamp
+        json_data["timestamp"] = int(time.time())
+        return json_data, 200, 'application/json'
+    
+    elif path.startswith("/Miner/S9"):
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
+        return Miner.httpHandlerS9Patch(path, headers, sHeader)
+    else:
+        return 'Not found', 400, 'text/html' 
 
 def handle_post(path, headers, post_data):
     if path == "/processSomething":
@@ -126,10 +148,10 @@ def handle_post(path, headers, post_data):
     if path == "/Miner":
         contentStr = post_data.decode('utf-8')
         Miner.setDataStr(contentStr);
-        return returnJsonOk, 200, 'application/json'
+        return Utils.resultJsonOK, 200, 'application/json'
     if path == "/Miner/Auth":
         json_data = json.loads(post_data.decode('utf-8'))
         Miner.minerAuth(json_data);
-        return returnJsonOk, 200, 'application/json'
+        return Utils.resultJsonOK, 200, 'application/json'
     else:
         return 'Not found', 400, 'text/html' 
