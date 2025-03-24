@@ -145,13 +145,21 @@ def handle_post(path, headers, post_data):
         json_data["timestamp"] = int(time.time())
         return json_data, 200, 'application/json'
     
-    if path == "/Miner":
+    elif path == "/Miner":
         contentStr = post_data.decode('utf-8')
         Miner.setDataStr(contentStr);
         return Utils.resultJsonOK, 200, 'application/json'
-    if path == "/Miner/Auth":
+    elif path == "/Miner/Auth":
         json_data = json.loads(post_data.decode('utf-8'))
         Miner.minerAuth(json_data);
         return Utils.resultJsonOK, 200, 'application/json'
+    elif path.startswith("/Miner/S9"):
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
+        contentStr = post_data.decode('utf-8')
+        return Miner.httpHandlerS9Post(path, headers, sHeader, contentStr)
     else:
         return 'Not found', 400, 'text/html' 

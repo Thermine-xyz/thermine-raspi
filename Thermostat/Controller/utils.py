@@ -63,21 +63,6 @@ class Utils:
                 Utils.throwExceptionInvalidValue(f"JSON key is not string: {key}")
             else:
                 return False        
-    
-    # Returns the thermine_config.uuid value (may be create a file for this stuff?)
-    @staticmethod
-    def thermineUuid():
-        path = Utils.pathConfigThermine()
-        with Utils.lockFileConfigThermine:
-            with open(path, 'r', encoding='utf-8') as file:
-                jObj = json.load(file)
-        if jObj.get('uuid') is None or jObj.get('uuid').strip() == '':
-            jObj['uuid'] = uuidRandom()
-            with Utils.lockFileConfigThermine:
-                with open(path, 'w', encoding='utf-8') as file:
-                    json.dump(jObj, file, ensure_ascii=False, indent=2)
-        jObjReturn = {"uuid":jObj['uuid']}
-        return json.dumps(jObjReturn)
 
     # Returns current date time in timestamp UTC
     @staticmethod
@@ -146,6 +131,26 @@ class Utils:
         finally:
             ssh.close;
 
+    # Return a semaphor for locking access to variable or files
+    @staticmethod
+    def threadingLock():
+        return threading.Lock()
+    
+    # Returns the thermine_config.uuid value (may be create a file for this stuff?)
+    @staticmethod
+    def thermineUuid():
+        path = Utils.pathConfigThermine()
+        with Utils.lockFileConfigThermine:
+            with open(path, 'r', encoding='utf-8') as file:
+                jObj = json.load(file)
+        if jObj.get('uuid') is None or jObj.get('uuid').strip() == '':
+            jObj['uuid'] = uuidRandom()
+            with Utils.lockFileConfigThermine:
+                with open(path, 'w', encoding='utf-8') as file:
+                    json.dump(jObj, file, ensure_ascii=False, indent=2)
+        jObjReturn = {"uuid":jObj['uuid']}
+        return json.dumps(jObjReturn)
+    
     @staticmethod
     def throwExceptionHttpMissingHeader(msg):
         raise HttpException(f"Missing header: {msg}", 400)

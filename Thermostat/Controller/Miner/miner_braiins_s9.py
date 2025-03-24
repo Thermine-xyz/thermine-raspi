@@ -7,6 +7,9 @@ S9 over SSH
 https://github.com/UpstreamData/pyasic/blob/master/pyasic/miners/backends/braiins_os.py#L112-L675
 https://github.com/UpstreamData/pyasic/blob/master/pyasic/ssh/braiins_os.py
 https://github.com/UpstreamData/pyasic/blob/master/pyasic/ssh/base.py
+
+This file works with the gRPC API which can be found on Official Docs and SSH
+the gRPC API has only few "GET" metohds and a couple of "POST" ones
 """
 
 from ..utils import Utils
@@ -15,6 +18,10 @@ import socket
 import json
 
 class MinerBraiinsS9:
+
+    lockServiceBosminer = Utils.threadingLock()
+    lockFileBosminerToml = Utils.threadingLock()
+
     @staticmethod
     def cgMinerRequest(ip, command):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -101,7 +108,7 @@ class MinerBraiinsS9:
             print(sHeader)
             return MinerBraiinsS9.cgMinerRequest(jObj['ip'], sHeader), 200, 'application/json'
         if path.endswith("/Config"):
-            return MinerBraiinsS9.grpcConfig(jObj), 200, 'application/json'
+            return MinerBraiinsS9.sshConfigJsonStr(jObj), 200, 'application/json'
         elif path.endswith("/Devs"):
             return MinerBraiinsS9.grpcDevs(jObj), 200, 'application/json'
         elif path.endswith("/Pools"):
@@ -127,25 +134,45 @@ class MinerBraiinsS9:
             return MinerBraiinsS9.sshDisablePool(jObj, index), 200, 'application/json'
         else:
             return 'Not found', 400, 'text/html'
+    
+    @staticmethod
+    def httpHandlerPost(path, headers, jObj, contentStr):        
+        if path.endswith("/Config"):
+            return MinerBraiinsS9.sshConfigPostJsonStr(jObj, contentStr), 200, 'application/json'
+        else:
+            return 'Not found', 400, 'text/html'
 
+    # Returns the bosminer.toml as string
+    @staticmethod
+    def sshConfig(jObj: dict):
+        with MinerBraiinsS9.lockFileBosminerToml:
+            return MinerBraiinsS9.sshCommand(jObj, "cat /etc/bosminer.toml")
+    @staticmethod
+    def sshConfigJsonStr(jObj: dict):
+        tomlStr = MinerBraiinsS9.sshConfig(jObj)
+        config = BraiinsConfig.load_from_str(tomlStr)
+        return config.to_json()
+    @staticmethod
+    def sshConfigPostJsonStr(jObj: dict, json: str):
+        config = BraiinsConfig.load_json_str(json)
+        config.save(jObj['ip'], jObj['username'], jObj['password'])
+        return  Utils.resultJsonOK()
+        
     @staticmethod
     def sshCommand(jObj: dict, cmd: str):
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         Utils.jsonCheckKeyTypeStr(jObj, 'username', True, False)
         Utils.jsonCheckKeyTypeStr(jObj, 'password', True, False)
         return Utils.sshExecCommand(jObj['ip'], jObj['username'], jObj['password'], cmd)
-
-    need to create a backup before changing the data? 
+ 
     @staticmethod
     def sshDisablePool(jObj, index: int):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
-        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-        tomlStr = MinerBraiinsS9.sshCommand(jObj, "cat /etc/bosminer.toml")
+        tomlStr = MinerBraiinsS9.sshConfig(jObj)
         config = BraiinsConfig.load_from_str(tomlStr)
         config.groups[0].pools[index].enabled = False
         config.save(jObj['ip'], jObj['username'], jObj['password'])
-        tomlStr = MinerBraiinsS9.sshCommand(jObj, "cat /etc/bosminer.toml")
+        with MinerBraiinsS9.lockFileBosminerToml:
+            tomlStr = MinerBraiinsS9.sshCommand(jObj, "cat /etc/bosminer.toml")
         return Utils.resultJsonOK()
     
     # Restart the BOSMiner service on the device
@@ -153,7 +180,8 @@ class MinerBraiinsS9:
     def sshRestart(jObj):
         if not isinstance(jObj, dict):
             Utils.throwExceptionInvalidValue("jObj is not JSON Object");
-        MinerBraiinsS9.sshCommand(jObj, "/etc/init.d/bosminer restart")
+        with Utils.lockServiceBosminer:
+            MinerBraiinsS9.sshCommand(jObj, "/etc/init.d/bosminer restart")
         return Utils.resultJsonOK()
     
 # Classes to manage SSH files bosminer.toml
@@ -308,21 +336,15 @@ class BraiinsConfig:
 
     def to_dict(self) -> dict:
         """Serialize to TOML format"""
-        """config_dict = OrderedDict()
-        config_dict["format"] = self.format.to_dict()
-        config_dict["temp_control"] = self.temp_control.to_dict()
-        config_dict["fan_control"] = self.fan_control.to_dict()
-        config_dict["group"] = [group.to_dict() for group in self.groups],
-        config_dict["autotuning"] = self.autotuning.to_dict()
-        return config_dict"""
         return {
             "format": self.format.to_dict(),
             "temp_control": self.temp_control.to_dict(),
             "fan_control": self.fan_control.to_dict(),
             "group": [group.to_dict() for group in self.groups],
             "autotuning": self.autotuning.to_dict()
-        } 
-
+        }
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
     def to_str(self) -> str:
         return toml.dumps(self.to_dict())
 
@@ -330,6 +352,16 @@ class BraiinsConfig:
     @staticmethod
     def load_from_str(toml_str: str) -> 'BraiinsConfig':
         data = toml.loads(toml_str)
+        return BraiinsConfig(
+            format=Format.from_dict(data["format"]),
+            temp_control=TempControl.from_dict(data["temp_control"]),
+            fan_control=FanControl.from_dict(data["fan_control"]),
+            groups=[Group.from_dict(group) for group in data["group"]],
+            autotuning=Autotuning.from_dict(data["autotuning"])
+        )
+    @staticmethod
+    def load_json_str(json_str: str) -> 'BraiinsConfig':
+        data = json.loads(json_str)
         return BraiinsConfig(
             format=Format.from_dict(data["format"]),
             temp_control=TempControl.from_dict(data["temp_control"]),

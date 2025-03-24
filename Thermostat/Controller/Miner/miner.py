@@ -78,7 +78,7 @@ class Miner:
         jAry = Miner.dataAsJson()
         return json.dumps(jAry)
 
-    # Handles GET HTTP request for specific miners
+    # Handles HTTP request for S9
     @staticmethod
     def httpHandlerS9Get(path, headers, s):
         jObj = Miner.dataAsJsonObjectUuid(s)
@@ -88,7 +88,6 @@ class Miner:
             else:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerGet(path, headers, jObj)
-    # Handles PATCH HTTP request for specific miners
     @staticmethod
     def httpHandlerS9Patch(path, headers, s):
         jObj = Miner.dataAsJsonObjectUuid(s)
@@ -98,6 +97,15 @@ class Miner:
             else:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerPatch(path, headers, jObj)
+    @staticmethod
+    def httpHandlerS9Post(path, headers, s, contentStr):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+        return MinerBraiinsS9.httpHandlerPost(path, headers, jObj, contentStr)
     
     # Tries to connect to miner based on the firmware type
     @staticmethod
@@ -108,7 +116,7 @@ class Miner:
         # It is expected to have jObj with the miners data
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            MinerBraiins.getJwtToken(jObj)
+            MinerBraiinsV1.getJwtToken(jObj)
         else:
             MinerVnish.getJwtToken(jObj)
         
