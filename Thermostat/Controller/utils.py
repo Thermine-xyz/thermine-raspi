@@ -1,6 +1,7 @@
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from typing import List, Type, TypeVar
+from .log import Logger
 
 import json
 import os
@@ -15,8 +16,14 @@ class Utils:
     
     T = TypeVar('T')
     
-    # Lock the read and write for the file, 1 proccess per time
-    lockFileConfigThermine = threading.Lock()
+    logger : Logger = None
+    lockFileConfigThermine = None
+    
+    @classmethod
+    def initialize(cls):
+        # Lock the read and write for the file, 1 proccess per time
+        cls.lockFileConfigThermine = Utils.threadingLock() # threading.Lock()
+        cls.logger = Logger(log_path=Utils.pathData(), log_file="log.log", log_level=Logger.DEBUG).get_logger()
 
     # Returns a JSONArray from a List of dataclass
     @staticmethod
@@ -34,6 +41,16 @@ class Utils:
     @staticmethod
     def grpcChannel(aip: str):
         return grpc.insecure_channel(aip)
+    
+    # check if key exists
+    @staticmethod
+    def jsonCheckIsObj(jObj, isRaiseExcpt: bool = True):
+        if not isinstance(jObj, dict):
+            if isRaiseExcpt:
+                Utils.throwExceptionInvalidValue(f"Value is not JSON Object: {jObj}")
+            else:
+                return False
+        return True
     
     # check if key exists
     @staticmethod
@@ -176,6 +193,9 @@ class Utils:
     @staticmethod
     def uuidRandom():
         return str(uuid.uuid4())
+
+# Explicit calls initialization
+Utils.initialize()
     
 class HttpException(Exception):
     def __init__(self, message, status_code=500):

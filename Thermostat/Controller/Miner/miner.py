@@ -110,13 +110,14 @@ class Miner:
     # Tries to connect to miner based on the firmware type
     @staticmethod
     def minerAuth(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
         # It is expected to have jObj with the miners data
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
             MinerBraiinsV1.getJwtToken(jObj)
+        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+            MinerBraiinsS9.echo(jObj)
         else:
             MinerVnish.getJwtToken(jObj)
         
@@ -170,6 +171,18 @@ class Miner:
 
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
+    
+    @staticmethod
+    def minerSummary(s):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        # It is expected to have jObj with the miners data
+        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
+        if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            return MinerBraiinsV1.summary(jObj)
+        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+            return MinerBraiinsS9.summary(jObj)
+        else:
+            return MinerVnish.summary(jObj)
 
     # Returns the miner.json full path, creates it if doesn't exists
     @staticmethod

@@ -110,6 +110,13 @@ def handle_get(path, headers):
         if sHeader is None:
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         return Miner.httpHandlerS9Get(path, headers, sHeader)
+    elif path == "/Miner/Summary":
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
+        return Miner.minerSummary(sHeader), 200, 'application/json'
         
     
     elif path == "/RegisteredEndPoints":

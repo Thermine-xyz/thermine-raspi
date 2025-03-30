@@ -45,7 +45,9 @@ def checkAuthentication(headers):
 # HTTP class handler
 class HttpHandler(http.server.BaseHTTPRequestHandler):
     # Generic response
-    def send_response_generic(self, status_code, content_type, response_data):
+    def send_response_generic(self, status_code, content_type, response_data, path):
+        if not(status_code > 199 and status_code < 300):
+            Utils.logger.error(f"{path} - {response_data}")
         self.send_response(status_code)
         self.send_header('Content-type', content_type)
         self.end_headers()
@@ -60,7 +62,7 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
             # If not public paths, check authentication
             if self.path not in ['/Echo', '/favicon.ico', '/Miner/Echo']:
                 if not checkAuthentication(self.headers):
-                    self.send_response_generic(403, 'text/html', 'Forbidden')
+                    self.send_response_generic(403, 'text/html', 'Forbidden', self.path)
                     return
             
             response_data, status_code, content_type = web_service_handler.handle_get(self.path, self.headers)
@@ -71,59 +73,59 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 return
 
-            self.send_response_generic(status_code, content_type, response_data)
+            self.send_response_generic(status_code, content_type, response_data, self.path)
 
         except HttpException as httpExc:
             response = {"error": f"{str(httpExc.message)}"}
-            self.send_response_generic(httpExc.status_code, 'application/json', response)
+            self.send_response_generic(httpExc.status_code, 'application/json', response, self.path)
         except Exception as e:
             error_msg = str(e)
             response = {"error": f"{self.path} {error_msg}"}
-            self.send_response_generic(500, 'application/json', response)
+            self.send_response_generic(500, 'application/json', response, self.path)
 
     def do_PATCH(self):
         try:
             # If not public paths, check authentication
             if self.path not in ['/NoPublicPathYet']:
                 if not checkAuthentication(self.headers):
-                    self.send_response_generic(403, 'text/html', 'Forbidden')
+                    self.send_response_generic(403, 'text/html', 'Forbidden', self.path)
                     return
 
             content_length = int(self.headers['Content-Length'])
             content = self.rfile.read(content_length)
             response_data, status_code, content_type = web_service_handler.handle_patch(self.path, self.headers, content)
 
-            self.send_response_generic(status_code, content_type, response_data)
+            self.send_response_generic(status_code, content_type, response_data, self.path)
 
         except HttpException as httpExc:
             response = {"error": f"Erro de requisição: {str(httpExc.message)}"}
-            self.send_response_generic(httpExc.status_code, 'application/json', response)
+            self.send_response_generic(httpExc.status_code, 'application/json', response, self.path)
         except Exception as e:
             error_msg = str(e)
             response = {"error": f"{self.path} {error_msg}"}
-            self.send_response_generic(500, 'application/json', response)
+            self.send_response_generic(500, 'application/json', response, self.path)
 
     def do_POST(self):
         try:
             # If not public paths, check authentication
             if self.path not in ['/NoPublicPathYet']:
                 if not checkAuthentication(self.headers):
-                    self.send_response_generic(403, 'text/html', 'Forbidden')
+                    self.send_response_generic(403, 'text/html', 'Forbidden', self.path)
                     return
 
             content_length = int(self.headers['Content-Length'])
             content = self.rfile.read(content_length)
             response_data, status_code, content_type = web_service_handler.handle_post(self.path, self.headers, content)
 
-            self.send_response_generic(status_code, content_type, response_data)
+            self.send_response_generic(status_code, content_type, response_data, self.path)
 
         except HttpException as httpExc:
             response = {"error": f"Erro de requisição: {str(httpExc.message)}"}
-            self.send_response_generic(httpExc.status_code, 'application/json', response)
+            self.send_response_generic(httpExc.status_code, 'application/json', response, self.path)
         except Exception as e:
             error_msg = str(e)
             response = {"error": f"{self.path} {error_msg}"}
-            self.send_response_generic(500, 'application/json', response)
+            self.send_response_generic(500, 'application/json', response, self.path)
 
 Handler = HttpHandler
 
@@ -137,3 +139,4 @@ def Listen():
 def ListenThread():
     server_thread = threading.Thread(target=Listen)
     server_thread.start()
+    Utils.logger.info("web_service ListenThread")

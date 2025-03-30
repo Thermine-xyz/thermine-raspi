@@ -36,8 +36,7 @@ class MinerBraiinsS9:
         sock.close()
         # print(f"{response}")
         jObj = json.loads(response.replace('\x00', ''))
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyExists(jObj, 'STATUS', True) # based on return of Summary method
         if not isinstance(jObj['STATUS'], list) or len(jObj['STATUS']) == 0:
             Utils.throwExceptionInvalidValue("jObj['STATUS'] is not JSON Array");
@@ -47,38 +46,33 @@ class MinerBraiinsS9:
         if not isinstance(value, str) or value.strip() != 'S':
             Utils.throwExceptionInvalidValue(f"cgMinerRequest response {jObj}");
         return jObj
-
-    # Check if the miner is online
-    @staticmethod
-    def echo(jObj):
-        MinerBraiinsS9.summary(jObj)
-        return None
-
+    """
+    All gRPC methods
+    """
     @staticmethod
     def grpcConfig(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'config')
     
     @staticmethod
-    def grpcDevs(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+    def grpcDevs(jObj, isOnlyData: bool = False):
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-        return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'devs')
+        jR = MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'devs')
+        if isOnlyData:
+            jR = jR['DEVS']
+        return jR
 
     @staticmethod
     def grpcPools(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'pools')
 
     @staticmethod
     def grpcStats(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'stats')
 
@@ -87,25 +81,43 @@ class MinerBraiinsS9:
     # Error: {"STATUS":[{"STATUS":"E","When":1742142791,"Code":23,"Msg":"Invalid JSON","Description":"BOSer boser-openwrt 0.1.0-26ba61b9"}]    
     @staticmethod
     def grpcSummary(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'summary')
 
     @staticmethod
+    def grpcTemps(jObj, isOnlyData: bool = False):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        jR = MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'temps')
+        if isOnlyData:
+            jR = jR['TEMPS']
+        return jR
+
+    @staticmethod
+    def grpcTunerStatus(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'tunerstatus')
+
+    @staticmethod
     def grpcVersion(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
+        Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'version')
+    """
+    All gRPC methods END
+    """
 
+    """
+    HTTP handler
+    """
     @staticmethod
     def httpHandlerGet(path, headers, jObj):        
         if path.endswith("/Generic"):
             sHeader: str = headers.get('command')
             if sHeader is None:
                 Utils.throwExceptionHttpMissingHeader('command')
-            print(sHeader)
             return MinerBraiinsS9.cgMinerRequest(jObj['ip'], sHeader), 200, 'application/json'
         if path.endswith("/Config"):
             return MinerBraiinsS9.sshConfigJsonStr(jObj), 200, 'application/json'
@@ -119,6 +131,10 @@ class MinerBraiinsS9:
             return MinerBraiinsS9.grpcStats(jObj), 200, 'application/json'
         elif path.endswith("/Restart"):
             return MinerBraiinsS9.sshRestart(jObj), 200, 'application/json'
+        elif path.endswith("/Temps"):
+            return MinerBraiinsS9.grpcTemps(jObj), 200, 'application/json'
+        elif path.endswith("/TunerStatus"):
+            return MinerBraiinsS9.grpcTunerStatus(jObj), 200, 'application/json'
         elif path.endswith("/Version"):
             return MinerBraiinsS9.grpcVersion(jObj), 200, 'application/json'
         else:
@@ -132,6 +148,10 @@ class MinerBraiinsS9:
                 Utils.throwExceptionHttpMissingHeader('inedx')
             index = int(index)
             return MinerBraiinsS9.sshDisablePool(jObj, index), 200, 'application/json'
+        elif path.endswith("/FaultLight"):
+            isEnabled: bool = headers.get('enabled') == "true"
+            isEnabled = bool(isEnabled)
+            return MinerBraiinsS9.sshFaultLight(jObj, isEnabled), 200, 'application/json'
         else:
             return 'Not found', 400, 'text/html'
     
@@ -141,7 +161,14 @@ class MinerBraiinsS9:
             return MinerBraiinsS9.sshConfigPostJsonStr(jObj, contentStr), 200, 'application/json'
         else:
             return 'Not found', 400, 'text/html'
+    """
+    HTTP handler END
+    """
 
+
+    """
+    All SSH methods
+    """
     # Returns the bosminer.toml as string
     @staticmethod
     def sshConfig(jObj: dict):
@@ -175,14 +202,96 @@ class MinerBraiinsS9:
             tomlStr = MinerBraiinsS9.sshCommand(jObj, "cat /etc/bosminer.toml")
         return Utils.resultJsonOK()
     
+    # Turns ON/OFF the fault light (warning...)
+    @staticmethod
+    def sshFaultLight(jObj, isEnabled: bool):
+        Utils.jsonCheckIsObj(jObj)
+        with MinerBraiinsS9.lockServiceBosminer:
+            if isEnabled:
+                MinerBraiinsS9.sshCommand(jObj, "miner fault_light on")
+            else:
+                MinerBraiinsS9.sshCommand(jObj, "miner fault_light off")
+        return Utils.resultJsonOK()
+    
     # Restart the BOSMiner service on the device
     @staticmethod
     def sshRestart(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object");
-        with Utils.lockServiceBosminer:
+        Utils.jsonCheckIsObj(jObj)
+        with MinerBraiinsS9.lockServiceBosminer:
             MinerBraiinsS9.sshCommand(jObj, "/etc/init.d/bosminer restart")
         return Utils.resultJsonOK()
+    """
+    All SSH methods END
+    """
+
+    """
+    All Thermine methods
+    here are all methods that manage data to return default JSONs for the API
+    """
+    # Check if the miner is online, raises exception if NOT
+    @staticmethod
+    def echo(jObj):
+        # gRPC test
+        MinerBraiinsS9.grpcStats(jObj)
+        # SSH test
+        MinerBraiinsS9.sshConfig(jObj)
+        return None
+    
+    @staticmethod
+    def summary(jObj):
+        json_str = MinerBraiinsS9.sshConfigJsonStr(jObj)
+        jConfig = json.loads(json_str)
+        
+        jReturn = {}
+        
+        # Config
+        jGroup1 = {}
+        jReturn['config'] = jGroup1
+        # Temp
+        jGroup2 = {}
+        jGroup2['hot'] = jConfig['temp_control']['hot_temp']
+        jGroup2['dangerous'] = jConfig['temp_control']['dangerous_temp']
+        jGroup1['temp'] = jGroup2
+        # Fans
+        jGroup2 = {}
+        jGroup2['speed'] = jConfig['fan_control']['speed']
+        jGroup2['count'] = jConfig['fan_control']['min_fans']
+        jGroup1['fans'] = jGroup2
+        # Autotuning
+        if Utils.jsonCheckKeyExists(jConfig, 'autotuning', False):
+            jGroup2 = {}
+            jGroup2['autoTuningEnabled'] = jConfig['autotuning']['enabled']
+            jGroup2['target'] = jConfig['autotuning']['power_target']
+            jGroup1['power'] = jGroup2
+
+        # Data
+        jGroup1 = {}
+        jReturn['data'] = jGroup1
+        jGroup1['pool'] = jConfig['group']
+        jGroup1['board'] = []
+        # Data - ASIC
+        jGrpc = MinerBraiinsS9.grpcDevs(jObj, True)
+        for item in jGrpc:
+            jGroup2 = {}
+            jGroup2['id'] = item['ID']
+            jGroup2['enabled'] = item['Enabled']
+            jGroup2['status'] = item['Status']
+            jGroup2['hr5s'] = item['MHS 5s']
+            jGroup1['board'].append(jGroup2)
+        # Data - ASIC temp
+        jGrpc = MinerBraiinsS9.grpcTemps(jObj, True)
+        for item1 in jGroup1['board']:
+            for item2 in jGrpc:
+                if item1['id'] == item2['ID']:
+                    item1['tempBoard'] = item2['Board']
+                    item1['tempChip'] = item2['Chip']
+                    jGrpc.remove(item2)
+                    break
+
+        return jReturn
+    """
+    All Thermine methods END
+    """
     
 # Classes to manage SSH files bosminer.toml
 import toml
@@ -369,68 +478,3 @@ class BraiinsConfig:
             groups=[Group.from_dict(group) for group in data["group"]],
             autotuning=Autotuning.from_dict(data["autotuning"])
         )
-
-# Exemplo de uso com a string TOML fornecida
-if __name__ == "__main__":
-    # String TOML fornecida
-    toml_string = """
-[format]
-version = '2.0'
-model = 'Antminer S9'
-generator = 'BOSer (boser-openwrt 0.1.0-26ba61b9)'
-timestamp = 1742733351
-
-[temp_control]
-mode = 'manual'
-hot_temp = 105.0
-dangerous_temp = 110.0
-
-[fan_control]
-speed = 45
-min_fans = 2
-
-[[group]]
-name = 'Default'
-
-[[group.pool]]
-enabled = true
-url = 'stratum+tcp://mine.ocean.xyz:3334'
-user = 'bc1q7e2tw0le8gxr4637kn0rncgvf48d45hysvy07k.kresnic'
-password = 'x'
-
-[[group.pool]]
-enabled = true
-url = 'stratum+tcp://eusolo.ckpool.org:3333'
-user = 'bc1q7e2tw0le8gxr4637kn0rncgvf48d45hysvy07k.kresnic'
-password = ''
-
-[[group.pool]]
-enabled = true
-url = 'stratum2+tcp://v2.eu.stratum.braiins.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt'
-user = 'igorbastosib.hauseheating'
-password = '.~co?KmK[bB%Vl#7'
-
-[autotuning]
-enabled = true
-power_target = 350
-"""
-
-    # Carregar da string
-    config = BraiinsConfig.LoadFromStr(toml_string)
-    print("Configuração carregada:")
-    print(config.ToStr())
-
-    # Criar uma nova instância e serializar
-    config_manual = BraiinsConfig(
-        format=Format("2.0", "Antminer S9", "BOSer (boser-openwrt 0.1.0-26ba61b9)", 1742733351),
-        temp_control=TempControl("manual", 105.0, 110.0),
-        fan_control=FanControl(45, 2),
-        groups=[Group("Default", [
-            Pool(True, "stratum+tcp://mine.ocean.xyz:3334", "bc1q7e2tw0le8gxr4637kn0rncgvf48d45hysvy07k.kresnic", "x"),
-            Pool(True, "stratum+tcp://eusolo.ckpool.org:3333", "bc1q7e2tw0le8gxr4637kn0rncgvf48d45hysvy07k.kresnic", ""),
-            Pool(True, "stratum2+tcp://v2.eu.stratum.braiins.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt", "igorbastosib.hauseheating", ".~co?KmK[bB%Vl#7")
-        ])],
-        autotuning=Autotuning(True, 350)
-    )
-    print("Configuração manual serializada:")
-    print(config_manual.ToStr())
