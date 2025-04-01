@@ -1,714 +1,1260 @@
 {
-	"info": {
-		"_postman_id": "97949d3b-f505-4f55-a556-60c344a613fd",
-		"name": "RaspiOS API",
-		"description": "IamART API documentation",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "7871307"
-	},
-	"item": [
-		{
-			"name": "Thermine",
-			"item": [
-				{
-					"name": "RaspiOS",
-					"item": [
-						{
-							"name": "Public",
-							"item": [
-								{
-									"name": "Echo",
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}/Echo",
-											"host": [
-												"{{ThermineRaspiOSUrl}}"
-											],
-											"path": [
-												"Echo"
-											]
-										}
-									},
-									"response": []
-								}
-							],
-							"auth": {
-								"type": "noauth"
-							},
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"type": "text/javascript",
-										"packages": {},
-										"exec": [
-											""
-										]
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"packages": {},
-										"exec": [
-											""
-										]
-									}
-								}
-							]
-						},
-						{
-							"name": "Miner",
-							"item": [
-								{
-									"name": "S9",
-									"item": [
-										{
-											"name": "Miner/S9/Generic",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													},
-													{
-														"key": "command",
-														"value": "pause",
-														"description": "Command name to run, check the official doc",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Generic",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Generic"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Config",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Config",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Config"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Devs",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Devs",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Devs"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Pools",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Pools",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Pools"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Summary",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Summary",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Summary"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Version",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Version",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Version"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Stats",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Stats",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Stats"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/DisablePool",
-											"request": {
-												"method": "PATCH",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													},
-													{
-														"key": "index",
-														"value": "1",
-														"description": "Pool index",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/DisablePool",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"DisablePool"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Miner/S9/Restart",
-											"request": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "miner-json",
-														"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-														"type": "text",
-														"disabled": true
-													},
-													{
-														"key": "uuid",
-														"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-														"type": "text"
-													},
-													{
-														"key": "index",
-														"value": "1",
-														"type": "text"
-													}
-												],
-												"url": {
-													"raw": "{{ThermineRaspiOSUrl}}/Miner/S9/Restart",
-													"host": [
-														"{{ThermineRaspiOSUrl}}"
-													],
-													"path": [
-														"Miner",
-														"S9",
-														"Restart"
-													]
-												}
-											},
-											"response": []
-										}
-									],
-									"description": "Oficial Doc:  \n[https://academy.braiins.com/en/braiins-os/papi-bosminer/](https://academy.braiins.com/en/braiins-os/papi-bosminer/)"
-								},
-								{
-									"name": "Miner",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}/Miner",
-											"host": [
-												"{{ThermineRaspiOSUrl}}"
-											],
-											"path": [
-												"Miner"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Miner/Echo",
-									"request": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "miner-json",
-												"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"username\":\"root\",\"password\":\"yEUQHw;,?TTe-^Sh\", \"fwtp\":\"braiinsV1\"}",
-												"type": "text",
-												"disabled": true
-											},
-											{
-												"key": "uuid",
-												"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-												"type": "text"
-											}
-										],
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}/Miner/Echo",
-											"host": [
-												"{{ThermineRaspiOSUrl}}"
-											],
-											"path": [
-												"Miner",
-												"Echo"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Miner/Firmware",
-									"request": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "miner-json",
-												"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-												"type": "text",
-												"disabled": true
-											},
-											{
-												"key": "uuid",
-												"value": "5c41165f-5ca2-45ae-ae35-283f2831ba91",
-												"type": "text"
-											}
-										],
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}Miner/Firmware",
-											"host": [
-												"{{ThermineRaspiOSUrl}}Miner"
-											],
-											"path": [
-												"Firmware"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Miner/Firmware/Compatibility/List",
-									"request": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "miner-json",
-												"value": "{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
-												"type": "text"
-											},
-											{
-												"key": "uuid",
-												"value": "5c41165f-5ca2-45ae-ae35-283f2831ba9a",
-												"type": "text",
-												"disabled": true
-											}
-										],
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}Miner/Firmware/Compatibility/List",
-											"host": [
-												"{{ThermineRaspiOSUrl}}Miner"
-											],
-											"path": [
-												"Firmware",
-												"Compatibility",
-												"List"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Miner",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba91\",\r\n    \"ip\":\"192.168.178.89\",\r\n    \"name\": \"miner1\",\r\n    \"username\": \"root\",\r\n    \"password\": \"yEUQHw;,?TTe-^Sh\",\r\n    \"fwtp\": \"braiinsS9\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}/Miner",
-											"host": [
-												"{{ThermineRaspiOSUrl}}"
-											],
-											"path": [
-												"Miner"
-											]
-										},
-										"description": "Send JSON Object or Array\n\nIf Array, it will override the whole file  \nIf Object, it will try to find the object and update/insert it"
-									},
-									"response": []
-								},
-								{
-									"name": "Miner/Auth",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba92\",\r\n    \"ip\": \"192.168.178.88\",\r\n    \"username\": \"root\",\r\n    \"password\": \"admin\",\r\n    \"fwtp\": \"braiinsV1\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{ThermineRaspiOSUrl}}Miner/Auth",
-											"host": [
-												"{{ThermineRaspiOSUrl}}Miner"
-											],
-											"path": [
-												"Auth"
-											]
-										},
-										"description": "Send JSON Object or Array\n\nIf Array, it will override the whole file  \nIf Object, it will try to find the object and update/insert it"
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "DateTime",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{ThermineRaspiOSUrl}}DateTime",
-									"host": [
-										"{{ThermineRaspiOSUrl}}DateTime"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "RegisteredEndPoints",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{ThermineRaspiOSUrl}}/RegisteredEndPoints",
-									"host": [
-										"{{ThermineRaspiOSUrl}}"
-									],
-									"path": [
-										"RegisteredEndPoints"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Uuid",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{ThermineRaspiOSUrl}}Uuid",
-									"host": [
-										"{{ThermineRaspiOSUrl}}Uuid"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Process Something",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\"value\":1}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{ThermineRaspiOSUrl}}processSomething",
-									"host": [
-										"{{ThermineRaspiOSUrl}}processSomething"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"auth": {
-						"type": "basic",
-						"basic": [
-							{
-								"key": "password",
-								"value": "{{ThermineRaspiOSPassword}}",
-								"type": "string"
-							},
-							{
-								"key": "username",
-								"value": "{{ThermineRaspiOSUsername}}",
-								"type": "string"
-							}
-						]
-					},
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"packages": {},
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"packages": {},
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				}
-			],
-			"description": "Thermine API documentation\n\nDateTime format: TimeStamp UTC -03:00",
-			"auth": {
-				"type": "bearer",
-				"bearer": [
-					{
-						"key": "token",
-						"value": "{{TherminePostmanToken}}",
-						"type": "string"
-					}
-				]
-			},
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"packages": {},
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"packages": {},
-						"exec": [
-							""
-						]
-					}
-				}
-			]
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "ThermineRaspiOSUrl",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "ThermineRaspiOSUsername",
-			"value": "admin",
-			"type": "string"
-		},
-		{
-			"key": "ThermineRaspiOSPassword",
-			"value": "senha123",
-			"type": "string"
-		}
-	]
+  "collection":  
+  {
+    "info":    
+    {
+      "name":"Thermine-Raspi",
+      "description":"Thermine-Raspi API documentation",
+      "schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"    
+    },
+    "item":    
+    [
+      {
+        "name":"Thermine",
+        "item":        
+        [
+          {
+            "name":"RaspiOS",
+            "item":            
+            [
+              {
+                "name":"Public",
+                "item":                
+                [
+                  {
+                    "name":"Echo",
+                    "id":"3aef13f1-2cc6-48f6-9a9a-fb44a7178900",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "auth":                      
+                      {
+                        "type":"noauth"                      
+                      },
+                      "method":"GET",
+                      "header":                      
+                      [
+                      
+                      ],
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}/Echo",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}"                        
+                        ],
+                        "path":                        
+                        [
+"Echo"                        
+                        ]                      
+                      }                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-3aef13f1-2cc6-48f6-9a9a-fb44a7178900"                  
+                  }                
+                ],
+                "id":"46dff96c-1f70-489a-8065-b5718f0db58d",
+                "auth":                
+                {
+                  "type":"noauth"                
+                },
+                "event":                
+                [
+                  {
+                    "listen":"prerequest",
+                    "script":                    
+                    {
+                      "id":"1f32939e-27b1-487f-a27d-6861530a1efc",
+                      "type":"text/javascript",
+                      "packages":                      
+                      {
+                      
+                      },
+                      "exec":                      
+                      [
+""                      
+                      ]                    
+                    }                  
+                  },
+                  {
+                    "listen":"test",
+                    "script":                    
+                    {
+                      "id":"6fbdfd8f-a4ef-434e-a3e8-08853b3c41e8",
+                      "type":"text/javascript",
+                      "packages":                      
+                      {
+                      
+                      },
+                      "exec":                      
+                      [
+""                      
+                      ]                    
+                    }                  
+                  }                
+                ],
+                "uid":"7871307-46dff96c-1f70-489a-8065-b5718f0db58d"              
+              },
+              {
+                "name":"Miner",
+                "item":                
+                [
+                  {
+                    "name":"S9",
+                    "item":                    
+                    [
+                      {
+                        "name":"Miner/S9/Generic",
+                        "id":"3d562cc0-0e00-4934-86fc-502977a143ed",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            },
+                            {
+                              "key":"command",
+                              "value":"devs",
+                              "description":"Command name to run, check the official doc",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Generic",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Generic"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-3d562cc0-0e00-4934-86fc-502977a143ed"                      
+                      },
+                      {
+                        "name":"Miner/S9/Config (ssh)",
+                        "id":"e0177b4e-891f-4612-a998-07a6696b30a4",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Config",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Config"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-e0177b4e-891f-4612-a998-07a6696b30a4"                      
+                      },
+                      {
+                        "name":"Miner/S9/Config (ssh)",
+                        "id":"7a1b4a6b-7ce0-4813-9c39-66c67c5547a5",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"POST",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "body":                          
+                          {
+                            "mode":"raw",
+                            "raw":"{\r\n    \"format\": {\r\n        \"version\": \"2.0\",\r\n        \"model\": \"Antminer S9\",\r\n        \"generator\": \"BOSer (boser-openwrt 0.1.0-26ba61b9)\",\r\n        \"timestamp\": 1742733351\r\n    },\r\n    \"temp_control\": {\r\n        \"mode\": \"manual\",\r\n        \"hot_temp\": 105.0,\r\n        \"dangerous_temp\": 110.0\r\n    },\r\n    \"fan_control\": {\r\n        \"speed\": 50,\r\n        \"min_fans\": 2\r\n    },\r\n    \"group\": [\r\n        {\r\n            \"name\": \"Default\",\r\n            \"pool\": [\r\n                {\r\n                    \"enabled\": true,\r\n                    \"url\": \"stratum+tcp://mine.ocean.xyz:3334\",\r\n                    \"user\": \"bc1q7e2tw0le8gxr4637kn0rncgvf48d45hysvy07k.kresnic\",\r\n                    \"password\": \"x\"\r\n                },\r\n                {\r\n                    \"enabled\": false,\r\n                    \"url\": \"stratum+tcp://eusolo.ckpool.org:3333\",\r\n                    \"user\": \"bc1q7e2tw0le8gxr4637kn0rncgvf48d45hysvy07k.kresnic\",\r\n                    \"password\": \"\"\r\n                },\r\n                {\r\n                    \"enabled\": true,\r\n                    \"url\": \"stratum2+tcp://v2.eu.stratum.braiins.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt\",\r\n                    \"user\": \"igorbastosib.hauseheating\",\r\n                    \"password\": \".~co?KmK[bB%Vl#7\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"autotuning\": {\r\n        \"enabled\": true,\r\n        \"power_target\": 350\r\n    }\r\n}",
+                            "options":                            
+                            {
+                              "raw":                              
+                              {
+                                "language":"json"                              
+                              }                            
+                            }                          
+                          },
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Config",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Config"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-7a1b4a6b-7ce0-4813-9c39-66c67c5547a5"                      
+                      },
+                      {
+                        "name":"Miner/S9/Devs (grpc)",
+                        "id":"ec23d2af-22a4-4b2b-8244-de61e62837e1",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Devs",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Devs"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-ec23d2af-22a4-4b2b-8244-de61e62837e1"                      
+                      },
+                      {
+                        "name":"Miner/S9/DisablePool (ssh)",
+                        "id":"c0ec8b45-d3b3-4444-9b83-df66cd8c7051",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"PATCH",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            },
+                            {
+                              "key":"index",
+                              "value":"1",
+                              "description":"Pool index",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/DisablePool",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"DisablePool"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-c0ec8b45-d3b3-4444-9b83-df66cd8c7051"                      
+                      },
+                      {
+                        "name":"Miner/S9/FaultLight (ssh)",
+                        "id":"d5fa4837-3218-41e0-8615-959eb7d76940",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"PATCH",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            },
+                            {
+                              "key":"enabled",
+                              "value":"true",
+                              "description":"Boolean value, to enabled (true) or disable (false) the fault light",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/FaultLight",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"FaultLight"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-d5fa4837-3218-41e0-8615-959eb7d76940"                      
+                      },
+                      {
+                        "name":"Miner/S9/Pools (grpc)",
+                        "id":"d18f17cb-a174-4dbf-8934-f107cee7095a",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Pools",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Pools"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-d18f17cb-a174-4dbf-8934-f107cee7095a"                      
+                      },
+                      {
+                        "name":"Miner/S9/Summary (grpc)",
+                        "id":"26052ed5-b867-4f69-9dbe-5727d6bfdbd1",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Summary",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Summary"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-26052ed5-b867-4f69-9dbe-5727d6bfdbd1"                      
+                      },
+                      {
+                        "name":"Miner/S9/Version (grpc)",
+                        "id":"ddb2bdc7-d71d-4609-9c52-d0f68352c56c",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Version",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Version"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-ddb2bdc7-d71d-4609-9c52-d0f68352c56c"                      
+                      },
+                      {
+                        "name":"Miner/S9/Stats (grpc)",
+                        "id":"3ccb1ad3-e1f9-485c-bc8a-5dc29255662b",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text"                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text",
+                              "disabled":true                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Stats",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Stats"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-3ccb1ad3-e1f9-485c-bc8a-5dc29255662b"                      
+                      },
+                      {
+                        "name":"Miner/S9/Temps (grpc)",
+                        "id":"58d79c6a-8b7c-4951-b66d-ad86154d6089",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Temps",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Temps"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-58d79c6a-8b7c-4951-b66d-ad86154d6089"                      
+                      },
+                      {
+                        "name":"Miner/S9/TunerStatus (grpc)",
+                        "id":"fcae8a6d-e930-4034-be6d-90c3fab5d15f",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/TunerStatus",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"TunerStatus"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-fcae8a6d-e930-4034-be6d-90c3fab5d15f"                      
+                      },
+                      {
+                        "name":"Miner/S9/Restart (ssh)",
+                        "id":"d5d35721-4d4d-4a5d-8618-3204a9039ba4",
+                        "protocolProfileBehavior":                        
+                        {
+                          "disableBodyPruning":true                        
+                        },
+                        "request":                        
+                        {
+                          "method":"GET",
+                          "header":                          
+                          [
+                            {
+                              "key":"miner-json",
+                              "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                              "type":"text",
+                              "disabled":true                            
+                            },
+                            {
+                              "key":"uuid",
+                              "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                              "type":"text"                            
+                            },
+                            {
+                              "key":"index",
+                              "value":"1",
+                              "type":"text"                            
+                            }                          
+                          ],
+                          "url":                          
+                          {
+                            "raw":"{{ThermineRaspiOSUrl}}/Miner/S9/Restart",
+                            "host":                            
+                            [
+"{{ThermineRaspiOSUrl}}"                            
+                            ],
+                            "path":                            
+                            [
+"Miner",
+"S9",
+"Restart"                            
+                            ]                          
+                          }                        
+                        },
+                        "response":                        
+                        [
+                        
+                        ],
+                        "uid":"7871307-d5d35721-4d4d-4a5d-8618-3204a9039ba4"                      
+                      }                    
+                    ],
+                    "id":"3b1676da-d41c-4997-aafd-6bd1210443aa",
+                    "description":"Oficial Doc:  \n[https://academy.braiins.com/en/braiins-os/papi-bosminer/](https://academy.braiins.com/en/braiins-os/papi-bosminer/)",
+                    "uid":"7871307-3b1676da-d41c-4997-aafd-6bd1210443aa"                  
+                  },
+                  {
+                    "name":"Miner",
+                    "id":"ea6b1de2-a7d3-4bd0-bcdc-1717ffcd630b",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"GET",
+                      "header":                      
+                      [
+                      
+                      ],
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}/Miner",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}"                        
+                        ],
+                        "path":                        
+                        [
+"Miner"                        
+                        ]                      
+                      }                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-ea6b1de2-a7d3-4bd0-bcdc-1717ffcd630b"                  
+                  },
+                  {
+                    "name":"Miner",
+                    "id":"8818233a-4f26-4d9f-99e7-4fd4917a7339",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"POST",
+                      "header":                      
+                      [
+                      
+                      ],
+                      "body":                      
+                      {
+                        "mode":"raw",
+                        "raw":"{\r\n    \"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba91\",\r\n    \"ip\":\"192.168.178.89\",\r\n    \"name\": \"miner1\",\r\n    \"username\": \"root\",\r\n    \"password\": \"yEUQHw;,?TTe-^Sh\",\r\n    \"fwtp\": \"braiinsS9\"\r\n}",
+                        "options":                        
+                        {
+                          "raw":                          
+                          {
+                            "language":"json"                          
+                          }                        
+                        }                      
+                      },
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}/Miner",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}"                        
+                        ],
+                        "path":                        
+                        [
+"Miner"                        
+                        ]                      
+                      },
+                      "description":"Send JSON Object or Array\n\nIf Array, it will override the whole file  \nIf Object, it will try to find the object and update/insert it"                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-8818233a-4f26-4d9f-99e7-4fd4917a7339"                  
+                  },
+                  {
+                    "name":"Miner/Auth",
+                    "id":"ab428015-09b2-4a6f-9196-cc6f8ce74bfe",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"POST",
+                      "header":                      
+                      [
+                      
+                      ],
+                      "body":                      
+                      {
+                        "mode":"raw",
+                        "raw":"{\r\n    \"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba92\",\r\n    \"ip\": \"192.168.178.184\",\r\n    \"username\": \"root\",\r\n    \"password\": \"admin1\",\r\n    \"fwtp\": \"braiinsV1\"\r\n}",
+                        "options":                        
+                        {
+                          "raw":                          
+                          {
+                            "language":"json"                          
+                          }                        
+                        }                      
+                      },
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}/Miner/Auth",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}"                        
+                        ],
+                        "path":                        
+                        [
+"Miner",
+"Auth"                        
+                        ]                      
+                      },
+                      "description":"Send JSON Object or Array\n\nIf Array, it will override the whole file  \nIf Object, it will try to find the object and update/insert it"                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-ab428015-09b2-4a6f-9196-cc6f8ce74bfe"                  
+                  },
+                  {
+                    "name":"Miner/Echo",
+                    "id":"ba213df2-7ac7-4599-b10c-2dba0e60c58d",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"GET",
+                      "header":                      
+                      [
+                        {
+                          "key":"miner-json",
+                          "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.184\",\"name\": \"miner1\",\"username\":\"root\",\"password\":\"yEUQHw;,?TTe-^Sh\", \"fwtp\":\"braiinsV1\"}",
+                          "type":"text",
+                          "disabled":true                        
+                        },
+                        {
+                          "key":"uuid",
+                          "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                          "type":"text"                        
+                        }                      
+                      ],
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}/Miner/Echo",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}"                        
+                        ],
+                        "path":                        
+                        [
+"Miner",
+"Echo"                        
+                        ]                      
+                      }                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-ba213df2-7ac7-4599-b10c-2dba0e60c58d"                  
+                  },
+                  {
+                    "name":"Miner/Firmware",
+                    "id":"6211a45f-d46b-48a0-af8f-544a9ac82aa0",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"GET",
+                      "header":                      
+                      [
+                        {
+                          "key":"miner-json",
+                          "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.89\",\"name\": \"miner1\",\"password\":\"str\"}",
+                          "type":"text",
+                          "disabled":true                        
+                        },
+                        {
+                          "key":"uuid",
+                          "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                          "type":"text"                        
+                        }                      
+                      ],
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}Miner/Firmware",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}Miner"                        
+                        ],
+                        "path":                        
+                        [
+"Firmware"                        
+                        ]                      
+                      },
+                      "description":"Loop on all compatible firwares and try to find one which the miner is compatible with"                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-6211a45f-d46b-48a0-af8f-544a9ac82aa0"                  
+                  },
+                  {
+                    "name":"Miner/Firmware/Compatibility/List",
+                    "id":"5c8543b3-d6c5-4d48-89f0-40e482c876b4",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"GET",
+                      "header":                      
+                      [
+                      
+                      ],
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}Miner/Firmware/Compatibility/List",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}Miner"                        
+                        ],
+                        "path":                        
+                        [
+"Firmware",
+"Compatibility",
+"List"                        
+                        ]                      
+                      },
+                      "description":"List of current firmware Thermine Raspi is compatible with"                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-5c8543b3-d6c5-4d48-89f0-40e482c876b4"                  
+                  },
+                  {
+                    "name":"Miner/Summary",
+                    "id":"37db33be-fe43-4786-b7e1-4cd5976eb70d",
+                    "protocolProfileBehavior":                    
+                    {
+                      "disableBodyPruning":true                    
+                    },
+                    "request":                    
+                    {
+                      "method":"GET",
+                      "header":                      
+                      [
+                        {
+                          "key":"miner-json",
+                          "value":"{\"uuid\": \"5c41165f-5ca2-45ae-ae35-283f2831ba9a\",\"ip\": \"192.168.178.184\",\"name\": \"miner1\",\"username\":\"root\",\"password\":\"yEUQHw;,?TTe-^Sh\", \"fwtp\":\"braiinsV1\"}",
+                          "type":"text",
+                          "disabled":true                        
+                        },
+                        {
+                          "key":"uuid",
+                          "value":"5c41165f-5ca2-45ae-ae35-283f2831ba91",
+                          "type":"text"                        
+                        }                      
+                      ],
+                      "url":                      
+                      {
+                        "raw":"{{ThermineRaspiOSUrl}}/Miner/Summary",
+                        "host":                        
+                        [
+"{{ThermineRaspiOSUrl}}"                        
+                        ],
+                        "path":                        
+                        [
+"Miner",
+"Summary"                        
+                        ]                      
+                      }                    
+                    },
+                    "response":                    
+                    [
+                    
+                    ],
+                    "uid":"7871307-37db33be-fe43-4786-b7e1-4cd5976eb70d"                  
+                  }                
+                ],
+                "id":"d026ee9f-4db4-4ed7-afd2-fff529e94b9a",
+                "uid":"7871307-d026ee9f-4db4-4ed7-afd2-fff529e94b9a"              
+              },
+              {
+                "name":"DateTime",
+                "id":"99b983d5-5e81-4315-a28d-842959b99e66",
+                "protocolProfileBehavior":                
+                {
+                  "disableBodyPruning":true                
+                },
+                "request":                
+                {
+                  "method":"GET",
+                  "header":                  
+                  [
+                  
+                  ],
+                  "url":                  
+                  {
+                    "raw":"{{ThermineRaspiOSUrl}}DateTime",
+                    "host":                    
+                    [
+"{{ThermineRaspiOSUrl}}DateTime"                    
+                    ]                  
+                  }                
+                },
+                "response":                
+                [
+                
+                ],
+                "uid":"7871307-99b983d5-5e81-4315-a28d-842959b99e66"              
+              },
+              {
+                "name":"RegisteredEndPoints",
+                "id":"4c7d6983-9428-40bc-bf98-545a2e3caedf",
+                "protocolProfileBehavior":                
+                {
+                  "disableBodyPruning":true                
+                },
+                "request":                
+                {
+                  "method":"GET",
+                  "header":                  
+                  [
+                  
+                  ],
+                  "url":                  
+                  {
+                    "raw":"{{ThermineRaspiOSUrl}}/RegisteredEndPoints",
+                    "host":                    
+                    [
+"{{ThermineRaspiOSUrl}}"                    
+                    ],
+                    "path":                    
+                    [
+"RegisteredEndPoints"                    
+                    ]                  
+                  }                
+                },
+                "response":                
+                [
+                
+                ],
+                "uid":"7871307-4c7d6983-9428-40bc-bf98-545a2e3caedf"              
+              },
+              {
+                "name":"Uuid",
+                "id":"d8948b3d-a882-4129-bf8f-ef0c70f77b93",
+                "protocolProfileBehavior":                
+                {
+                  "disableBodyPruning":true                
+                },
+                "request":                
+                {
+                  "method":"GET",
+                  "header":                  
+                  [
+                  
+                  ],
+                  "url":                  
+                  {
+                    "raw":"{{ThermineRaspiOSUrl}}Uuid",
+                    "host":                    
+                    [
+"{{ThermineRaspiOSUrl}}Uuid"                    
+                    ]                  
+                  }                
+                },
+                "response":                
+                [
+                
+                ],
+                "uid":"7871307-d8948b3d-a882-4129-bf8f-ef0c70f77b93"              
+              },
+              {
+                "name":"Process Something",
+                "id":"ec7b70ec-52f2-4dd4-8696-1e92eadeee8e",
+                "protocolProfileBehavior":                
+                {
+                  "disableBodyPruning":true                
+                },
+                "request":                
+                {
+                  "method":"POST",
+                  "header":                  
+                  [
+                  
+                  ],
+                  "body":                  
+                  {
+                    "mode":"raw",
+                    "raw":"{\"value\":1}",
+                    "options":                    
+                    {
+                      "raw":                      
+                      {
+                        "language":"json"                      
+                      }                    
+                    }                  
+                  },
+                  "url":                  
+                  {
+                    "raw":"{{ThermineRaspiOSUrl}}processSomething",
+                    "host":                    
+                    [
+"{{ThermineRaspiOSUrl}}processSomething"                    
+                    ]                  
+                  }                
+                },
+                "response":                
+                [
+                
+                ],
+                "uid":"7871307-ec7b70ec-52f2-4dd4-8696-1e92eadeee8e"              
+              }            
+            ],
+            "id":"6fd4a11b-3669-4a2e-8faf-e62d7793b20c",
+            "auth":            
+            {
+              "type":"basic",
+              "basic":              
+              [
+                {
+                  "key":"password",
+                  "value":"{{ThermineRaspiOSPassword}}",
+                  "type":"string"                
+                },
+                {
+                  "key":"username",
+                  "value":"{{ThermineRaspiOSUsername}}",
+                  "type":"string"                
+                }              
+              ]            
+            },
+            "event":            
+            [
+              {
+                "listen":"prerequest",
+                "script":                
+                {
+                  "id":"7cd44359-4272-4b6d-9e11-2deee33b28b5",
+                  "type":"text/javascript",
+                  "packages":                  
+                  {
+                  
+                  },
+                  "exec":                  
+                  [
+""                  
+                  ]                
+                }              
+              },
+              {
+                "listen":"test",
+                "script":                
+                {
+                  "id":"dfac087b-0374-49fb-96bb-c5b4f6d8ffd8",
+                  "type":"text/javascript",
+                  "packages":                  
+                  {
+                  
+                  },
+                  "exec":                  
+                  [
+""                  
+                  ]                
+                }              
+              }            
+            ],
+            "uid":"7871307-6fd4a11b-3669-4a2e-8faf-e62d7793b20c"          
+          }        
+        ],
+        "id":"45f915ef-6ad9-426c-ab30-3303b977f722",
+        "description":"Thermine API documentation\n\nDateTime format: TimeStamp UTC -03:00",
+        "auth":        
+        {
+          "type":"bearer",
+          "bearer":          
+          [
+            {
+              "key":"token",
+              "value":"{{TherminePostmanToken}}",
+              "type":"string"            
+            }          
+          ]        
+        },
+        "uid":"7871307-45f915ef-6ad9-426c-ab30-3303b977f722"      
+      }    
+    ],
+    "variable":    
+    [
+      {
+        "key":"ThermineRaspiOSUrl",
+        "value":"",
+        "type":"string"      
+      },
+      {
+        "key":"ThermineRaspiOSUsername",
+        "value":"admin",
+        "type":"string"      
+      },
+      {
+        "key":"ThermineRaspiOSPassword",
+        "value":"senha123",
+        "type":"string"      
+      }    
+    ]  
+  }
 }
