@@ -119,7 +119,7 @@ class MinerBraiinsS9:
             if sHeader is None:
                 Utils.throwExceptionHttpMissingHeader('command')
             return MinerBraiinsS9.cgMinerRequest(jObj['ip'], sHeader), 200, 'application/json'
-        if path.endswith("/Config"):
+        elif path.endswith("/Config"):
             return MinerBraiinsS9.sshConfigJsonStr(jObj), 200, 'application/json'
         elif path.endswith("/Devs"):
             return MinerBraiinsS9.grpcDevs(jObj), 200, 'application/json'

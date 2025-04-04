@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import authentication_pb2 as bos_dot_v1_dot_authentication__pb2
+from . import configuration_pb2 as bos_dot_v1_dot_configuration__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in bos/v1/authentication_pb2_grpc.py depends on'
+        + f' but the generated code in bos/v1/configuration_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class AuthenticationServiceStub(object):
+class ConfigurationServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,61 +34,61 @@ class AuthenticationServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Login = channel.unary_unary(
-                '/braiins.bos.v1.AuthenticationService/Login',
-                request_serializer=bos_dot_v1_dot_authentication__pb2.LoginRequest.SerializeToString,
-                response_deserializer=bos_dot_v1_dot_authentication__pb2.LoginResponse.FromString,
+        self.GetMinerConfiguration = channel.unary_unary(
+                '/braiins.bos.v1.ConfigurationService/GetMinerConfiguration',
+                request_serializer=bos_dot_v1_dot_configuration__pb2.GetMinerConfigurationRequest.SerializeToString,
+                response_deserializer=bos_dot_v1_dot_configuration__pb2.GetMinerConfigurationResponse.FromString,
                 _registered_method=True)
-        self.SetPassword = channel.unary_unary(
-                '/braiins.bos.v1.AuthenticationService/SetPassword',
-                request_serializer=bos_dot_v1_dot_authentication__pb2.SetPasswordRequest.SerializeToString,
-                response_deserializer=bos_dot_v1_dot_authentication__pb2.SetPasswordResponse.FromString,
+        self.GetConstraints = channel.unary_unary(
+                '/braiins.bos.v1.ConfigurationService/GetConstraints',
+                request_serializer=bos_dot_v1_dot_configuration__pb2.GetConstraintsRequest.SerializeToString,
+                response_deserializer=bos_dot_v1_dot_configuration__pb2.GetConstraintsResponse.FromString,
                 _registered_method=True)
 
 
-class AuthenticationServiceServicer(object):
+class ConfigurationServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Login(self, request, context):
-        """Method to login and retrieve authentication token
+    def GetMinerConfiguration(self, request, context):
+        """Method to get current miner configuration
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SetPassword(self, request, context):
-        """Method to set password
+    def GetConstraints(self, request, context):
+        """Method to get current configuration constraints(min, max, default)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_AuthenticationServiceServicer_to_server(servicer, server):
+def add_ConfigurationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Login': grpc.unary_unary_rpc_method_handler(
-                    servicer.Login,
-                    request_deserializer=bos_dot_v1_dot_authentication__pb2.LoginRequest.FromString,
-                    response_serializer=bos_dot_v1_dot_authentication__pb2.LoginResponse.SerializeToString,
+            'GetMinerConfiguration': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMinerConfiguration,
+                    request_deserializer=bos_dot_v1_dot_configuration__pb2.GetMinerConfigurationRequest.FromString,
+                    response_serializer=bos_dot_v1_dot_configuration__pb2.GetMinerConfigurationResponse.SerializeToString,
             ),
-            'SetPassword': grpc.unary_unary_rpc_method_handler(
-                    servicer.SetPassword,
-                    request_deserializer=bos_dot_v1_dot_authentication__pb2.SetPasswordRequest.FromString,
-                    response_serializer=bos_dot_v1_dot_authentication__pb2.SetPasswordResponse.SerializeToString,
+            'GetConstraints': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetConstraints,
+                    request_deserializer=bos_dot_v1_dot_configuration__pb2.GetConstraintsRequest.FromString,
+                    response_serializer=bos_dot_v1_dot_configuration__pb2.GetConstraintsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'braiins.bos.v1.AuthenticationService', rpc_method_handlers)
+            'braiins.bos.v1.ConfigurationService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('braiins.bos.v1.AuthenticationService', rpc_method_handlers)
+    server.add_registered_method_handlers('braiins.bos.v1.ConfigurationService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class AuthenticationService(object):
+class ConfigurationService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Login(request,
+    def GetMinerConfiguration(request,
             target,
             options=(),
             channel_credentials=None,
@@ -101,9 +101,9 @@ class AuthenticationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/braiins.bos.v1.AuthenticationService/Login',
-            bos_dot_v1_dot_authentication__pb2.LoginRequest.SerializeToString,
-            bos_dot_v1_dot_authentication__pb2.LoginResponse.FromString,
+            '/braiins.bos.v1.ConfigurationService/GetMinerConfiguration',
+            bos_dot_v1_dot_configuration__pb2.GetMinerConfigurationRequest.SerializeToString,
+            bos_dot_v1_dot_configuration__pb2.GetMinerConfigurationResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -115,7 +115,7 @@ class AuthenticationService(object):
             _registered_method=True)
 
     @staticmethod
-    def SetPassword(request,
+    def GetConstraints(request,
             target,
             options=(),
             channel_credentials=None,
@@ -128,9 +128,9 @@ class AuthenticationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/braiins.bos.v1.AuthenticationService/SetPassword',
-            bos_dot_v1_dot_authentication__pb2.SetPasswordRequest.SerializeToString,
-            bos_dot_v1_dot_authentication__pb2.SetPasswordResponse.FromString,
+            '/braiins.bos.v1.ConfigurationService/GetConstraints',
+            bos_dot_v1_dot_configuration__pb2.GetConstraintsRequest.SerializeToString,
+            bos_dot_v1_dot_configuration__pb2.GetConstraintsResponse.FromString,
             options,
             channel_credentials,
             insecure,

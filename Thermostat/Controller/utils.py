@@ -41,6 +41,16 @@ class Utils:
     @staticmethod
     def grpcChannel(aip: str):
         return grpc.insecure_channel(aip)
+    @staticmethod
+    def grpcChannelSecure(aip: str, token: str):
+        credentials = grpc.access_token_call_credentials(token)
+        return grpc.insecure_channel(
+            aip,
+            grpc.composite_channel_credentials(
+                grpc.ssl_channel_credentials(),
+                credentials
+                )
+            )
     
     # check if key exists
     @staticmethod

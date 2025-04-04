@@ -78,9 +78,9 @@ class Miner:
         jAry = Miner.dataAsJson()
         return json.dumps(jAry)
 
-    # Handles HTTP request for S9
+    # Handles HTTP request for BraiinsS9
     @staticmethod
-    def httpHandlerS9Get(path, headers, s):
+    def httpHandlerBraiinsS9Get(path, headers, s):
         jObj = Miner.dataAsJsonObjectUuid(s)
         if jObj == None: # didn't find the JSON object with same s=uuid
             if isinstance(s, dict): # JSON object
@@ -89,7 +89,7 @@ class Miner:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerGet(path, headers, jObj)
     @staticmethod
-    def httpHandlerS9Patch(path, headers, s):
+    def httpHandlerBraiinsS9Patch(path, headers, s):
         jObj = Miner.dataAsJsonObjectUuid(s)
         if jObj == None: # didn't find the JSON object with same s=uuid
             if isinstance(s, dict): # JSON object
@@ -98,7 +98,7 @@ class Miner:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerPatch(path, headers, jObj)
     @staticmethod
-    def httpHandlerS9Post(path, headers, s, contentStr):
+    def httpHandlerBraiinsS9Post(path, headers, s, contentStr):
         jObj = Miner.dataAsJsonObjectUuid(s)
         if jObj == None: # didn't find the JSON object with same s=uuid
             if isinstance(s, dict): # JSON object
@@ -106,7 +106,18 @@ class Miner:
             else:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerPost(path, headers, jObj, contentStr)
-    
+
+    # Handles HTTP request for BraiinsV1
+    @staticmethod
+    def httpHandlerBraiinsV1Get(path, headers, s):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+        return MinerBraiinsV1.httpHandlerGet(path, headers, jObj)
+
     # Tries to connect to miner based on the firmware type
     @staticmethod
     def minerAuth(jObj):
