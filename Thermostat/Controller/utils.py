@@ -1,6 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass, asdict
-from typing import List, Type, TypeVar
+from typing import Any, Callable, List, Type, TypeVar
 from .log import Logger
 
 import json
@@ -44,14 +44,51 @@ class Utils:
     @staticmethod
     def grpcChannelSecure(aip: str, token: str):
         credentials = grpc.access_token_call_credentials(token)
-        return grpc.insecure_channel(
-            aip,
-            grpc.composite_channel_credentials(
-                grpc.ssl_channel_credentials(),
-                credentials
-                )
+        composite_creds = grpc.composite_channel_credentials(
+            grpc.ssl_channel_credentials(),
+            credentials
+        )
+        return grpc.secure_channel(aip, composite_creds)
+        # no credentials grpc.secure_channel(SERVER_ADDRESS, grpc.ssl_channel_credentials())
+        """ With extra HTTPS options
+        lOptions = [
+            ('grpc.ssl_target_name_override', '192.168.178.184'),
+            ('grpc.default_authority', '192.168.178.184'),
+            ('grpc.ssl_version', 'TLSv1_1')
+            ] 
+        credentials = grpc.access_token_call_credentials(token)
+        composite_creds = grpc.composite_channel_credentials(
+            grpc.ssl_channel_credentials(),
+            credentials
             )
-    
+        return grpc.secure_channel(aip, composite_creds, options=lOptions)"""
+    @staticmethod
+    def grpcCall(methodStub: Callable, methodReq: Callable, request: Any, token: str, aip: str) -> Any:
+        """
+        Metodo generico para executar chamadas gRPC com canal inseguro e token nos metadados.
+        
+        Args:
+            stub: O stub do servico gRPC (ex.: ConfigurationServiceStub).
+            method: O metodo do stub a ser chamado (ex.: stub.GetMinerConfiguration).
+            request: A mensagem de requisicao (ex.: GetMinerConfigurationRequest).
+            token: O token de autenticacao.
+            aip: Endereco do servidor (ex.: "192.168.178.184:50051").
+        
+        Returns:
+            A resposta do servidor.
+        """
+        if aip.lower().startswith() == 'https':
+            channel = Utils.grpcChannelSecure(aip)
+        else:
+            channel = Utils.grpcChannel(aip)
+        try:
+            stub
+            metadata = [('authorization', token)]
+            response = methodReq(request, metadata=metadata)
+            return response
+        finally:
+            channel.close()
+
     # check if key exists
     @staticmethod
     def jsonCheckIsObj(jObj, isRaiseExcpt: bool = True):
@@ -171,7 +208,7 @@ class Utils:
             with open(path, 'r', encoding='utf-8') as file:
                 jObj = json.load(file)
         if jObj.get('uuid') is None or jObj.get('uuid').strip() == '':
-            jObj['uuid'] = uuidRandom()
+            jObj['uuid'] = Utils.uuidRandom()
             with Utils.lockFileConfigThermine:
                 with open(path, 'w', encoding='utf-8') as file:
                     json.dump(jObj, file, ensure_ascii=False, indent=2)

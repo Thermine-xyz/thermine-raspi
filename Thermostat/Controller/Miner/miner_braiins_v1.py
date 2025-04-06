@@ -69,15 +69,19 @@ class MinerBraiinsV1:
         print("getConfiguration1")
         token = MinerBraiinsV1.getJwtTokenStr(jObj)
         print(f"getConfiguration2 {token}")
-        channel = Utils.grpcChannelSecure(f"{jObj['ip']}:{50051}", token)
+        # channel = Utils.grpcChannelSecure(f"{jObj['ip']}:{50051}", token)
+        # Keeps using the insecure channel
+        # channel = Utils.grpcChannel(f"{jObj['ip']}:{50051}")
         print("getConfiguration3")
         try:
             stub = configuration_pb2_grpc.ConfigurationServiceStub(channel)
             print("getConfiguration4")
-            request = configuration_pb2.GetConfigurationRequest()
-            response = stub.GetMinerConfiguration(request)
-            print("Configs")
-            print(response.miner)
+            request = configuration_pb2.GetMinerConfigurationRequest()
+            # metadata = [('authorization', f'{token}')]
+            # response = stub.GetMinerConfiguration(request, metadata=metadata)
+            response = Utils.grpcCall(stub, stub.GetMinerConfiguration, request, token, aip)
+            # htts improve it later response = stub.GetMinerConfiguration(request)
+            print(f"Configs {response}")
             return Utils.resultJsonOK()
         finally:
             channel.close()
@@ -95,11 +99,13 @@ class MinerBraiinsV1:
         channel = Utils.grpcChannel(f"{jObj['ip']}:{50051}")
         try:
             stub = authentication_pb2_grpc.AuthenticationServiceStub(channel)
+
             request = authentication_pb2.LoginRequest(
                 username=jObj['username'],
                 password=jObj['password']
             )
+
             response = stub.Login(request)
-            return response.Token
+            return response.token
         finally:
             channel.close()
