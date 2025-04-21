@@ -62,10 +62,11 @@ class Utils:
             credentials
             )
         return grpc.secure_channel(aip, composite_creds, options=lOptions)"""
+
     @staticmethod
-    def grpcCall(methodStub: Callable, methodReq: Callable, request: Any, token: str, aip: str) -> Any:
+    def grpcCall(stubClass: Type[Any], methodName: str, request: Any, token: str, aip: str) -> Any:
         """
-        Metodo generico para executar chamadas gRPC com canal inseguro e token nos metadados.
+        Generic method for gRPC calls (secure and non-secure)
         
         Args:
             stub: O stub do servico gRPC (ex.: ConfigurationServiceStub).
@@ -82,9 +83,10 @@ class Utils:
         else:
             channel = Utils.grpcChannel(aip)
         try:
-            stub
+            stub = stubClass(channel)
+            method = getattr(stub, methodName)
             metadata = [('authorization', token)]
-            response = methodReq(request, metadata=metadata)
+            response = method(request, metadata=metadata)
             return response
         finally:
             channel.close()

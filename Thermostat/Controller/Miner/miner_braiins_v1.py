@@ -74,12 +74,17 @@ class MinerBraiinsV1:
         # channel = Utils.grpcChannel(f"{jObj['ip']}:{50051}")
         print("getConfiguration3")
         try:
-            stub = configuration_pb2_grpc.ConfigurationServiceStub(channel)
+            stub = (channel)
             print("getConfiguration4")
             request = configuration_pb2.GetMinerConfigurationRequest()
             # metadata = [('authorization', f'{token}')]
             # response = stub.GetMinerConfiguration(request, metadata=metadata)
-            response = Utils.grpcCall(stub, stub.GetMinerConfiguration, request, token, aip)
+            response = Utils.grpcCall(
+                configuration_pb2_grpc.ConfigurationServiceStub,
+                "GetMinerConfiguration",
+                request,
+                token,
+                aip)
             # htts improve it later response = stub.GetMinerConfiguration(request)
             print(f"Configs {response}")
             return Utils.resultJsonOK()

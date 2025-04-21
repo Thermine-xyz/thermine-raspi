@@ -122,13 +122,13 @@ class Miner:
     @staticmethod
     def minerAuth(jObj):
         Utils.jsonCheckIsObj(jObj)
-        Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
+        #Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
         # It is expected to have jObj with the miners data
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
             MinerBraiinsV1.getJwtToken(jObj)
         elif fwtp == Miner.CompatibleFirmware.braiinsS9:
-            MinerBraiinsS9.echo(jObj)
+            MinerBraiinsS9.sshConfig(jObj)
         else:
             MinerVnish.getJwtToken(jObj)
         

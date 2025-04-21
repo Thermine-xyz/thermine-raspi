@@ -1,5 +1,15 @@
 # thermine-raspi
 
+## Compatibility
+
+This is a list of firmware compatibility we tested already!
+
+| Firmware | Miner | Version | Status |
+| ---- | ---- | ---- | ---- |
+| [Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/) | S9 | 3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;❌ |
+| Braiins | S9 | [22.08.1](https://feeds.braiins-os.com/22.08.1/) | &nbsp;&nbsp;&nbsp;&nbsp;✔️ |
+
+
 ## Environment config
 
 ### Python 3.9.2
@@ -62,11 +72,3 @@ python3 -m grpc_tools.protoc -I=proto -I=/usr/include --python_out=. --grpc_pyth
 
 protoc -I=proto -I=/usr/include --python_out=. proto/bos/v1/*.proto
 python3 -m grpc_tools.protoc -I=proto -I=/usr/include --python_out=. --grpc_python_out=. proto/bos/v1/*.proto
-
-## Compatibility
-
-This is a list of firmware compatibility we tested already!
-
-| Firmware | Miner | Version | Status |
-| ---- | ---- | ---- | ---- |
-| [Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/) | S9 | 3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;❌ |

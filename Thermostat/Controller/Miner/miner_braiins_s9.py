@@ -233,8 +233,6 @@ class MinerBraiinsS9:
     def echo(jObj):
         # gRPC test
         MinerBraiinsS9.grpcStats(jObj)
-        # SSH test
-        MinerBraiinsS9.sshConfig(jObj)
         return None
     
     @staticmethod
