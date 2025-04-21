@@ -40,6 +40,7 @@ class Utils:
     # Creates a gRPC channel without channel-level authentication
     @staticmethod
     def grpcChannel(aip: str):
+        print(f"grpcChannel {aip}")
         return grpc.insecure_channel(aip)
     @staticmethod
     def grpcChannelSecure(aip: str, token: str):
@@ -78,10 +79,11 @@ class Utils:
         Returns:
             A resposta do servidor.
         """
-        if aip.lower().startswith() == 'https':
+        if aip.lower().startswith('https'):
             channel = Utils.grpcChannelSecure(aip)
         else:
             channel = Utils.grpcChannel(aip)
+
         try:
             stub = stubClass(channel)
             method = getattr(stub, methodName)

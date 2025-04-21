@@ -117,6 +117,15 @@ class Miner:
             else:
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsV1.httpHandlerGet(path, headers, jObj)
+    @staticmethod
+    def httpHandlerBraiinsV1Post(path, headers, s, contentStr):
+        jObj = Miner.dataAsJsonObjectUuid(s)
+        if jObj == None: # didn't find the JSON object with same s=uuid
+            if isinstance(s, dict): # JSON object
+                jObj = s
+            else:
+                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
+        return MinerBraiinsV1.httpHandlerPost(path, headers, jObj, contentStr)
 
     # Tries to connect to miner based on the firmware type
     @staticmethod

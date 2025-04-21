@@ -167,7 +167,7 @@ def handle_post(path, headers, post_data):
         json_data = json.loads(post_data.decode('utf-8'))
         Miner.minerAuth(json_data);
         return Utils.resultJsonOK(), 200, 'application/json'
-    elif path.startswith("/Miner/BraiinsS9S9"):
+    elif path.startswith("/Miner/BraiinsS9"):
         sHeader: str = headers.get('uuid')
         if sHeader is None or sHeader.strip() == '':
             sHeader = json.loads(headers.get('miner-json'))
@@ -175,5 +175,13 @@ def handle_post(path, headers, post_data):
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         contentStr = post_data.decode('utf-8')
         return Miner.httpHandlerBraiinsS9Post(path, headers, sHeader, contentStr)
+    elif path.startswith("/Miner/BraiinsV1"):
+        sHeader: str = headers.get('uuid')
+        if sHeader is None or sHeader.strip() == '':
+            sHeader = json.loads(headers.get('miner-json'))
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
+        contentStr = post_data.decode('utf-8')
+        return Miner.httpHandlerBraiinsV1Post(path, headers, sHeader, contentStr)
     else:
         return 'Not found', 400, 'text/html' 
