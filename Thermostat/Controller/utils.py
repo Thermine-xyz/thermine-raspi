@@ -10,6 +10,7 @@ import uuid
 import threading
 import re
 import grpc
+from google.protobuf.json_format import MessageToDict
 import paramiko
 
 class Utils:
@@ -66,19 +67,6 @@ class Utils:
 
     @staticmethod
     def grpcCall(stubClass: Type[Any], methodName: str, request: Any, token: str, aip: str) -> Any:
-        """
-        Generic method for gRPC calls (secure and non-secure)
-        
-        Args:
-            stub: O stub do servico gRPC (ex.: ConfigurationServiceStub).
-            method: O metodo do stub a ser chamado (ex.: stub.GetMinerConfiguration).
-            request: A mensagem de requisicao (ex.: GetMinerConfigurationRequest).
-            token: O token de autenticacao.
-            aip: Endereco do servidor (ex.: "192.168.178.184:50051").
-        
-        Returns:
-            A resposta do servidor.
-        """
         if aip.lower().startswith('https'):
             channel = Utils.grpcChannelSecure(aip)
         else:
@@ -92,6 +80,15 @@ class Utils:
             return response
         finally:
             channel.close()
+    # Converts a Protbuf msg to JSON Object
+    @staticmethod
+    def grpcProtobufToJson(response: Any) -> dict:
+        return MessageToDict(response, preserving_proto_field_name=True, including_default_value_fields=True)
+    # Converts a Protbuf msg to JSON Object
+    @staticmethod
+    def grpcProtobufToJson(response: Any) -> str:
+        jObj = Utils.grpcProtobufToJson(response)
+        return json.dumps(jObj, indent=2)
 
     # check if key exists
     @staticmethod

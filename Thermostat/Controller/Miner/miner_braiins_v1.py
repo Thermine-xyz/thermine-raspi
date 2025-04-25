@@ -1,13 +1,16 @@
 from ..utils import Utils
+from .Braiins import actions_pb2
+from .Braiins import actions_pb2_grpc
 from .Braiins import authentication_pb2
 from .Braiins import authentication_pb2_grpc
 from .Braiins import configuration_pb2
 from .Braiins import configuration_pb2_grpc
+from .Braiins import cooling_pb2
+from .Braiins import cooling_pb2_grpc
 from .Braiins import version_pb2
 from .Braiins import version_pb2_grpc
 
 import grpc
-from google.protobuf.json_format import MessageToDict
 import json
 
 class MinerBraiinsV1:
@@ -36,7 +39,9 @@ class MinerBraiinsV1:
             if sHeader is None:
                 Utils.throwExceptionHttpMissingHeader('command')
             return MinerBraiinsS9.cgMinerRequest(jObj['ip'], sHeader), 200, 'application/json'"""
-        if path.endswith("/Config"):
+        if path.endswith("/ApiVersion"):
+            return MinerBraiinsV1.getApiVersion(jObj), 200, 'application/json'
+        elif path.endswith("/Config"):
             return MinerBraiinsV1.getConfiguration(jObj), 200, 'application/json'
         elif path.endswith("/Constraints"):
             return MinerBraiinsV1.getConstraints(jObj), 200, 'application/json'
@@ -51,10 +56,11 @@ class MinerBraiinsV1:
                 Utils.throwExceptionHttpMissingHeader('inedx')
             index = int(index)
             return MinerBraiinsS9.sshDisablePool(jObj, index), 200, 'application/json'
-        elif path.endswith("/FaultLight"):
-            isEnabled: bool = headers.get('enabled') == "true"
-            isEnabled = bool(isEnabled)
-            return MinerBraiinsS9.sshFaultLight(jObj, isEnabled), 200, 'application/json'
+        elif path.endswith("/Password"):
+            newPassword: str = headers.get('newpassword')
+            if newPassword is None or newPassword.strip() == '':
+                Utils.throwExceptionHttpMissingHeader('newpassword')
+            return MinerBraiinsV1.setPassword(jObj, newPassword), 200, 'application/json'
         else:
             return 'Not found', 400, 'text/html'
     
@@ -68,38 +74,122 @@ class MinerBraiinsV1:
     HTTP handler END
     """
     
+    """
+    actions_pb2
+    """
+    # Get LED status 
     @staticmethod
-    def getConfiguration(jObj):
+    def getLocateDeviceStatus(jObj):
         token = MinerBraiinsV1.getJwtTokenStr(jObj)
-        request = configuration_pb2.GetMinerConfigurationRequest()
+        request = actions_pb2.GetLocateDeviceStatusRequest()
         response = Utils.grpcCall(
-            configuration_pb2_grpc.ConfigurationServiceStub,
-            "GetMinerConfiguration",
+            actions_pb2_grpc.ActionsServiceStub,
+            "GetLocateDeviceStatus",
             request,
             token,
             f"{jObj['ip']}:{50051}"
         )
-        response_dict = MessageToDict(response, preserving_proto_field_name=True)
-        response_json = json.dumps(response_dict, indent=2)
-        return response_json
+        return Utils.grpcProtobufToJson(response)
+
+    # Set LED status
+    @staticmethod
+    def postLocateDeviceStatus(jObj, enabled: bool):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = actions_pb2.SetLocateDeviceStatusRequest()
+        request.enabled = enabled
+        response = Utils.grpcCall(
+            actions_pb2_grpc.ActionsServiceStub,
+            "SetLocateDeviceStatus",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def getConstraints(jObj):
+    def postPause(jObj):
         token = MinerBraiinsV1.getJwtTokenStr(jObj)
-        request = configuration_pb2.GetConstraintsRequest()
+        request = actions_pb2.PauseMiningRequest()
         response = Utils.grpcCall(
-            configuration_pb2_grpc.ConfigurationServiceStub,
-            "GetConstraints",
+            actions_pb2_grpc.ActionsServiceStub,
+            "PauseMining",
             request,
             token,
             f"{jObj['ip']}:{50051}"
         )
-        print(f"getConstraints {response}")
-        response_dict = MessageToDict(response, preserving_proto_field_name=True)
-        response_json = json.dumps(response_dict, indent=2)
-        return response_json
-        
-        
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postReboot(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = actions_pb2.RebootRequest()
+        response = Utils.grpcCall(
+            actions_pb2_grpc.ActionsServiceStub,
+            "RebootMining",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postRestart(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = actions_pb2.RestartRequest()
+        response = Utils.grpcCall(
+            actions_pb2_grpc.ActionsServiceStub,
+            "RestartMining",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postResume(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = actions_pb2.ResumeMiningRequest()
+        response = Utils.grpcCall(
+            actions_pb2_grpc.ActionsServiceStub,
+            "ResumeMining",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postStart(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = actions_pb2.StartRequest()
+        response = Utils.grpcCall(
+            actions_pb2_grpc.ActionsServiceStub,
+            "Start",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postStop(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = actions_pb2.StopRequest()
+        response = Utils.grpcCall(
+            actions_pb2_grpc.ActionsServiceStub,
+            "Stop",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+    """
+    actions_pb2 END
+    """
+
+    """
+    authentication_pb2
+    """
     # Get the token from miner, param jObj: a miner JSON Object with IP and password
     @staticmethod
     def getJwtToken(jObj):
@@ -126,40 +216,127 @@ class MinerBraiinsV1:
             return response.token
         finally:
             channel.close()
-    
+
     @staticmethod
-    def setConfiguration(jObj):
-        print("setConfiguration1")
+    def setPassword(jObj, newPassword: str):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'newpassword', True, False)
         token = MinerBraiinsV1.getJwtTokenStr(jObj)
-        aip = f"{jObj['ip']}:{50051}"
-        request = configuration_pb2.SetMinerConfigurationRequest()
-
-        # Atualizar pools (exemplo)
-        pool_group = request.pool_groups.add()
-        pool_group.uid = "0"
-        pool_group.name = "Default"
-        pool = pool_group.pools.add()
-        pool.uid = "1"
-        pool.url = "stratum+tcp://192.168.178.138:23334"
-        pool.user = "bc1pdl59vd7up437l2a2gft8mhx5qd5dys3p2m4tvht3rc5m63csjgzqtjmphc"
-        pool.password = "x1"
-        pool.enabled = True
-
-        # Atualizar tuner (exemplo)
-        request.tuner.enabled = True
-        request.tuner.tuner_mode = configuration_pb2.TunerConfiguration.TUNER_MODE_HASHRATE_TARGET
-        request.tuner.hashrate_target.terahash_per_second = 70  # Novo valor
-
+        request = authentication_pb2.SetPasswordRequest()
+        request.password = newPassword
         response = Utils.grpcCall(
-            configuration_pb2_grpc.ConfigurationServiceStub,
-            "SetMinerConfiguration",
+            authentication_pb2_grpc.AuthenticationServiceStub,
+            "SetPassword",
             request,
             token,
-            aip
+            f"{jObj['ip']}:{50051}"
         )
-        print("Set Config Response")
-        print(response)
-        response_json = Utils.protobufToJson(response)
-        print("JSON Set Response:")
-        print(json.dumps(response_json, indent=2))
-        return {"status": "OK", "data": response_json}
+        return Utils.grpcProtobufToJson(response)
+    """
+    authentication_pb2 END
+    """
+
+    """
+    configuration_pb2
+    """
+    @staticmethod
+    def getConfiguration(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = configuration_pb2.GetMinerConfigurationRequest()
+        response = Utils.grpcCall(
+            configuration_pb2_grpc.ConfigurationServiceStub,
+            "GetMinerConfiguration",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def getConstraints(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = configuration_pb2.GetConstraintsRequest()
+        response = Utils.grpcCall(
+            configuration_pb2_grpc.ConfigurationServiceStub,
+            "GetConstraints",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        print(f"getConstraints {response}")
+        return Utils.grpcProtobufToJson(response)
+    """
+    configuration_pb2 END
+    """
+
+    """
+    cooling_pb2
+    """
+    @staticmethod
+    def getCoolingState(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = cooling_pb2.GetCoolingStateRequest()
+        response = Utils.grpcCall(
+            cooling_pb2_grpc.CoolingServiceStub,
+            "GetCoolingState",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postImmersionMode(jObj, enabled: bool):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = cooling_pb2.SetImmersionModeRequest()
+        request.enabled = enbaled
+        response = Utils.grpcCall(
+            cooling_pb2_grpc.CoolingServiceStub,
+            "SetImmersionMode",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        print(f"getConstraints {response}")
+        return Utils.grpcProtobufToJson(response)
+
+    @staticmethod
+    def postCoolingMode(jObj, mode: str, fanSpeedRpm: int = None):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = cooling_pb2.SetCoolingModeRequest()
+        if mode is None or mode.strip() == '':
+            Utils.throwExceptionHttpMissingHeader('mode')
+        request.mode = mode
+        if fanSpeedRpm is not None:
+            request.fan_speed_rpm = fanSpeedRpm
+        response = Utils.grpcCall(
+            cooling_pb2_grpc.CoolingServiceStub,
+            "SetCoolingMode",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        print(f"getConstraints {response}")
+        return Utils.grpcProtobufToJson(response)
+    """
+    cooling_pb2 END
+    """
+
+    """
+    version_pb2
+    """
+    @staticmethod
+    def getApiVersion(jObj):
+        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        request = version_pb2.ApiVersionRequest()
+        response = Utils.grpcCall(
+            version_pb2_grpc.ApiVersionServiceStub,
+            "GetApiVersion",
+            request,
+            token,
+            f"{jObj['ip']}:{50051}"
+        )
+        return Utils.grpcProtobufToJson(response)
+    """
+    version_pb2 END
+    """
