@@ -22,7 +22,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from bos.v1 import units_pb2 as bos_dot_v1_dot_units__pb2
+from . import units_pb2 as bos_dot_v1_dot_units__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x62os/v1/work.proto\x12\x0e\x62raiins.bos.v1\x1a\x12\x62os/v1/units.proto\"\xef\x03\n\x0cRealHashrate\x12-\n\x07last_5s\x18\x01 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12.\n\x08last_15s\x18\x02 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12.\n\x08last_30s\x18\x03 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12-\n\x07last_1m\x18\x04 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12-\n\x07last_5m\x18\x05 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12.\n\x08last_15m\x18\x06 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12.\n\x08last_30m\x18\x07 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12-\n\x07last_1h\x18\x08 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12.\n\x08last_24h\x18\t \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12\x33\n\rsince_restart\x18\n \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\"\xde\x01\n\x0fWorkSolverStats\x12\x33\n\rreal_hashrate\x18\x01 \x01(\x0b\x32\x1c.braiins.bos.v1.RealHashrate\x12\x36\n\x10nominal_hashrate\x18\x02 \x01(\x0b\x32\x1c.braiins.bos.v1.GigaHashrate\x12\x34\n\x0e\x65rror_hashrate\x18\x03 \x01(\x0b\x32\x1c.braiins.bos.v1.MegaHashrate\x12\x14\n\x0c\x66ound_blocks\x18\x04 \x01(\r\x12\x12\n\nbest_share\x18\x05 \x01(\x04\x42=Z;github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1b\x06proto3')

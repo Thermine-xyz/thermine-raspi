@@ -243,9 +243,12 @@ class Miner:
                     jAry[index] = jData
                     isFound = True
                     break
-
+            action = "update"
             if not isFound: # add in case new UUID
                 jAry.append(jData)
+                action = "add"
+            event = {"action":action,"data":jData}
+            Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
             Miner.setData(jAry)
         else:
             Utils.throwExceptionInvalidValue(json.dumps(jData));

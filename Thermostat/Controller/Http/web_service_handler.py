@@ -4,6 +4,12 @@ from ..Miner import Miner
 import json
 import time
 
+def handle_del(path, headers):
+    if path == "/Miner":
+        contentStr = post_data.decode('utf-8')
+        Miner.setDataStr(contentStr);
+        return Utils.resultJsonOK(), 200, 'application/json'
+sadadadas
 def handle_get(path, headers):
     if path == "/Echo":
         return Utils.resultJsonOK(), 200, 'application/json'

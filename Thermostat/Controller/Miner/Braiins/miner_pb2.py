@@ -22,11 +22,11 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from bos.v1 import common_pb2 as bos_dot_v1_dot_common__pb2
-from bos.v1 import cooling_pb2 as bos_dot_v1_dot_cooling__pb2
-from bos.v1 import pool_pb2 as bos_dot_v1_dot_pool__pb2
-from bos.v1 import units_pb2 as bos_dot_v1_dot_units__pb2
-from bos.v1 import work_pb2 as bos_dot_v1_dot_work__pb2
+from . import common_pb2 as bos_dot_v1_dot_common__pb2
+from . import cooling_pb2 as bos_dot_v1_dot_cooling__pb2
+from . import pool_pb2 as bos_dot_v1_dot_pool__pb2
+from . import units_pb2 as bos_dot_v1_dot_units__pb2
+from . import work_pb2 as bos_dot_v1_dot_work__pb2
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 

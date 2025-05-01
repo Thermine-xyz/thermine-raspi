@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from bos.v1 import miner_pb2 as bos_dot_v1_dot_miner__pb2
+from . import miner_pb2 as bos_dot_v1_dot_miner__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__

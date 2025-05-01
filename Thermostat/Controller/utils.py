@@ -127,7 +127,23 @@ class Utils:
             elif isRaiseExcpt:
                 Utils.throwExceptionInvalidValue(f"JSON key is not string: {key}")
             else:
-                return False        
+                return False
+
+    @staticmethod
+    def minerIpBraiinsV1(jObj) -> str:
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        ip = jObj['ip'].strip()  # Remove espaços em branco
+        # Checks if current IP contains a port
+        if ':' in ip:
+            # Check if port is number only
+            ip_parts = ip.split(':')
+            if len(ip_parts) == 2 and ip_parts[1].isdigit():
+                return ip
+            else:
+                raise ValueError(f"Invalid IP format with port: {ip}")
+        else:
+            # Adds the default port
+            return f"{ip}:50051"
 
     # Returns current date time in timestamp UTC
     @staticmethod
@@ -241,6 +257,34 @@ class Utils:
     @staticmethod
     def uuidRandom():
         return str(uuid.uuid4())
+    
+    class PubSub:
+        # Expected JSON format: {"action":add,update,del,"data":JSON array or objet changed}
+        TOPIC_DATA_HAS_CHANGED = 'DataHasChanged'
+        
+        def __init__(self):
+            self.subscribers = {}  # Dictionary: topics -> callback list
+
+        def subscribe(self, topic, callback):
+            """Subscribe for a topic"""
+            if topic not in self.subscribers:
+                self.subscribers[topic] = []
+            self.subscribers[topic].append(callback)
+
+        def unsubscribe(self, topic, callback):
+            """Remove the topic subscription"""
+            if topic in self.subscribers:
+                self.subscribers[topic].remove(callback)
+                if not self.subscribers[topic]:
+                    del self.subscribers[topic]
+
+        def publish(self, topic, *args, **kwargs):
+            """Publish a msg for all topic's subcriber"""
+            if topic in self.subscribers:
+                for callback in self.subscribers[topic]:
+                    callback(*args, **kwargs)
+    # Global PubSub instance
+    pubsub_instance = PubSub()
 
 # Explicit calls initialization
 Utils.initialize()

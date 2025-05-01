@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from bos.v1 import cooling_pb2 as bos_dot_v1_dot_cooling__pb2
+from . import cooling_pb2 as bos_dot_v1_dot_cooling__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
