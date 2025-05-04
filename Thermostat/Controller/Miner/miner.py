@@ -9,10 +9,10 @@ from .miner_braiins_v1 import MinerBraiinsV1
 from .miner_vnish import MinerVnish
 
 from enum import Enum
-
+import json
+import mmap
 import os
 import threading
-import json
 
 class Miner:
 
@@ -21,12 +21,69 @@ class Miner:
     ip: str
     fwtp: str # Firmware Type = braiins,vnish  | Default or Empty=vnish
 
+    @staticmethod
+    def binaryReadingFile(fileName, dateFrom, dateTo):
+        results = []
+        with open(fileName, 'r', encoding='utf-8') as file:
+            size = os.path.getsize(fileName)
+            with mmap.mmap(file.fileno(), length=0, access=mmap.ACCESS_READ) as mm:
+                start = 0
+                end = size
+
+                # find the start of the line
+                def findLineStart(pos):
+                    while pos > 0 and mm[pos - 1:pos] != b'\n':
+                        pos -= 1
+                    return pos
+
+                # Binary search to find first timestamp
+                posStart = None
+                while start < end:
+                    mid = (start+end) // 2
+                    lineStart = findLineStart(mid)
+                    mm.seek(lineStart)
+                    line = mm.readline().decode().strip()
+                    if not line:
+                        break
+                    try:
+                        timestamp = int(line.split(";")[0])
+                    except ValueError:
+                        break
+                    if timestamp < dateFrom:
+                        start = mm.tell()
+                    else:
+                        end = lineStart
+                        posStart = lineStart
+                if posStart is None:
+                    return []  # Nenhum dado no intervalo
+
+                # Lê linhas sequencialmente a partir da posição encontrada
+                mm.seek(posStart)
+                while True:
+                    line = mm.readline()
+                    if not line:
+                        break
+                    line = line.decode().strip()
+                    if not line:
+                        continue
+                    try:
+                        timestamp = int(line.split(";")[0])
+                        if timestamp > dateTo:
+                            break
+                        if dateFrom <= timestamp <= dateTo:
+                            results.append(line)
+                    except ValueError:
+                        continue
+        return results
+
+                    
     # Lock the read and write for the file, 1 proccess per time
     lockFile = threading.Lock()
     class CompatibleFirmware(Enum):
         braiinsV1 = 'braiinsV1'
         braiinsS9 = 'braiinsS9'
         vnish = 'vnish'
+        
         # Returns the enum based on the param as name (string) of index (int), default=vnish
         @classmethod
         def get(cls, param):
@@ -62,21 +119,95 @@ class Miner:
     # Returns the miner JSON Object with same UUID
     @staticmethod
     def dataAsJsonObjectUuid(uuid):
-        if isinstance(uuid, str): # in case it is string, should be miner unique UUID
-            if not Utils.uuidIsValid(uuid):
+        uuidLocal = uuid
+        if isinstance(uuidLocal, str): # in case it is string, should be miner unique UUID
+            if not Utils.uuidIsValid(uuidLocal):
                 Utils.throwExceptionInvalidValue(f"Is not miner UUID: {uuid}")
-            # Loop the current miner list, finding the uuid
-            jObj = next((jObj for jObj in Miner.dataAsJson() if jObj["uuid"] == uuid), None)
-            if jObj == None:
-                Utils.throwExceptionResourceNotFound(f"Miner UUID {uuid}")
-            return jObj
-        return None
+        elif Utils.jsonCheckIsObj(uuid):
+            Utils.jsonCheckKeyTypeStr(uuid, 'uuid', True, False)
+            uuidLocal = uuid['uuid']
+            
+        # Loop the current miner list, finding the uuid
+        jObj = next((jObj for jObj in Miner.dataAsJson() if jObj["uuid"] == uuidLocal), None)
+        if jObj == None:
+            Utils.throwExceptionResourceNotFound(f"Miner UUID {uuid}")
+        return jObj
 
     # Returns the full JSON Array as string
     @staticmethod
     def dataAsJsonString():
         jAry = Miner.dataAsJson()
         return json.dumps(jAry)
+
+    # Returns the last reading Temp, hashrate, etc
+    @staticmethod
+    def dataCurrentStatus(jObj):
+        result = {}
+        result['hasrate'] = Miner.dataHashrateLastJson(jObj)
+        result['temp'] = Miner.dataTemperatureLastJson(jObj)
+        return result
+
+    @staticmethod
+    def dataHashrate(jObj, dateFrom, dateTo):
+        result = []
+        if not isinstance(jObj, dict):
+            jObj = Miner.dataAsJsonObjectUuid(jObj)
+        path = Utils.pathDataMinerHashrate(jObj)
+        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
+        with lock:
+            result = Miner.binaryReadingFile(path, dateFrom, dateTo)
+        return "\n".join(result)
+    @staticmethod
+    def dataHashrateLast(jObj):
+        if not isinstance(jObj, dict):
+            jObj = Miner.dataAsJsonObjectUuid(jObj)
+        path = Utils.pathDataMinerHashrate(jObj)
+        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
+        with lock:
+            with open(path, 'r', encoding='utf-8') as file:
+                # find the list line
+                lineLast = file.readlines()[-1]
+                timestamp, hashrate = lineLast.strip().split(';')
+
+                timestamp = int(timestamp)
+                hashrate = float(hashrate)                
+                return timestamp, hashrate
+    @staticmethod
+    def dataHashrateLastJson(jObj):
+        timestamp, hashrate = Miner.dataHashrateLast(jObj)
+        return { "timestamp" : timestamp, "hashrate" : hashrate}
+
+    @staticmethod
+    def dataTemperature(jObj, dateFrom, dateTo):
+        result = []
+        if not isinstance(jObj, dict):
+            jObj = Miner.dataAsJsonObjectUuid(jObj)
+        path = Utils.pathDataMinerTemp(jObj)
+        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
+        with lock:
+            result = Miner.binaryReadingFile(path, dateFrom, dateTo)
+        return "\n".join(result)
+    @staticmethod
+    def dataTemperatureLast(jObj):
+        if not isinstance(jObj, dict):
+            jObj = Miner.dataAsJsonObjectUuid(jObj)
+        path = Utils.pathDataMinerTemp(jObj)
+        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
+        with lock:
+            with open(path, 'r', encoding='utf-8') as file:
+                # find the list line
+                lineLast = file.readlines()[-1]
+                timestamp, tBoard, tChip = lineLast.strip().split(';')
+
+                timestamp = int(timestamp)
+                tBoard = float(tBoard)
+                tChip = float(tChip)
+                
+                return timestamp, tBoard, tChip
+    @staticmethod
+    def dataTemperatureLastJson(jObj):
+        timestamp, tBoard, tChip = Miner.dataTemperatureLast(jObj)
+        return { "timestamp" : timestamp, "tBoard" : tBoard, "tChip" : tChip}
 
     # Handles HTTP request for BraiinsS9
     @staticmethod
@@ -165,7 +296,7 @@ class Miner:
                 return { "result": jObj['fwtp']}
                 break
             except Exception as e:
-                print(f"minerFirmware {fwtp} error {e}")
+                Utils.logger.info(f"minerFirmware  {fwtp} error {e}")
                 pass # Do nothing, keep looping
         if result == False:
           Utils.throwExceptionResourceNotFound(f"Firmware for: {sOrigianl}")
@@ -194,14 +325,20 @@ class Miner:
     
     @staticmethod
     def minerSummary(s):
+        print('1')
         jObj = Miner.dataAsJsonObjectUuid(s)
+        print('2')
         # It is expected to have jObj with the miners data
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
+        print('3')
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            print('4')
             return MinerBraiinsV1.summary(jObj)
         elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+            print('5')
             return MinerBraiinsS9.summary(jObj)
         else:
+            print('6')
             return MinerVnish.summary(jObj)
 
     # Returns the miner.json full path, creates it if doesn't exists
@@ -261,3 +398,24 @@ class Miner:
         except Exception as e:
             Utils.throwExceptionInvalidValue(jStr);
         Miner.setData(jData)
+    
+    """
+    MinerService
+    """
+    # Get data from miner and save it locally
+    @staticmethod
+    def minerServiceGetData(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
+        if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            MinerBraiinsV1.minerServiceGetData(jObj)
+        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+            MinerBraiinsS9.minerServiceGetData(jObj)
+        else:
+            Utils.throwExceptionInvalidValue(f"minerServiceGetData Unknown Firmware: {fwtp}")
+        
+        # Returns OK if no error was raised
+        return Utils.resultJsonOK()
+    """
+    MinerService END
+    """

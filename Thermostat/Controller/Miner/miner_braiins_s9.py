@@ -36,16 +36,22 @@ class MinerBraiinsS9:
         sock.close()
         # print(f"{response}")
         jObj = json.loads(response.replace('\x00', ''))
+        MinerBraiinsS9.cgCheckStatusResponse(jObj)
+        return jObj
+
+    # Check if the gRPC status response is STATUS=S, raise exception if find anything wrong
+    @staticmethod
+    def cgCheckStatusResponse(jObj):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyExists(jObj, 'STATUS', True) # based on return of Summary method
         if not isinstance(jObj['STATUS'], list) or len(jObj['STATUS']) == 0:
-            Utils.throwExceptionInvalidValue("jObj['STATUS'] is not JSON Array");
+            Utils.throwExceptionInvalidValue("jObj['STATUS'] is not JSON Array")
         jAry = jObj['STATUS']
         Utils.jsonCheckKeyExists(jAry[0], 'STATUS', True)
         value = jAry[0]['STATUS']
         if not isinstance(value, str) or value.strip() != 'S':
-            Utils.throwExceptionInvalidValue(f"cgMinerRequest response {jObj}");
-        return jObj
+            Utils.throwExceptionInvalidValue(f"cgMinerRequest response {jObj}")
+        return None
     """
     All gRPC methods
     """
@@ -290,6 +296,51 @@ class MinerBraiinsS9:
     """
     All Thermine methods END
     """
+
+    """
+    MinerService
+    """
+    # Get data from miner and save it locally
+    @staticmethod
+    def minerServiceGetData(jObj):
+        try: # Hashrate(MHs)
+            jObjRtr = MinerBraiinsS9.grpcSummary(jObj)
+            MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
+            hashRate = 0.0
+            for jObjS in jObjRtr['SUMMARY']:
+                hashRate = hashRate + jObjS['MHS 5s']
+            hashRate = round((hashRate/1000)/1000,4)
+            path = Utils.pathDataMinerHashrate(jObj)
+            lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
+            with lock:
+                with open(path, 'a', encoding='utf-8') as file:
+                    file.write(f"{Utils.nowUtc()};{hashRate}\n")
+        except Exception as e:
+            Utils.logger.error(f"BraiinsS9 minerServiceGetData hashrate {jObj['uuid']} error {e}")
+
+        try: # Temp
+            jObjRtr = MinerBraiinsS9.grpcTemps(jObj)
+            MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
+            tBoard = 0.0
+            tChip = 0.0
+            if len(jObjRtr['TEMPS']) > 0:
+                for jObjS in jObjRtr['TEMPS']:
+                    tBoard = tBoard + jObjS['Board']
+                    tChip = tChip + jObjS['Chip']
+                tBoard = round(tBoard / len(jObjRtr['TEMPS']),4)
+                tChip = round(tChip / len(jObjRtr['TEMPS']),4)
+                path = Utils.pathDataMinerTemp(jObj)
+                lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
+                with lock:
+                    with open(path, 'a', encoding='utf-8') as file:
+                        file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
+        except Exception as e:
+            Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
+        # Returns OK if no error was raised
+        return Utils.resultJsonOK()
+    """
+    MinerService END
+    """
     
 # Classes to manage SSH files bosminer.toml
 import toml
@@ -439,7 +490,6 @@ class BraiinsConfig:
         toml_str = toml_str.replace('"', '\\"').replace('\n', '\\n')
         cmd = f'echo -e "{toml_str}" > {filepath}'
         return Utils.sshExecCommand(ip, user, pwrd, cmd)
-        
 
     def to_dict(self) -> dict:
         """Serialize to TOML format"""

@@ -46,6 +46,7 @@ Result: pip 25.0.1<br />
 
 ### General packages
 python3 -m pip install requests==2.32.3<br />
+python3 -m pip install readerwriterlock<br />
 
 ### gRPC: for Braiins V1
 pip3 install grpcio==1.71.0 grpcio-tools==1.71.0<br />

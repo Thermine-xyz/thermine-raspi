@@ -3,15 +3,16 @@ from dataclasses import dataclass, asdict
 from typing import Any, Callable, List, Type, TypeVar
 from .log import Logger
 
+from google.protobuf.json_format import MessageToDict
+import grpc
 import json
 import os
+import paramiko
+import re
+from readerwriterlock import rwlock
+import threading
 import time
 import uuid
-import threading
-import re
-import grpc
-from google.protobuf.json_format import MessageToDict
-import paramiko
 
 class Utils:
     
@@ -19,6 +20,7 @@ class Utils:
     
     logger : Logger = None
     lockFileConfigThermine = None
+    filesLock = {} # Stores the locks for random files
     
     @classmethod
     def initialize(cls):
@@ -37,7 +39,13 @@ class Utils:
     def dataClassListToJson(jsonStr: str, dataClassType: Type[T]) -> List[T]:
         objListDict = json.loads(jsonStr)
         return [dataClassType(**objDict) for objDict in objListDict]
-    
+
+    @staticmethod
+    def getFileLock(fileName):
+        if fileName not in Utils.filesLock:
+            Utils.filesLock[fileName] = rwlock.RWLockFair()
+        return Utils.filesLock[fileName]
+
     # Creates a gRPC channel without channel-level authentication
     @staticmethod
     def grpcChannel(aip: str):
@@ -176,6 +184,16 @@ class Utils:
             os.makedirs(path)
         return path
 
+    @staticmethod
+    def pathDataMinerHashrate(jObj):
+        """file format: utc timestamp;THs"""
+        path = os.path.join(Utils.pathData(),f"hashrate_{jObj['uuid']}")
+        return path
+    @staticmethod
+    def pathDataMinerTemp(jObj):
+        """file format: utc timestamp;avg board temp;avg chip temp"""
+        path = os.path.join(Utils.pathData(),f"temp_{jObj['uuid']}")
+        return path
 
     # Returns the thermine_config.json path, creates if doesn't exist
     @staticmethod

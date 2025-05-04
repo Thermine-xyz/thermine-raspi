@@ -336,6 +336,7 @@ class MinerBraiinsV1Proto:
             token,
             Utils.minerIpBraiinsV1(jObj)
         )
+        print(f"getHashboards {Utils.grpcProtobufToJson(response)}")
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod

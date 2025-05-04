@@ -12,6 +12,7 @@ import socketserver
 import base64
 import json
 import threading
+import queue
 
 # Fixed user and pass
 USERNAME = "admin"
@@ -130,13 +131,26 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
 Handler = HttpHandler
 
 # Start listen (locks the process)
-def Listen():
-    with socketserver.TCPServer(("", CWebServicePort), Handler) as httpd:
-        print(f"Server HTTP runing on port {CWebServicePort}")
-        httpd.serve_forever()
+def Listen(statusQueue):
+    try:
+        with socketserver.TCPServer(("", CWebServicePort), Handler) as httpd:
+            Utils.logger.info(f"Server HTTP runing on port {CWebServicePort}")
+            statusQueue.put(True)
+            httpd.serve_forever()
+    except Exception as e:
+        Utils.logger.error(f"web_service Listen error {e}")
+        statusQueue.put(False)
 
 # Start listen in a thread, doest not lock the process
 def ListenThread():
-    server_thread = threading.Thread(target=Listen)
+    statusQueue = queue.Queue()
+    server_thread = threading.Thread(target=Listen, args=(statusQueue,))
     server_thread.start()
-    Utils.logger.info("web_service ListenThread")
+    try:
+        started_ok = statusQueue.get(timeout=5) # wait 5 sec for the Thread process
+        if started_ok:
+            Utils.logger.info("web_service ListenThread")
+        else:
+            raise Exception("web_service ListenThread did not started properly")
+    except queue.Empty:
+        Utils.logger.error("web_service ListenThread error timeout")

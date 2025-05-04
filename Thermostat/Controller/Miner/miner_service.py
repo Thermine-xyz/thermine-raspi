@@ -12,8 +12,8 @@ class MinerService:
         """Initialize a MinerService instance with a JSON object."""
         self.jObj = jObj  # Specific miner JSON object
         self.lock = Utils.threadingLock()  # Thread-safe lock for jObj updates
-        self.stop_event = threading.Event()  # Control thread termination
-        self.thread = None  # Reference to the instance's thread
+        self.stopReadData = threading.Event()  # Control thread termination
+        self.threadReadData = None  # Reference to the instance's thread
         # Subscribe to Pub/Sub topic using the PubSub instance
         Utils.pubsub_instance.subscribe(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, self.dataHasChanged)
 
@@ -39,30 +39,31 @@ class MinerService:
 
     def run(self):
         """Continuous process executed by the instance's thread."""
-        while not self.stop_event.is_set():
+        while not self.stopReadData.is_set():
             # Example continuous process: access jObj and perform actions
             with self.lock:
                 uuid = self.jObj.get('uuid', 'unknown')
-            Utils.logger.info(f"running...")
-            # Replace with actual logic, e.g.:
-            # - Read miner data
-            # - Publish events
-            # - Update state
+            try:
+                Utils.logger.info(f"running...")
+                Miner.minerServiceGetData(self.jObj)
+            except Exception as e:
+                Utils.logger.error(f"minerService.run {uuid} error {e}")
+                pass # Do nothing, keep looping
             time.sleep(5)  # Simulate work (replace with actual logic)
 
     def start(self):
         """Start the thread for this instance."""
-        if self.thread is None or not self.thread.is_alive():
-            self.stop_event.clear()  # Reset stop event
-            self.thread = threading.Thread(target=self.run, name=f"MinerService-{self.jObj.get('uuid', 'unknown')}")
-            self.thread.start()
+        if self.threadReadData is None or not self.threadReadData.is_alive():
+            self.stopReadData.clear()  # Reset stop event
+            self.threadReadData = threading.Thread(target=self.run, name=f"MinerService-{self.jObj.get('uuid', 'unknown')}")
+            self.threadReadData.start()
             Utils.logger.info(f"Started thread for MinerService {self.jObj.get('uuid', 'unknown')}")
 
     def stop(self):
         """Stop the thread and clean up the instance."""
-        if self.thread and self.thread.is_alive():
-            self.stop_event.set()  # Signal thread to stop
-            self.thread.join()  # Wait for thread to terminate
+        if self.threadReadData and self.threadReadData.is_alive():
+            self.stopReadData.set()  # Signal thread to stop
+            self.threadReadData.join()  # Wait for thread to terminate
             Utils.logger.info(f"Stopped thread for MinerService {self.jObj.get('uuid', 'unknown')}")
         # Unsubscribe from Pub/Sub using the PubSub instance
         Utils.pubsub_instance.unsubscribe(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, self.dataHasChanged)
@@ -95,6 +96,7 @@ class MinerServiceManager:
             return
         if event_action == 'add':
             self.add(jObj)
+            return
 
     def start(self):
         """Start MinerService for each jObj."""
@@ -142,8 +144,8 @@ def checkEventData(event):
         Utils.logger.error(f"checkEventData: Missing 'action' key")
         return None, None
     # Check if event contains 'data' key with string type
-    if not Utils.jsonCheckKeyTypeStr(event, 'data', False, False):
-        Utils.logger.error(f"checkEventData: Missing 'data' key")
+    if not Utils.jsonCheckKeyExists(event, 'data', False):
+        Utils.logger.error(f"checkEventData: Missing 'data' key: {event}")
         return None, None
     jObj = event['data']
     # Check if jObj is a dictionary
