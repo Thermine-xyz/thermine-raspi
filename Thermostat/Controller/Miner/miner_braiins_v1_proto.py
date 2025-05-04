@@ -23,7 +23,7 @@ class MinerBraiinsV1Proto:
     # Get LED status 
     @staticmethod
     def getLocateDeviceStatus(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.GetLocateDeviceStatusRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -37,7 +37,7 @@ class MinerBraiinsV1Proto:
     # Set LED status
     @staticmethod
     def postLocateDeviceStatus(jObj, enabled: bool):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.SetLocateDeviceStatusRequest()
         request.enabled = enabled
         response = Utils.grpcCall(
@@ -51,7 +51,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postPause(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.PauseMiningRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -64,7 +64,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postReboot(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.RebootRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -77,7 +77,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postRestart(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.RestartRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -90,7 +90,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postResume(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.ResumeMiningRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -103,7 +103,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postStart(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.StartRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -116,7 +116,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postStop(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = actions_pb2.StopRequest()
         response = Utils.grpcCall(
             actions_pb2_grpc.ActionsServiceStub,
@@ -136,8 +136,8 @@ class MinerBraiinsV1Proto:
     # Get the token from miner, param jObj: a miner JSON Object with IP and password
     @staticmethod
     def getJwtToken(jObj):
-        #return {"token": MinerBraiinsV1.getJwtTokenStr, "exp": response.timeout_s}
-        tokenStr = MinerBraiinsV1.getJwtTokenStr(jObj)
+        #return {"token": MinerBraiinsV1Proto.getJwtTokenStr, "exp": response.timeout_s}
+        tokenStr = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         return {"token": tokenStr}
     
     @staticmethod
@@ -164,7 +164,7 @@ class MinerBraiinsV1Proto:
     def setPassword(jObj, newPassword: str):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'newpassword', True, False)
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = authentication_pb2.SetPasswordRequest()
         request.password = newPassword
         response = Utils.grpcCall(
@@ -184,7 +184,7 @@ class MinerBraiinsV1Proto:
     """
     @staticmethod
     def getConfiguration(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = configuration_pb2.GetMinerConfigurationRequest()
         response = Utils.grpcCall(
             configuration_pb2_grpc.ConfigurationServiceStub,
@@ -197,7 +197,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def getConstraints(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = configuration_pb2.GetConstraintsRequest()
         response = Utils.grpcCall(
             configuration_pb2_grpc.ConfigurationServiceStub,
@@ -206,7 +206,6 @@ class MinerBraiinsV1Proto:
             token,
             Utils.minerIpBraiinsV1(jObj)
         )
-        print(f"getConstraints {response}")
         return Utils.grpcProtobufToJson(response)
     """
     configuration_pb2 END
@@ -217,7 +216,7 @@ class MinerBraiinsV1Proto:
     """
     @staticmethod
     def getCoolingState(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = cooling_pb2.GetCoolingStateRequest()
         response = Utils.grpcCall(
             cooling_pb2_grpc.CoolingServiceStub,
@@ -230,7 +229,7 @@ class MinerBraiinsV1Proto:
 
     @staticmethod
     def postImmersionMode(jObj, enabled: bool):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = cooling_pb2.SetImmersionModeRequest()
         request.enabled = enbaled
         response = Utils.grpcCall(
@@ -240,12 +239,11 @@ class MinerBraiinsV1Proto:
             token,
             Utils.minerIpBraiinsV1(jObj)
         )
-        print(f"getConstraints {response}")
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
     def postCoolingMode(jObj, mode: str, fanSpeedRpm: int = None):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = cooling_pb2.SetCoolingModeRequest()
         if mode is None or mode.strip() == '':
             Utils.throwExceptionHttpMissingHeader('mode')
@@ -259,7 +257,6 @@ class MinerBraiinsV1Proto:
             token,
             Utils.minerIpBraiinsV1(jObj)
         )
-        print(f"getConstraints {response}")
         return Utils.grpcProtobufToJson(response)
     """
     cooling_pb2 END
@@ -270,8 +267,8 @@ class MinerBraiinsV1Proto:
     """
     # Get LED status 
     @staticmethod
-    def getMinerStatus(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerGetStatus(jObj):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetMinerStatusRequest()
         response = Utils.grpcCall(
             miner_pb2_grpc.MinerServiceStub,
@@ -283,9 +280,8 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def getMinerDetails(jObj):
-        print("getMinerDetails1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerGetDetails(jObj):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetMinerDetailsRequest()
         response = Utils.grpcCall(
             miner_pb2_grpc.MinerServiceStub,
@@ -297,9 +293,8 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def getMinerStats(jObj):
-        print("getMinerStats1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerGetStats(jObj):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetMinerStatsRequest()
         response = Utils.grpcCall(
             miner_pb2_grpc.MinerServiceStub,
@@ -311,9 +306,8 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def getErrors(jObj):
-        print("getErrors1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minersGetErrors(jObj):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetErrorsRequest()
         response = Utils.grpcCall(
             miner_pb2_grpc.MinerServiceStub,
@@ -325,9 +319,8 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def getHashboards(jObj):
-        print("getHashboards1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerGetHashboards(jObj):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetHashboardsRequest()
         response = Utils.grpcCall(
             miner_pb2_grpc.MinerServiceStub,
@@ -336,13 +329,11 @@ class MinerBraiinsV1Proto:
             token,
             Utils.minerIpBraiinsV1(jObj)
         )
-        print(f"getHashboards {Utils.grpcProtobufToJson(response)}")
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def enableHashboards(jObj, hashboard_ids: list):
-        print("enableHashboards1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerEnableHashboards(jObj, hashboard_ids: list):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.EnableHashboardsRequest()
         request.hashboard_ids.extend(hashboard_ids)
         response = Utils.grpcCall(
@@ -355,9 +346,8 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def disableHashboards(jObj, hashboard_ids: list):
-        print("disableHashboards1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerDisableHashboards(jObj, hashboard_ids: list):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.DisableHashboardsRequest()
         request.hashboard_ids.extend(hashboard_ids)
         response = Utils.grpcCall(
@@ -370,9 +360,8 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def getSupportArchive(jObj):
-        print("getSupportArchive1")
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+    def minerGetSupportArchive(jObj):
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetSupportArchiveRequest()
         response = Utils.grpcCall(
             miner_pb2_grpc.MinerServiceStub,
@@ -398,7 +387,7 @@ class MinerBraiinsV1Proto:
     """
     @staticmethod
     def getApiVersion(jObj):
-        token = MinerBraiinsV1.getJwtTokenStr(jObj)
+        token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = version_pb2.ApiVersionRequest()
         response = Utils.grpcCall(
             version_pb2_grpc.ApiVersionServiceStub,

@@ -325,20 +325,14 @@ class Miner:
     
     @staticmethod
     def minerSummary(s):
-        print('1')
         jObj = Miner.dataAsJsonObjectUuid(s)
-        print('2')
         # It is expected to have jObj with the miners data
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
-        print('3')
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            print('4')
             return MinerBraiinsV1.summary(jObj)
         elif fwtp == Miner.CompatibleFirmware.braiinsS9:
-            print('5')
             return MinerBraiinsS9.summary(jObj)
         else:
-            print('6')
             return MinerVnish.summary(jObj)
 
     # Returns the miner.json full path, creates it if doesn't exists

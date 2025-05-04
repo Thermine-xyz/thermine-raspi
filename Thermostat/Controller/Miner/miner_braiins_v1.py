@@ -1,17 +1,5 @@
 from ..utils import Utils
 from .miner_braiins_v1_proto import MinerBraiinsV1Proto
-from .Braiins import actions_pb2
-from .Braiins import actions_pb2_grpc
-from .Braiins import authentication_pb2
-from .Braiins import authentication_pb2_grpc
-from .Braiins import configuration_pb2
-from .Braiins import configuration_pb2_grpc
-from .Braiins import cooling_pb2
-from .Braiins import cooling_pb2_grpc
-from .Braiins import miner_pb2
-from .Braiins import miner_pb2_grpc
-from .Braiins import version_pb2
-from .Braiins import version_pb2_grpc
 
 import grpc
 import json
@@ -20,16 +8,7 @@ class MinerBraiinsV1:
     # Check if the miner is online
     @staticmethod
     def echo(jObj):
-        if not isinstance(jObj, dict):
-            Utils.throwExceptionInvalidValue("jObj is not JSON Object")
-        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-        channel = Utils.grpcChannel(MinerBraiinsV1.minerIp(jObj))
-        try:
-            stub = version_pb2_grpc.ApiVersionServiceStub(channel)
-            request = version_pb2.ApiVersionRequest()
-            response = stub.GetApiVersion(request)
-        finally:
-            channel.close()
+        MinerBraiinsV1Proto.getApiVersion(jObj)
         return None
 
     # Check if the miner is online
@@ -43,11 +22,6 @@ class MinerBraiinsV1:
     """
     @staticmethod
     def httpHandlerGet(path, headers, jObj):        
-        """if path.endswith("/Generic"):
-            sHeader: str = headers.get('command')
-            if sHeader is None:
-                Utils.throwExceptionHttpMissingHeader('command')
-            return MinerBraiinsS9.cgMinerRequest(jObj['ip'], sHeader), 200, 'application/json'"""
         if path.endswith("/ApiVersion"):
             return MinerBraiinsV1Proto.getApiVersion(jObj), 200, 'application/json'
         elif path.endswith("/Config"):
@@ -55,18 +29,21 @@ class MinerBraiinsV1:
         elif path.endswith("/Constraints"):
             return MinerBraiinsV1Proto.getConstraints(jObj), 200, 'application/json'
         
+        elif path.endswith("/Cooling/State"):
+            return MinerBraiinsV1Proto.getCoolingState(jObj), 200, 'application/json'
+        
         elif path.endswith("/Miner/Details"):
-            return MinerBraiinsV1Proto.getMinerDetails(Obj), 200, 'application/json'
+            return MinerBraiinsV1Proto.minerGetDetails(jObj), 200, 'application/json'
         elif path.endswith("/Miner/Errors"):
-            return MinerBraiinsV1Proto.getMinerErrors(Obj), 200, 'application/json'
+            return MinerBraiinsV1Proto.minerGetErrors(jObj), 200, 'application/json'
         elif path.endswith("/Miner/Hashboards"):
-            return MinerBraiinsV1Proto.getMinerHashboards(Obj), 200, 'application/json'
+            return MinerBraiinsV1Proto.minerGetHashboards(jObj), 200, 'application/json'
         elif path.endswith("/Miner/Status"):
-            return MinerBraiinsV1Proto.getMinerStatus(Obj), 200, 'application/json'
+            return MinerBraiinsV1Proto.minerGetStatus(jObj), 200, 'application/json'
         elif path.endswith("/Miner/Stats"):
-            return MinerBraiinsV1Proto.getMinerStats(Obj), 200, 'application/json'
+            return MinerBraiinsV1Proto.minerGetStats(jObj), 200, 'application/json'
         elif path.endswith("/Miner/SupportArchive"):
-            return MinerBraiinsV1Proto.getMinerSupportArchive(Obj), 200, 'application/json'
+            return MinerBraiinsV1Proto.minerGetSupportArchive(jObj), 200, 'application/json'
         else:
             return 'Not found', 400, 'text/html'
 
@@ -104,13 +81,13 @@ class MinerBraiinsV1:
     @staticmethod
     def minerServiceGetData(jObj):
         try: # Hashrate(THs) and Board temp
-            jObjRtr = MinerBraiinsV1Proto.getHashboards(jObj)
+            jObjRtr = MinerBraiinsV1Proto.minerGetHashboards(jObj)
             hashRate = 0.0
             tBoard = 0.0
             for jObjS in jObjRtr['hashboards']:
-                hashRate = hashRate + jObjS['hashrate_ths']
-                tBoard = tBoard + jObjS['temperature_celsius']
-            hashRate = round(hashRate,4)
+                hashRate = hashRate + jObjS['stats']['real_hashrate']['last_5s']['gigahash_per_second']
+                tBoard = tBoard + jObjS['board_temp']['degree_c']
+            hashRate = round((hashRate / len(jObjRtr['hashboards'])) / 1000,4)
             tBoard = round(tBoard / len(jObjRtr['hashboards']),4)
             path = Utils.pathDataMinerHashrate(jObj)
             lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
@@ -118,16 +95,16 @@ class MinerBraiinsV1:
                 with open(path, 'a', encoding='utf-8') as file:
                     file.write(f"{Utils.nowUtc()};{hashRate}\n")
         except Exception as e:
-            Utils.logger.error(f"BraiinsS9 minerServiceGetData hashrate {jObj['uuid']} error {e}")
+            Utils.logger.error(f"BraiinV1 minerServiceGetData hashrate {jObj['uuid']} error {e}")
 
         try: # Chip temp
             jObjRtr = MinerBraiinsV1Proto.getCoolingState(jObj)
             tChip = 0.0
             if (
-                Utils.jsonCheckKeyExists(jObjRtr, 'high_temperature', False, False) and
-                jObjRtr['high_temperature']['location'] == "SENSOR_LOCATION_CHIP"
+                Utils.jsonCheckKeyExists(jObjRtr, 'highest_temperature', False) and
+                jObjRtr['highest_temperature']['location'] == "SENSOR_LOCATION_CHIP"
             ):
-                tChip = jObjRtr['high_temperature']['temperature']['celsius']
+                tChip = jObjRtr['highest_temperature']['temperature']['degree_c']
             else:
                 tChip = -1
             path = Utils.pathDataMinerTemp(jObj)

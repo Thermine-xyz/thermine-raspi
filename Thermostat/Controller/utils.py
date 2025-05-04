@@ -49,7 +49,6 @@ class Utils:
     # Creates a gRPC channel without channel-level authentication
     @staticmethod
     def grpcChannel(aip: str):
-        print(f"grpcChannel {aip}")
         return grpc.insecure_channel(aip)
     @staticmethod
     def grpcChannelSecure(aip: str, token: str):
@@ -91,10 +90,10 @@ class Utils:
     # Converts a Protbuf msg to JSON Object
     @staticmethod
     def grpcProtobufToJson(response: Any) -> dict:
-        return MessageToDict(response, preserving_proto_field_name=True, including_default_value_fields=True)
-    # Converts a Protbuf msg to JSON Object
+        return MessageToDict(response, preserving_proto_field_name=True)
+    # Converts a Protbuf msg to JSON string
     @staticmethod
-    def grpcProtobufToJson(response: Any) -> str:
+    def grpcProtobufToStr(response: Any) -> str:
         jObj = Utils.grpcProtobufToJson(response)
         return json.dumps(jObj, indent=2)
 
