@@ -4,6 +4,7 @@ Some methods are managing local data, some are connecting to the miner
 For methods connecting and managing the miner it self, the method's name starts with miner
 """
 from ..utils import Utils
+from .miner_utils import MinerUtils
 from .miner_braiins_s9 import MinerBraiinsS9
 from .miner_braiins_v1 import MinerBraiinsV1
 from .miner_vnish import MinerVnish
@@ -15,7 +16,25 @@ import os
 import threading
 
 class Miner:
+    """
+    Current JSON format we expect for miner
+    Last update 2025-05-06
+    {
+        "uuid": "",
+        "ip": "",
+        "name": "",
+        "username": "",
+        "password": "",
+        "fwtp": "",
+        "do_thermal_control": bool # allow Raspi to control theminer temp, turning it on and off
+        "sensor": {
+            "temp_target": int # temp in celsius
+        }
+    }
 
+    * Current we are compatible only with DS1820 and Python library w1thermsensor
+    ** JSON Object "sensor" is not mandatory
+    """
     uuid: str
     name: str
     ip: str
@@ -139,76 +158,6 @@ class Miner:
         jAry = Miner.dataAsJson()
         return json.dumps(jAry)
 
-    # Returns the last reading Temp, hashrate, etc
-    @staticmethod
-    def dataCurrentStatus(jObj):
-        result = {}
-        result['hasrate'] = Miner.dataHashrateLastJson(jObj)
-        result['temp'] = Miner.dataTemperatureLastJson(jObj)
-        return result
-
-    @staticmethod
-    def dataHashrate(jObj, dateFrom, dateTo):
-        result = []
-        if not isinstance(jObj, dict):
-            jObj = Miner.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerHashrate(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            result = Miner.binaryReadingFile(path, dateFrom, dateTo)
-        return "\n".join(result)
-    @staticmethod
-    def dataHashrateLast(jObj):
-        if not isinstance(jObj, dict):
-            jObj = Miner.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerHashrate(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            with open(path, 'r', encoding='utf-8') as file:
-                # find the list line
-                lineLast = file.readlines()[-1]
-                timestamp, hashrate = lineLast.strip().split(';')
-
-                timestamp = int(timestamp)
-                hashrate = float(hashrate)                
-                return timestamp, hashrate
-    @staticmethod
-    def dataHashrateLastJson(jObj):
-        timestamp, hashrate = Miner.dataHashrateLast(jObj)
-        return { "timestamp" : timestamp, "hashrate" : hashrate}
-
-    @staticmethod
-    def dataTemperature(jObj, dateFrom, dateTo):
-        result = []
-        if not isinstance(jObj, dict):
-            jObj = Miner.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerTemp(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            result = Miner.binaryReadingFile(path, dateFrom, dateTo)
-        return "\n".join(result)
-    @staticmethod
-    def dataTemperatureLast(jObj):
-        if not isinstance(jObj, dict):
-            jObj = Miner.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerTemp(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            with open(path, 'r', encoding='utf-8') as file:
-                # find the list line
-                lineLast = file.readlines()[-1]
-                timestamp, tBoard, tChip = lineLast.strip().split(';')
-
-                timestamp = int(timestamp)
-                tBoard = float(tBoard)
-                tChip = float(tChip)
-                
-                return timestamp, tBoard, tChip
-    @staticmethod
-    def dataTemperatureLastJson(jObj):
-        timestamp, tBoard, tChip = Miner.dataTemperatureLast(jObj)
-        return { "timestamp" : timestamp, "tBoard" : tBoard, "tChip" : tChip}
-
     # Handles HTTP request for BraiinsS9
     @staticmethod
     def httpHandlerBraiinsS9Get(path, headers, s):
@@ -296,7 +245,7 @@ class Miner:
                 return { "result": jObj['fwtp']}
                 break
             except Exception as e:
-                Utils.logger.info(f"minerFirmware  {fwtp} error {e}")
+                Utils.logger.error(f"minerFirmware  {fwtp} error {e}")
                 pass # Do nothing, keep looping
         if result == False:
           Utils.throwExceptionResourceNotFound(f"Firmware for: {sOrigianl}")
@@ -357,6 +306,9 @@ class Miner:
     # Save the JSON value in the data array, if Obj, finds and save. If Array, override
     @staticmethod
     def setData(jData):
+        """
+        If update the whole array list, it will not publish data has changed action
+        """
         if isinstance(jData, list):
             path = Miner.pathData()
             with Miner.lockFile:
@@ -410,6 +362,29 @@ class Miner:
         
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
+    
+    @staticmethod
+    def minerThermalControl(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        if (
+            not Utils.jsonCheckKeyExists(jObj, 'do_thermal_control', False) or
+            not isinstance(jObj['do_thermal_control'], bool) or
+            jObj['do_thermal_control'] == False
+        ): # do nothing it is not configured to do thermal control
+            return
+        tsNow = Utils.nowUtc()
+        # Reads from sensor or from miner
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            tsMiner, temp = MinerUtils.dataTemperatureSensorLast(jObj)
+        else:
+            tsMiner, tBoard, temp = MinerUtils.dataTemperatureLast(jObj)
+        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
+        if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            MinerBraiinsV1.minerThermalControl(jObj, temp)
+        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+            MinerBraiinsS9.minerThermalControl(jObj, temp)
+        else:
+            Utils.throwExceptionInvalidValue(f"minerThermalControl Unknown Firmware: {fwtp}")
     """
     MinerService END
     """

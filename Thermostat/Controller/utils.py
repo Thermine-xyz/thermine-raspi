@@ -193,6 +193,11 @@ class Utils:
         """file format: utc timestamp;avg board temp;avg chip temp"""
         path = os.path.join(Utils.pathData(),f"temp_{jObj['uuid']}")
         return path
+    @staticmethod
+    def pathDataMinerTempSensor(jObj):
+        """file format: utc timestamp;sensor temp"""
+        path = os.path.join(Utils.pathData(),f"temp_sensor_{jObj['uuid']}")
+        return path
 
     # Returns the thermine_config.json path, creates if doesn't exist
     @staticmethod

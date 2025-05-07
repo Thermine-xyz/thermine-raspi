@@ -73,3 +73,9 @@ python3 -m grpc_tools.protoc -I=proto -I=/usr/include --python_out=. --grpc_pyth
 
 protoc -I=proto -I=/usr/include --python_out=. proto/bos/v1/*.proto
 python3 -m grpc_tools.protoc -I=proto -I=/usr/include --python_out=. --grpc_python_out=. proto/bos/v1/*.proto
+
+## Sensor DS1820
+python -m pip install w1thermsensor
+
+In case no Sensor is need you can simulate a fake sensor OR remove/comment all related code.
+For easily finding where the w1themsensor is used (and you can remove it), search for """w1thermsensor"""

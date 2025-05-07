@@ -13,9 +13,12 @@ the gRPC API has only few "GET" metohds and a couple of "POST" ones
 """
 
 from ..utils import Utils
+from .miner_utils import MinerUtils
+from ..w1thermsensor_utils import W1ThermSensorUtils
 
-import socket
 import json
+import socket
+import time
 
 class MinerBraiinsS9:
 
@@ -23,7 +26,7 @@ class MinerBraiinsS9:
     lockFileBosminerToml = Utils.threadingLock()
 
     @staticmethod
-    def cgMinerRequest(ip, command):
+    def cgMinerRequest(ip, command, isCheckResponse: bool = True):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((ip, 4028))
         sock.sendall(json.dumps({"command": command}).encode('utf-8'))
@@ -36,7 +39,8 @@ class MinerBraiinsS9:
         sock.close()
         # print(f"{response}")
         jObj = json.loads(response.replace('\x00', ''))
-        MinerBraiinsS9.cgCheckStatusResponse(jObj)
+        if isCheckResponse:
+            MinerBraiinsS9.cgCheckStatusResponse(jObj)
         return jObj
 
     # Check if the gRPC status response is STATUS=S, raise exception if find anything wrong
@@ -71,10 +75,22 @@ class MinerBraiinsS9:
         return jR
 
     @staticmethod
+    def grpcPause(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'pause')
+
+    @staticmethod
     def grpcPools(jObj):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'pools')
+
+    @staticmethod
+    def grpcResume(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'resume')
 
     @staticmethod
     def grpcStats(jObj):
@@ -95,7 +111,7 @@ class MinerBraiinsS9:
     def grpcTemps(jObj, isOnlyData: bool = False):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-        jR = MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'temps')
+        jR = MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'temps', isOnlyData)
         if isOnlyData:
             jR = jR['TEMPS']
         return jR
@@ -129,14 +145,18 @@ class MinerBraiinsS9:
             return MinerBraiinsS9.sshConfigJsonStr(jObj), 200, 'application/json'
         elif path.endswith("/Devs"):
             return MinerBraiinsS9.grpcDevs(jObj), 200, 'application/json'
+        elif path.endswith("/Pause"):
+            return MinerBraiinsS9.grpcPause(jObj), 200, 'application/json'
         elif path.endswith("/Pools"):
             return MinerBraiinsS9.grpcPools(jObj), 200, 'application/json'
+        elif path.endswith("/Restart"):
+            return MinerBraiinsS9.sshRestart(jObj), 200, 'application/json'
+        elif path.endswith("/Resume"):
+            return MinerBraiinsS9.sshResume(jObj), 200, 'application/json'
         elif path.endswith("/Summary"):
             return MinerBraiinsS9.grpcSummary(jObj), 200, 'application/json'
         elif path.endswith("/Stats"):
             return MinerBraiinsS9.grpcStats(jObj), 200, 'application/json'
-        elif path.endswith("/Restart"):
-            return MinerBraiinsS9.sshRestart(jObj), 200, 'application/json'
         elif path.endswith("/Temps"):
             return MinerBraiinsS9.grpcTemps(jObj), 200, 'application/json'
         elif path.endswith("/TunerStatus"):
@@ -241,6 +261,24 @@ class MinerBraiinsS9:
         MinerBraiinsS9.grpcStats(jObj)
         return None
     
+    """
+    In case miner is paused, grpcTemps returns "Not Ready"
+    """
+    @staticmethod
+    def status(jObj):
+        jTemp = MinerBraiinsS9.grpcTemps(jObj, False)
+        Utils.jsonCheckIsObj(jTemp, True)
+        Utils.jsonCheckKeyExists(jTemp, 'STATUS', True)
+        if not isinstance(jTemp['STATUS'], list) or len(jTemp['STATUS']) == 0:
+            Utils.throwExceptionInvalidValue("jObj['STATUS'] is not JSON Array")
+        jAry = jTemp['STATUS']
+        if Utils.jsonCheckKeyExists(jAry[0], 'STATUS', False) and jAry[0]['STATUS'] == 'S':
+            return MinerUtils.MinerStatus.MinerNormal
+        elif Utils.jsonCheckKeyExists(jAry[0], 'Msg', False) and jAry[0]['Msg'] == 'Not ready':
+            return MinerUtils.MinerStatus.MinerNotReady
+        else:
+            return MinerUtils.MinerStatus.MinerUnknown
+    
     @staticmethod
     def summary(jObj):
         json_str = MinerBraiinsS9.sshConfigJsonStr(jObj)
@@ -318,26 +356,67 @@ class MinerBraiinsS9:
         except Exception as e:
             Utils.logger.error(f"BraiinsS9 minerServiceGetData hashrate {jObj['uuid']} error {e}")
 
-        try: # Temp
-            jObjRtr = MinerBraiinsS9.grpcTemps(jObj)
-            MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
-            tBoard = 0.0
-            tChip = 0.0
-            if len(jObjRtr['TEMPS']) > 0:
-                for jObjS in jObjRtr['TEMPS']:
-                    tBoard = tBoard + jObjS['Board']
-                    tChip = tChip + jObjS['Chip']
-                tBoard = round(tBoard / len(jObjRtr['TEMPS']),4)
-                tChip = round(tChip / len(jObjRtr['TEMPS']),4)
-                path = Utils.pathDataMinerTemp(jObj)
-                lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-                with lock:
-                    with open(path, 'a', encoding='utf-8') as file:
-                        file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
-        except Exception as e:
-            Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
-        # Returns OK if no error was raised
+        if MinerBraiinsS9.status(jObj) == MinerUtils.MinerStatus.MinerNormal:        
+            try: # Temp
+                jObjRtr = MinerBraiinsS9.grpcTemps(jObj)
+                MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
+                tBoard = 0.0
+                tChip = 0.0
+                if len(jObjRtr['TEMPS']) > 0:
+                    for jObjS in jObjRtr['TEMPS']:
+                        tBoard = tBoard + jObjS['Board']
+                        tChip = tChip + jObjS['Chip']
+                    tBoard = round(tBoard / len(jObjRtr['TEMPS']),4)
+                    tChip = round(tChip / len(jObjRtr['TEMPS']),4)
+                    path = Utils.pathDataMinerTemp(jObj)
+                    lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
+                    with lock:
+                        with open(path, 'a', encoding='utf-8') as file:
+                            file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
+            except Exception as e:
+                Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
+        
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            """w1thermsensor"""
+            try: # Reads sensor temp if it found the sensor JSON obj
+                W1ThermSensorUtils.saveTempToDataFile(jObj)
+            except Exception as e:
+                Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
+                pass
+
         return Utils.resultJsonOK()
+
+    @staticmethod
+    def minerThermalControl(jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            tTarget = float(jObj['sensor']['temp_target'])
+        else:
+            jConfig = json.loads(MinerBraiinsS9.sshConfigJsonStr(jObj))
+            Utils.jsonCheckKeyExists(jConfig, 'temp_control', True)
+            Utils.jsonCheckKeyExists(jConfig['temp_control'], 'hot_temp', True)
+            tTarget = float(jConfig['temp_control']['hot_temp'])
+
+        mStatus = MinerBraiinsS9.status(jObj)
+
+        if tCurrent >= tTarget:
+            MinerBraiinsS9.grpcPause(jObj)
+            Utils.logger.warning(f"MinerBraiinsS9.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
+            return
+        if tCurrent <= tTarget-2 and mStatus == MinerUtils.MinerStatus.MinerNotReady:
+            MinerBraiinsS9.sshRestart(jObj)
+            Utils.logger.warning(f"MinerBraiinsS9.minerThermalControl {jObj['uuid']} Restarting, Temperature to low: Target {tTarget} Current {tCurrent}")
+            # loop 5min or till the miner is OK
+            started = time.time()
+            time30s = started
+            while (time.time() - started) < (5 * 60): # 5 min looping
+                if MinerBraiinsS9.status(jObj) == MinerUtils.MinerStatus.MinerNormal:
+                    break
+                if (time.time() - time30s) >= 30: # every 30 secs
+                    time30s = time.time()
+                    Utils.logger.warning(f"MinerBraiinsS9.minerThermalControl {jObj['uuid']} restarted, waiting status NORMAL")
+                time.sleep(5) # wait 5 secs till next verification
+            return
+        return
     """
     MinerService END
     """

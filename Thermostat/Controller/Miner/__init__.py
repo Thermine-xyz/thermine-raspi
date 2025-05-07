@@ -1,4 +1,5 @@
 from .miner import Miner
+from .miner_utils import MinerUtils
 from .miner_service import MinerService
 from .miner_braiins_v1 import MinerBraiinsV1
 from .miner_braiins_v1_proto import MinerBraiinsV1Proto

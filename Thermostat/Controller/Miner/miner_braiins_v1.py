@@ -1,4 +1,5 @@
 from ..utils import Utils
+from ..w1thermsensor_utils import W1ThermSensorUtils
 from .miner_braiins_v1_proto import MinerBraiinsV1Proto
 
 import grpc
@@ -96,6 +97,7 @@ class MinerBraiinsV1:
                     file.write(f"{Utils.nowUtc()};{hashRate}\n")
         except Exception as e:
             Utils.logger.error(f"BraiinV1 minerServiceGetData hashrate {jObj['uuid']} error {e}")
+            pass
 
         try: # Chip temp
             jObjRtr = MinerBraiinsV1Proto.getCoolingState(jObj)
@@ -114,7 +116,15 @@ class MinerBraiinsV1:
                     file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
         except Exception as e:
             Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
-        # Returns OK if no error was raised
+            pass
+
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            """w1thermsensor"""
+            try: # Reads sensor temp if it found the sensor JSON obj
+                W1ThermSensorUtils.saveTempToDataFile(jObj)
+            except Exception as e:
+                Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
+                pass
         return Utils.resultJsonOK()
     """
     MinerService END
