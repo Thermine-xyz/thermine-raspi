@@ -380,6 +380,7 @@ class Miner:
             tsMiner, tBoard, temp = MinerUtils.dataTemperatureLast(jObj)
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
+            print(f"Miner.minerThermalControl MinerBraiinsV1")
             MinerBraiinsV1.minerThermalControl(jObj, temp)
         elif fwtp == Miner.CompatibleFirmware.braiinsS9:
             MinerBraiinsS9.minerThermalControl(jObj, temp)

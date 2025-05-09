@@ -261,9 +261,7 @@ class MinerBraiinsS9:
         MinerBraiinsS9.grpcStats(jObj)
         return None
     
-    """
-    In case miner is paused, grpcTemps returns "Not Ready"
-    """
+    # In case miner is paused, grpcTemps returns "Not Ready"
     @staticmethod
     def status(jObj):
         jTemp = MinerBraiinsS9.grpcTemps(jObj, False)

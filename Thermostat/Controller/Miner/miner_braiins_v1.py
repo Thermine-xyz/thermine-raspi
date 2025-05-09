@@ -1,4 +1,5 @@
 from ..utils import Utils
+from .miner_utils import MinerUtils
 from ..w1thermsensor_utils import W1ThermSensorUtils
 from .miner_braiins_v1_proto import MinerBraiinsV1Proto
 
@@ -11,6 +12,19 @@ class MinerBraiinsV1:
     def echo(jObj):
         MinerBraiinsV1Proto.getApiVersion(jObj)
         return None
+    
+    # In case miner is paused, grpcTemps returns "Not Ready"
+    @staticmethod
+    def status(jObj):
+        jMDetails = MinerBraiinsV1Proto.minerGetDetails(jObj)
+        print(f"MinerBraiinsV1.status {jMDetails}")
+        Utils.jsonCheckIsObj(jMDetails, True)
+        if Utils.jsonCheckKeyExists(jMDetails, 'status', False) and jMDetails['status'] == 'MINER_STATUS_NORMAL':
+            return MinerUtils.MinerStatus.MinerNormal
+        elif Utils.jsonCheckKeyExists(jMDetails, 'status', False) and jMDetails['status'] == 'Not ready':
+            return MinerUtils.MinerStatus.MinerNotReady
+        else:
+            return MinerUtils.MinerStatus.MinerUnknown
 
     # Check if the miner is online
     @staticmethod
@@ -126,6 +140,35 @@ class MinerBraiinsV1:
                 Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
                 pass
         return Utils.resultJsonOK()
+
+    @staticmethod
+    def minerThermalControl(jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
+        print(f"MinerBraiinsV1.minerThermalControl 1")
+        mStatus : MinerUtils.MinerStatus = MinerBraiinsV1.status(jObj)
+        print(f"MinerBraiinsV1.minerThermalControl mStatus {mStatus}")
+        if mStatus in [MinerUtils.MinerStatus.MinerNotReady, MinerUtils.MinerStatus.MinerUnknown]:
+            Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} miner status {mStatus}")
+            return None
+        
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            print(f"MinerBraiinsV1.minerThermalControl readuing from Sensor")
+            tTarget = float(jObj['sensor']['temp_target'])
+        else:
+            print(f"MinerBraiinsV1.minerThermalControl readuing from Miner")
+            jConfig = MinerBraiinsV1Proto.getConfiguration(jObj)            
+            print(f"MinerBraiinsV1.minerThermalControl jConfig {jConfig}")
+            Utils.jsonCheckKeyExists(jConfig, 'temperature', True)
+            Utils.jsonCheckKeyExists(jConfig['temperature'], 'target_temperature', True)
+            tTarget = float(jConfig['temperature']['target_temperature'])
+
+        print(f"MinerBraiinsV1.minerThermalControl tTarget {tTarget}")
+        if tCurrent <= tTarget - 2:
+            MinerBraiinsV1Proto.postStart(jObj)
+            Utils.logger.info(f"BraiinsV1 minerThermalControl {jObj['uuid']} Temperature too low {tCurrent}ºC, mining started")
+        elif tCurrent >= tTarget:
+            MinerBraiinsV1Proto.postStop(jObj)
+            Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} Temperature too high {tCurrent}ºC, mining stopped")
+        return None
     """
     MinerService END
     """
