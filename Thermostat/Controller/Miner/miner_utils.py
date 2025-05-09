@@ -8,6 +8,8 @@ class MinerUtils:
         result = {}
         result['hasrate'] = MinerUtils.dataHashrateLastJson(jObj)
         result['temp'] = MinerUtils.dataTemperatureLastJson(jObj)
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            result['temp_sensor'] = MinerUtils.dataTemperatureSensorLast(jObj)
         return result
 
     @staticmethod
@@ -99,4 +101,5 @@ class MinerUtils:
     class MinerStatus(Enum):
         MinerNormal = 'MINER_STATUS_NORMAL'
         MinerNotReady = 'MINER_STATUS_NOT_READY'
+        MinerNotStarted = 'MINER_STATUS_NOT_STARTED'
         MinerUnknown = 'MINER_STATUS_UNKNOWN'

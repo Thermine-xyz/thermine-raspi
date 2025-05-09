@@ -83,7 +83,7 @@ class Utils:
             stub = stubClass(channel)
             method = getattr(stub, methodName)
             metadata = [('authorization', token)]
-            response = method(request, metadata=metadata)
+            response = method(request, metadata=metadata, timeout=10)
             return response
         finally:
             channel.close()

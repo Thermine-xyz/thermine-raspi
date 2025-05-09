@@ -1,5 +1,6 @@
 from Controller import Utils
 from ..Miner import Miner
+from Controller.Miner import MinerUtils
 
 import json
 import time
@@ -95,15 +96,15 @@ def handle_get(path, headers):
         return Miner.httpHandlerBraiinsV1Get(path, headers, sHeader)
     elif path == "/Miner/Status":
         sHeader = checkHeaderUuid(headers, raiseException=True)
-        return Miner.dataCurrentStatus(sHeader), 200, 'application/json'
+        return MinerUtils.dataCurrentStatus(sHeader), 200, 'application/json'
     elif path == "/Miner/Temperature":
         sHeader = checkHeaderUuid(headers, raiseException=True)
         dateFrom = checkHeaderDateFrom(headers)
         dateTo = checkHeaderDateTo(headers) 
-        return Miner.dataTemperature(sHeader, dateFrom, dateTo), 200, 'text/plain'
+        return MinerUtils.dataTemperature(sHeader, dateFrom, dateTo), 200, 'text/plain'
     elif path == "/Miner/Temperature/Last":
         sHeader = checkHeaderUuid(headers, raiseException=True)
-        return Miner.dataTemperatureLastJson(sHeader), 200, 'application/json'
+        return MinerUtils.dataTemperatureLastJson(sHeader), 200, 'application/json'
 
     elif path == "/Uuid":
         return Utils.thermineUuid(), 200, 'application/json'

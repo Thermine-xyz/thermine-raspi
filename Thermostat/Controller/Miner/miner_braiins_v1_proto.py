@@ -306,7 +306,7 @@ class MinerBraiinsV1Proto:
         return Utils.grpcProtobufToJson(response)
 
     @staticmethod
-    def minersGetErrors(jObj):
+    def minerGetErrors(jObj):
         token = MinerBraiinsV1Proto.getJwtTokenStr(jObj)
         request = miner_pb2.GetErrorsRequest()
         response = Utils.grpcCall(

@@ -65,16 +65,21 @@ class W1ThermSensorUtils:
         Get temperature from W1ThermSensor if a sensor is present, else use mock.
         Returns temperature in °C or None if failed.
         """
-        if W1ThermSensorUtils.isW1SensorPresent():
+        # Try to import w1thermsensor exceptions, with fallback
+        try:
+            from w1thermsensor import W1ThermSensor, KernelModuleLoadError, NoSensorFoundError, SensorNotReadyError
+        except ImportError as e:
+            Utils.logger.error(f"W1ThermSensorUtils.get_temperature Failed import sensor, error {e}")
+            W1ThermSensor = None
+            KernelModuleLoadError = NoSensorFoundError = SensorNotReadyError = Exceptionprint("getTemperature1")
+        if W1ThermSensorUtils.isW1SensorPresent() and W1ThermSensor is not None:
             try:
-                from w1thermsensor import W1ThermSensor, KernelModuleLoadError, NoSensorFoundError, SensorNotReadyError
                 # Ensure modules are loaded
                 if not W1ThermSensorUtils.loadW1Modules():
                     Utils.logger.error("W1ThermSensorUtils.get_temperature Failed to load w1-gpio and w1-therm modules")
                     return None
                 sensor = W1ThermSensor()
                 temp = sensor.get_temperature()
-                Utils.logger.info(f"W1ThermSensorUtils.get_temperature Read from DS18B20: {temp} °C")
                 return temp
             except KernelModuleLoadError as e:
                 Utils.logger.error(f"W1ThermSensorUtils.get_temperature Kernel module error: {e}")
