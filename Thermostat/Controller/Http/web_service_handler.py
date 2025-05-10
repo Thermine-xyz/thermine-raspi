@@ -49,7 +49,7 @@ def handle_get(path, headers):
         return {"result": Utils.nowUtc()}, 200, 'application/json'
     
     elif path == "/Miner":
-        return Miner.dataAsJsonString(), 200, 'application/json'
+        return MinerUtils.dataAsJsonString(), 200, 'application/json'
     elif path == "/Miner/Config":
         sHeader = checkHeaderUuid(headers)
         if sHeader is None or sHeader.strip() == '':
@@ -76,10 +76,22 @@ def handle_get(path, headers):
         sHeader = checkHeaderUuid(headers, raiseException=True)
         dateFrom = checkHeaderDateFrom(headers)
         dateTo = checkHeaderDateTo(headers) 
-        return Miner.dataHashrate(sHeader, dateFrom, dateTo), 200, 'text/plain'
+        return MinerUtils.dataHashrate(sHeader, dateFrom, dateTo), 200, 'text/plain'
     elif path == "/Miner/Hashrate/Last":
         sHeader = checkHeaderUuid(headers, raiseException=True)
-        return Miner.dataHashrateLastJson(sHeader), 200, 'application/jsonn'
+        return MinerUtils.dataHashrateLastJson(sHeader), 200, 'application/jsonn'
+    elif path == "/Miner/Status":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        return MinerUtils.dataCurrentStatus(sHeader), 200, 'application/json'
+    elif path == "/Miner/Temperature":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        dateFrom = checkHeaderDateFrom(headers)
+        dateTo = checkHeaderDateTo(headers) 
+        return MinerUtils.dataTemperature(sHeader, dateFrom, dateTo), 200, 'text/plain'
+    elif path == "/Miner/Temperature/Last":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        return MinerUtils.dataTemperatureLastJson(sHeader), 200, 'application/json'
+
     elif path.startswith("/Miner/BraiinsS9"):
         sHeader: str = headers.get('uuid')
         if sHeader is None or sHeader.strip() == '':
@@ -94,17 +106,6 @@ def handle_get(path, headers):
         if sHeader is None:
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         return Miner.httpHandlerBraiinsV1Get(path, headers, sHeader)
-    elif path == "/Miner/Status":
-        sHeader = checkHeaderUuid(headers, raiseException=True)
-        return MinerUtils.dataCurrentStatus(sHeader), 200, 'application/json'
-    elif path == "/Miner/Temperature":
-        sHeader = checkHeaderUuid(headers, raiseException=True)
-        dateFrom = checkHeaderDateFrom(headers)
-        dateTo = checkHeaderDateTo(headers) 
-        return MinerUtils.dataTemperature(sHeader, dateFrom, dateTo), 200, 'text/plain'
-    elif path == "/Miner/Temperature/Last":
-        sHeader = checkHeaderUuid(headers, raiseException=True)
-        return MinerUtils.dataTemperatureLastJson(sHeader), 200, 'application/json'
 
     elif path == "/Uuid":
         return Utils.thermineUuid(), 200, 'application/json'
@@ -138,7 +139,7 @@ def handle_post(path, headers, post_data):
     
     elif path == "/Miner":
         contentStr = post_data.decode('utf-8')
-        Miner.setDataStr(contentStr);
+        MinerUtils.setDataStr(contentStr);
         return Utils.resultJsonOK(), 200, 'application/json'
     elif path == "/Miner/Auth":
         json_data = json.loads(post_data.decode('utf-8'))

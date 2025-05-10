@@ -65,13 +65,14 @@ class W1ThermSensorUtils:
         Get temperature from W1ThermSensor if a sensor is present, else use mock.
         Returns temperature in °C or None if failed.
         """
-        # Try to import w1thermsensor exceptions, with fallback
-        try:
-            from w1thermsensor import W1ThermSensor, KernelModuleLoadError, NoSensorFoundError, SensorNotReadyError
-        except ImportError as e:
-            Utils.logger.error(f"W1ThermSensorUtils.get_temperature Failed import sensor, error {e}")
-            W1ThermSensor = None
-            KernelModuleLoadError = NoSensorFoundError = SensorNotReadyError = Exceptionprint("getTemperature1")
+        if W1ThermSensorUtils.isW1SensorPresent():
+            # Try to import w1thermsensor exceptions, with fallback
+            try:
+                from w1thermsensor import W1ThermSensor, KernelModuleLoadError, NoSensorFoundError, SensorNotReadyError
+            except ImportError as e:
+                Utils.logger.error(f"W1ThermSensorUtils.get_temperature Failed import sensor, error {e}")
+                W1ThermSensor = None
+                KernelModuleLoadError = NoSensorFoundError = SensorNotReadyError = Exceptionprint("getTemperature1")
         if W1ThermSensorUtils.isW1SensorPresent() and W1ThermSensor is not None:
             try:
                 # Ensure modules are loaded
@@ -106,9 +107,11 @@ class W1ThermSensorUtils:
 
     @staticmethod
     def saveTempToDataFile(jObj):
+        print("saveTempToDataFile1")
         tSensor = W1ThermSensorUtils.getTemperature()
+        print("saveTempToDataFile2")
         if isinstance(tSensor, float):
-            round(tSensor,4)
+            tSensor = round(tSensor,4)
             path = Utils.pathDataMinerTempSensor(jObj)
             lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
             with lock:

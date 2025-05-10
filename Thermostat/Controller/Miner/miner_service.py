@@ -6,6 +6,7 @@ import threading
 import time
 from ..utils import Utils
 from .miner import Miner
+from .miner_utils import MinerUtils
 
 class MinerService:
     def __init__(self, jObj):
@@ -127,7 +128,7 @@ class MinerServiceManager:
     def start(self):
         """Start MinerService for each jObj."""
         Utils.logger.info("MinerServiceManager.start")
-        jAry = Miner.dataAsJson()
+        jAry = MinerUtils.dataAsJson()
         for jObj in jAry:
             self.add(jObj)
 
