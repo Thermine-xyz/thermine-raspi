@@ -162,11 +162,11 @@ class Miner:
     # Tries to 'ping' the miner based on the firmware type
     @staticmethod
     def minerEcho(s):
-        jObj = MinerUtils.dataAsJsonObjectUuid(s)
-        if jObj == None: # didn't find the JSON object with same s=uuid
-            if isinstance(s, dict): # JSON object
-                jObj = s
-            else:
+        if isinstance(s, dict): # JSON object
+            jObj = s
+        else:
+            jObj = MinerUtils.dataAsJsonObjectUuid(s)
+            if jObj == None: # didn't find the JSON object with same s=uuid
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
 
         # It is expected to have jObj with the miners data
@@ -199,7 +199,6 @@ class Miner:
     # Get data from miner and save it locally
     @staticmethod
     def minerServiceGetData(jObj):
-        print("minerServiceGetData1")
         Utils.jsonCheckIsObj(jObj)
         fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
         if fwtp == Miner.CompatibleFirmware.braiinsV1:
@@ -208,13 +207,11 @@ class Miner:
             MinerBraiinsS9.minerServiceGetData(jObj)
         else:
             Utils.throwExceptionInvalidValue(f"minerServiceGetData Unknown Firmware: {fwtp}")
-        print("minerServiceGetData2")
         # Returns OK if no error was raised
         return None
     
     @staticmethod
     def minerThermalControl(jObj):
-        print("minerThermalControl1")
         Utils.jsonCheckIsObj(jObj)
         if (
             not Utils.jsonCheckKeyExists(jObj, 'do_thermal_control', False) or
@@ -235,7 +232,6 @@ class Miner:
             MinerBraiinsS9.minerThermalControl(jObj, temp)
         else:
             Utils.throwExceptionInvalidValue(f"minerThermalControl Unknown Firmware: {fwtp}")
-        print("minerThermalControl2")
         return None
     """
     MinerService END

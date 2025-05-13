@@ -123,9 +123,7 @@ class MinerUtils:
     @staticmethod
     def dataHashrateLast(jObj):
         if not isinstance(jObj, dict):
-            print(f"dataHashrateLast {jObj}")
             jObj = MinerUtils.dataAsJsonObjectUuid(jObj)
-            print(f"dataHashrateLast {jObj}")
         path = Utils.pathDataMinerHashrate(jObj)
         lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
         with lock:

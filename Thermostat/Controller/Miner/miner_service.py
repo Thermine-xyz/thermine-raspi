@@ -2,6 +2,8 @@
 Class to manage the real time service reading data from miners and 
 saving it locally
 """
+from apscheduler.schedulers.background import BackgroundScheduler
+import os
 import threading
 import time
 from ..utils import Utils
@@ -13,10 +15,11 @@ class MinerService:
         """Initialize a MinerService instance with a JSON object."""
         self.jObj = jObj  # Specific miner JSON object
         self.lock = Utils.threadingLock()  # Thread-safe lock for jObj updates
-        self.stopReadData = threading.Event()  # Control thread termination
-        self.threadReadData = None  # Reference to the instance's thread
-        self.stopThermalControl = threading.Event()  # Control thread termination
-        self.threadThermalControl = None  # Reference to the instance's thread
+        
+        self.schedulerReadData = BackgroundScheduler()
+        self.schedulerReadData.add_job(self.taskReadData, 'interval', seconds=5)
+        self.schedulerThermalControl = BackgroundScheduler()
+        self.schedulerThermalControl.add_job(self.taskThermalControl, 'interval', seconds=5)
 
     def dataHasChanged(self, event):
         event_action, jObj = checkEventData(event)
@@ -39,59 +42,46 @@ class MinerService:
             Utils.logger.info(f"MinerService.dataHasChanged: old {self.jObj}, new {jObj}")
             self.jObj = jObj
 
-    def runReadData(self):
-        """Continuous process executed by the instance's thread."""
+    def taskReadData(self):        
         with self.lock:
             uuid = self.jObj.get('uuid', 'unknown')
-        while not self.stopReadData.is_set():
-            try:
-                with self.lock: # Making a copy of the data, to work without locking the dict
-                    lJObj = self.jObj.copy()
-                Utils.logger.info(f"running ReadData...")
-                Miner.minerServiceGetData(lJObj)
-            except Exception as e:
-                Utils.logger.error(f"MinerService.runReadData Miner.minerServiceGetData {uuid} error {e}")
-                pass # Do nothing, keep looping
-            time.sleep(5)  # Simulate work (replace with actual logic)
-    def runThermalControl(self):
-        """Continuous process executed by the instance's thread."""
+        try:
+            with self.lock: # Making a copy of the data, to work without locking the dict
+                lJObj = self.jObj.copy()
+            Utils.logger.info(f"task ReadData...")
+            Miner.minerServiceGetData(lJObj)
+        except Exception as e:
+            Utils.logger.error(f"MinerService.taskReadData Miner.minerServiceGetData {uuid} error {e}")
+            pass # Do nothing, keep looping
+
+    def taskThermalControl(self):
         with self.lock:
             uuid = self.jObj.get('uuid', 'unknown')
-        while not self.stopThermalControl.is_set():
-            try:
-                with self.lock: # Making a copy of the data, to work without locking the dict
-                    lJObj = self.jObj.copy()
-                Utils.logger.info(f"running ThermalControl...")
+        try:
+            with self.lock: # Making a copy of the data, to work without locking the dict
+                lJObj = self.jObj.copy()
+            if (
+                Utils.jsonCheckKeyExists(lJObj, 'do_thermal_control', False) and
+                isinstance(lJObj['do_thermal_control'], bool) and
+                lJObj['do_thermal_control'] == True
+            ):
+                Utils.logger.info(f"task ThermalControl...")
                 Miner.minerThermalControl(lJObj)
-            except Exception as e:
-                Utils.logger.error(f"MinerService.runThermalControl Miner.minerServiceGetData {uuid} error {e}")
-                pass # Do nothing, keep looping
-            time.sleep(5)  # Simulate work (replace with actual logic)
+        except Exception as e:
+            Utils.logger.error(f"MinerService.taskThermalControl Miner.minerServiceGetData {uuid} error {e}")
+            pass # Do nothing, keep looping
+
     def start(self):
         """Start the thread for this instance."""
-        if self.threadReadData is None or not self.threadReadData.is_alive():
-            self.stopReadData.clear()  # Reset stop event
-            self.threadReadData = threading.Thread(target=self.runReadData, name=f"MinerService-ReadData {self.jObj.get('uuid', 'unknown')}")
-            self.threadReadData.start()
-            Utils.logger.info(f"Started thread for MinerService-ReadData {self.jObj.get('uuid', 'unknown')}")
-        if self.threadThermalControl is None or not self.threadThermalControl.is_alive():
-            self.stopThermalControl.clear()  # Reset stop event
-            self.threadThermalControl = threading.Thread(target=self.runThermalControl, name=f"MinerService-ThermalControl {self.jObj.get('uuid', 'unknown')}")
-            self.threadThermalControl.start()
-            Utils.logger.info(f"Started thread for MinerService-ThermalControl {self.jObj.get('uuid', 'unknown')}")
+        self.schedulerReadData.start()
+        self.schedulerThermalControl.start()
         # Subscribe to Pub/Sub topic using the PubSub instance
         Utils.pubsub_instance.subscribe(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, self.dataHasChanged)
 
     def stop(self):
         """Stop the thread and clean up the instance."""
-        if self.threadReadData and self.threadReadData.is_alive():
-            self.stopReadData.set()  # Signal thread to stop
-            self.threadReadData.join()  # Wait for thread to terminate
-            Utils.logger.info(f"Stopped thread for MinerService-ReadData {self.jObj.get('uuid', 'unknown')}")
-        if self.threadThermalControl and self.threadThermalControl.is_alive():
-            self.stopThermalControl.set()  # Signal thread to stop
-            self.threadThermalControl.join()  # Wait for thread to terminate
-            Utils.logger.info(f"Stopped thread for MinerService-ThermalControl {self.jObj.get('uuid', 'unknown')}")
+        self.schedulerReadData.shutdown()
+        self.schedulerThermalControl.shutdown()
         # Unsubscribe from Pub/Sub using the PubSub instance
         Utils.pubsub_instance.unsubscribe(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, self.dataHasChanged)
 

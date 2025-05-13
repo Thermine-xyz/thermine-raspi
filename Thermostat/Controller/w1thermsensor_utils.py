@@ -107,9 +107,7 @@ class W1ThermSensorUtils:
 
     @staticmethod
     def saveTempToDataFile(jObj):
-        print("saveTempToDataFile1")
         tSensor = W1ThermSensorUtils.getTemperature()
-        print("saveTempToDataFile2")
         if isinstance(tSensor, float):
             tSensor = round(tSensor,4)
             path = Utils.pathDataMinerTempSensor(jObj)
