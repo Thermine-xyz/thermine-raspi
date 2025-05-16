@@ -6,16 +6,19 @@ from .miner_braiins_v1_proto import MinerBraiinsV1Proto
 import grpc
 import json
 
-class MinerBraiinsV1:
+class MinerBraiinsV1(MinerUtils.MinerBase):
+    """
+    Inherited methods
+    """
     # Check if the miner is online
-    @staticmethod
-    def echo(jObj):
+    @classmethod
+    def echo(cls, jObj):
         MinerBraiinsV1Proto.getApiVersion(jObj)
         return None
     
     # In case miner is paused, grpcTemps returns "Not Ready"
-    @staticmethod
-    def status(jObj):
+    @classmethod
+    def status(cls, jObj):
         jMDetails = MinerBraiinsV1Proto.minerGetDetails(jObj)
         Utils.jsonCheckIsObj(jMDetails, True)
         if Utils.jsonCheckKeyExists(jMDetails, 'status', False):
@@ -31,10 +34,13 @@ class MinerBraiinsV1:
             return MinerUtils.MinerStatus.MinerUnknown
 
     # Check if the miner is online
-    @staticmethod
-    def getJwtToken(jObj):
+    @classmethod
+    def getToken(cls, jObj):
         MinerBraiinsV1Proto.getJwtToken(jObj)
         return None
+    """
+    Inherited methods END
+    """
 
     """
     HTTP handler
@@ -102,8 +108,8 @@ class MinerBraiinsV1:
     MinerService
     """
     # Get data from miner and save it locally
-    @staticmethod
-    def minerServiceGetData(jObj):
+    @classmethod
+    def minerServiceGetData(cls, jObj):
         mStatus : MinerUtils.MinerStatus = MinerBraiinsV1.status(jObj)
         if mStatus == MinerUtils.MinerStatus.MinerNormal:
             try: # Hashrate(THs) and Board temp
@@ -152,8 +158,8 @@ class MinerBraiinsV1:
                 pass
         return Utils.resultJsonOK()
 
-    @staticmethod
-    def minerThermalControl(jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
+    @classmethod
+    def minerThermalControl(cls, jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
         mStatus : MinerUtils.MinerStatus = MinerBraiinsV1.status(jObj)
         if mStatus in [MinerUtils.MinerStatus.MinerNotReady, MinerUtils.MinerStatus.MinerUnknown]:
             Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} miner status {mStatus}")

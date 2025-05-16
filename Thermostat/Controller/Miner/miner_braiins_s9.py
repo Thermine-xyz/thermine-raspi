@@ -20,7 +20,7 @@ import json
 import socket
 import time
 
-class MinerBraiinsS9:
+class MinerBraiinsS9(MinerUtils.MinerBase):
 
     lockServiceBosminer = Utils.threadingLock()
     lockFileBosminerToml = Utils.threadingLock()
@@ -72,6 +72,15 @@ class MinerBraiinsS9:
         jR = MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'devs')
         if isOnlyData:
             jR = jR['DEVS']
+        return jR
+
+    @staticmethod
+    def grpcFans(jObj, isOnlyData: bool = False):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        jR = MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'fans')
+        if isOnlyData:
+            jR = jR['FANS']
         return jR
 
     @staticmethod
@@ -145,6 +154,8 @@ class MinerBraiinsS9:
             return MinerBraiinsS9.sshConfigJsonStr(jObj), 200, 'application/json'
         elif path.endswith("/Devs"):
             return MinerBraiinsS9.grpcDevs(jObj), 200, 'application/json'
+        elif path.endswith("/Fans"):
+            return MinerBraiinsS9.grpcFans(jObj), 200, 'application/json'
         elif path.endswith("/Pause"):
             return MinerBraiinsS9.grpcPause(jObj), 200, 'application/json'
         elif path.endswith("/Pools"):
@@ -190,7 +201,6 @@ class MinerBraiinsS9:
     """
     HTTP handler END
     """
-
 
     """
     All SSH methods
@@ -251,19 +261,21 @@ class MinerBraiinsS9:
     """
 
     """
-    All Thermine methods
-    here are all methods that manage data to return default JSONs for the API
+    Inherited methods
     """
     # Check if the miner is online, raises exception if NOT
-    @staticmethod
-    def echo(jObj):
+    @classmethod
+    def echo(cls, jObj):
         # gRPC test
         MinerBraiinsS9.grpcStats(jObj)
         return None
-    
+    @classmethod
+    def getToken(cls, jObj):
+        MinerBraiinsS9.sshConfig(jObj)
+        return None    
     # In case miner is paused, grpcTemps returns "Not Ready"
-    @staticmethod
-    def status(jObj):
+    @classmethod
+    def status(cls, jObj):
         jTemp = MinerBraiinsS9.grpcTemps(jObj, False)
         Utils.jsonCheckIsObj(jTemp, True)
         Utils.jsonCheckKeyExists(jTemp, 'STATUS', True)
@@ -276,7 +288,13 @@ class MinerBraiinsS9:
             return MinerUtils.MinerStatus.MinerNotReady
         else:
             return MinerUtils.MinerStatus.MinerUnknown
-    
+    """
+    Inherited methods
+    """
+
+    """
+    All Thermine methods END
+    """
     @staticmethod
     def summary(jObj):
         json_str = MinerBraiinsS9.sshConfigJsonStr(jObj)
@@ -337,8 +355,8 @@ class MinerBraiinsS9:
     MinerService
     """
     # Get data from miner and save it locally
-    @staticmethod
-    def minerServiceGetData(jObj):
+    @classmethod
+    def minerServiceGetData(cls, jObj):
         try: # Hashrate(MHs)
             jObjRtr = MinerBraiinsS9.grpcSummary(jObj)
             MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
@@ -384,8 +402,8 @@ class MinerBraiinsS9:
 
         return Utils.resultJsonOK()
 
-    @staticmethod
-    def minerThermalControl(jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
+    @classmethod
+    def minerThermalControl(cls, jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
             tTarget = float(jObj['sensor']['temp_target'])
         else:

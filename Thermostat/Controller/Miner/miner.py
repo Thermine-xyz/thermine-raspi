@@ -7,6 +7,7 @@ from ..utils import Utils
 from .miner_utils import MinerUtils
 from .miner_braiins_s9 import MinerBraiinsS9
 from .miner_braiins_v1 import MinerBraiinsV1
+from .miner_luxor import MinerLuxor
 from .miner_vnish import MinerVnish
 
 from enum import Enum
@@ -41,27 +42,6 @@ class Miner:
     name: str
     ip: str
     fwtp: str # Firmware Type = braiins,vnish  | Default or Empty=vnish
-
-    class CompatibleFirmware(Enum):
-        braiinsV1 = 'braiinsV1'
-        braiinsS9 = 'braiinsS9'
-        vnish = 'vnish'
-        
-        # Returns the enum based on the param as name (string) of index (int), default=vnish
-        @classmethod
-        def get(cls, param):
-            try:
-                if param == None:
-                    return cls.vnish
-                elif isinstance(param, str):
-                    if param.strip() == '':
-                        return cls.vnish
-                    else:
-                        return cls[param]
-                elif isinstance(param, int):
-                    return list(cls)[param]
-            except:
-                Utils.throwExceptionInvalidValue(f"We are not compatible with this Firmware yet: {param}")
 
     def __init__(self, uuid, ip):
         self.uuid = uuid
@@ -122,14 +102,8 @@ class Miner:
         Utils.jsonCheckIsObj(jObj)
         #Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
         # It is expected to have jObj with the miners data
-        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
-        if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            MinerBraiinsV1.getJwtToken(jObj)
-        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
-            MinerBraiinsS9.sshConfig(jObj)
-        else:
-            MinerVnish.getJwtToken(jObj)
-        
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        minerCls.getToken(jObj)        
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
 
@@ -146,7 +120,7 @@ class Miner:
         sOrigianl = json.dumps(jObj)
         # Loops the compatible firwares and check the Echo for each one
         result = False
-        for fwtp in Miner.CompatibleFirmware:
+        for fwtp in MinerUtils.CompatibleFirmware:
             try:
                 jObj['fwtp'] = fwtp.value
                 Miner.minerEcho(jObj)
@@ -169,15 +143,8 @@ class Miner:
             if jObj == None: # didn't find the JSON object with same s=uuid
                 Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
 
-        # It is expected to have jObj with the miners data
-        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
-        if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            MinerBraiinsV1.echo(jObj)
-        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
-            MinerBraiinsS9.echo(jObj)
-        else:
-            MinerVnish.echo(jObj)
-
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        minerCls.echo(jObj)
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
     
@@ -185,10 +152,10 @@ class Miner:
     def minerSummary(s):
         jObj = MinerUtils.dataAsJsonObjectUuid(s)
         # It is expected to have jObj with the miners data
-        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
-        if fwtp == Miner.CompatibleFirmware.braiinsV1:
+        fwtp = MinerUtils.CompatibleFirmware.get(jObj.get('fwtp'))
+        if fwtp == MinerUtils.CompatibleFirmware.braiinsV1:
             return MinerBraiinsV1.summary(jObj)
-        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
+        elif fwtp == MinerUtils.CompatibleFirmware.braiinsS9:
             return MinerBraiinsS9.summary(jObj)
         else:
             return MinerVnish.summary(jObj)
@@ -200,14 +167,8 @@ class Miner:
     @staticmethod
     def minerServiceGetData(jObj):
         Utils.jsonCheckIsObj(jObj)
-        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
-        if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            MinerBraiinsV1.minerServiceGetData(jObj)
-        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
-            MinerBraiinsS9.minerServiceGetData(jObj)
-        else:
-            Utils.throwExceptionInvalidValue(f"minerServiceGetData Unknown Firmware: {fwtp}")
-        # Returns OK if no error was raised
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        minerCls.minerServiceGetData(jObj)
         return None
     
     @staticmethod
@@ -225,13 +186,8 @@ class Miner:
             tsMiner, temp = MinerUtils.dataTemperatureSensorLast(jObj)
         else:
             tsMiner, tBoard, temp = MinerUtils.dataTemperatureLast(jObj)
-        fwtp = Miner.CompatibleFirmware.get(jObj.get('fwtp'))
-        if fwtp == Miner.CompatibleFirmware.braiinsV1:
-            MinerBraiinsV1.minerThermalControl(jObj, temp)
-        elif fwtp == Miner.CompatibleFirmware.braiinsS9:
-            MinerBraiinsS9.minerThermalControl(jObj, temp)
-        else:
-            Utils.throwExceptionInvalidValue(f"minerThermalControl Unknown Firmware: {fwtp}")
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        minerCls.minerThermalControl(jObj, temp)
         return None
     """
     MinerService END

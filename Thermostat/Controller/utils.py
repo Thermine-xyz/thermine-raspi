@@ -97,12 +97,24 @@ class Utils:
         jObj = Utils.grpcProtobufToJson(response)
         return json.dumps(jObj, indent=2)
 
-    # check if key exists
     @staticmethod
     def jsonCheckIsObj(jObj, isRaiseExcpt: bool = True):
         if not isinstance(jObj, dict):
             if isRaiseExcpt:
                 Utils.throwExceptionInvalidValue(f"Value is not JSON Object: {jObj}")
+            else:
+                return False
+        return True
+    @staticmethod
+    def jsonCheckIsAry(jObj, isCheckEmpty: bool = True, isRaiseExcpt: bool = True):
+        if not isinstance(jObj, list):
+            if isRaiseExcpt:
+                Utils.throwExceptionInvalidValue(f"Value is not JSON Array: {jObj}")
+            else:
+                return False
+        if isCheckEmpty and len(jObj) == 0:
+            if isRaiseExcpt:
+                Utils.throwExceptionInvalidValue(f"JSON Array is empty: {jObj}")
             else:
                 return False
         return True

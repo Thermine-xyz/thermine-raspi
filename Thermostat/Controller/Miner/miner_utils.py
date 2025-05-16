@@ -265,8 +265,69 @@ class MinerUtils:
             Utils.throwExceptionInvalidValue(jStr);
         MinerUtils.setData(jData)
 
+    class CompatibleFirmware(Enum):
+        braiinsV1 = 'braiinsV1'
+        braiinsS9 = 'braiinsS9'
+        luxor = 'luxor'
+        vnish = 'vnish'
+        
+        # Returns the enum based on the param as name (string) of index (int), default=vnish
+        @classmethod
+        def get(cls, param):
+            try:
+                if param == None:
+                    return cls.vnish
+                elif isinstance(param, str):
+                    if param.strip() == '':
+                        return cls.vnish
+                    else:
+                        return cls[param]
+                elif isinstance(param, int):
+                    return list(cls)[param]
+            except:
+                Utils.throwExceptionInvalidValue(f"We are not compatible with this Firmware yet: {param}")
+
     class MinerStatus(Enum):
         MinerNormal = 'MINER_STATUS_NORMAL'
         MinerNotReady = 'MINER_STATUS_NOT_READY'
         MinerNotStarted = 'MINER_STATUS_NOT_STARTED'
         MinerUnknown = 'MINER_STATUS_UNKNOWN'
+
+        
+    """
+    Base class for the miners
+    """
+    class MinerBase:
+        # All methods must be overrided on inherited class
+        @classmethod
+        def echo(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.echo')
+        @classmethod
+        def status(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.status')
+        @classmethod
+        def getToken(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.getToken')
+        @classmethod
+        def minerServiceGetData(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.minerServiceGetData')
+        @classmethod
+        def minerThermalControl(cls, jObj: dict, tCurrent: float):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.minerThermalControl')
+
+    @staticmethod
+    def getMinerClass(firmware: str) -> MinerBase:
+        from .miner_braiins_v1 import MinerBraiinsV1
+        from .miner_braiins_s9 import MinerBraiinsS9
+        from .miner_luxor import MinerLuxor
+
+        fwtp = MinerUtils.CompatibleFirmware.get(firmware)
+        if fwtp == MinerUtils.CompatibleFirmware.braiinsV1:
+            return MinerBraiinsV1
+        elif fwtp == MinerUtils.CompatibleFirmware.braiinsS9:
+            return MinerBraiinsS9
+        elif fwtp == MinerUtils.CompatibleFirmware.luxor:
+            return MinerLuxor
+        else:
+            Utils.throwExceptionInvalidValue(f"MinerUtils.getMinerClass Unknown Firmware: {firmware}")
+            
