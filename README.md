@@ -4,11 +4,9 @@
 
 This is a list of firmware compatibility we tested already!
 
-| Firmware | Miner | Version | Status |
+| Miner | Firmware | Version | Status |
 | ---- | ---- | ---- | ---- |
-| [Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/) | S9 | 3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;❌ |
-| [Luxor](https://docs.luxor.tech/firmware/compatibility/) | S9 | 3.7 | &nbsp;&nbsp;&nbsp;&nbsp;❌ |
-| Braiins | S9 | [22.08.1](https://feeds.braiins-os.com/22.08.1/) | &nbsp;&nbsp;&nbsp;&nbsp;✔️ |
+| S9 | Braiins<br>[Luxor](https://docs.luxor.tech/firmware/compatibility/)<br>[Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/)| [22.08.1](https://feeds.braiins-os.com/22.08.1/)<br>3.7<br>3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;❌<br>&nbsp;&nbsp;&nbsp;&nbsp;❌ |
 
 
 ## Environment config
