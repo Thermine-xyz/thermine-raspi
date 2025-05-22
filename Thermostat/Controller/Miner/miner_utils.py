@@ -320,6 +320,7 @@ class MinerUtils:
         from .miner_braiins_v1 import MinerBraiinsV1
         from .miner_braiins_s9 import MinerBraiinsS9
         from .miner_luxor import MinerLuxor
+        from .miner_vnish import MinerVnish
 
         fwtp = MinerUtils.CompatibleFirmware.get(firmware)
         if fwtp == MinerUtils.CompatibleFirmware.braiinsV1:
@@ -328,6 +329,8 @@ class MinerUtils:
             return MinerBraiinsS9
         elif fwtp == MinerUtils.CompatibleFirmware.luxor:
             return MinerLuxor
+        elif fwtp == MinerUtils.CompatibleFirmware.vnish:
+            return MinerVnish
         else:
             Utils.throwExceptionInvalidValue(f"MinerUtils.getMinerClass Unknown Firmware: {firmware}")
             

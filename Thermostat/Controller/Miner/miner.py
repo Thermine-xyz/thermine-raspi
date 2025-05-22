@@ -180,6 +180,7 @@ class Miner:
             jObj['do_thermal_control'] == False
         ): # do nothing it is not configured to do thermal control
             return
+
         tsNow = Utils.nowUtc()
         # Reads from sensor or from miner
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):

@@ -125,7 +125,7 @@ class Utils:
         if key in jObj:
             return True
         elif isRaiseExcpt:
-            Utils.throwExceptionResourceNotFound(f"JSON key not found: {key}")
+            Utils.throwExceptionResourceNotFound(f"JSON key not found: {key}, json {jObj}")
         else:
             return False
     
@@ -244,6 +244,8 @@ class Utils:
                raise Exception(error)
            return output
         finally:
+            if ssh.get_transport() is not None:
+                ssh.get_transport().close()
             ssh.close;
 
     # Return a semaphor for locking access to variable or files
