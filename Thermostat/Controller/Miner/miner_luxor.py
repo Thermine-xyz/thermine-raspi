@@ -180,16 +180,12 @@ class MinerLuxor(MinerUtils.MinerBase):
                 for jObjS in jObjRtr['SUMMARY']:
                     hashRate = hashRate + jObjS['GHS 5s']
                 hashRate = round(hashRate/1000,4) #convert from G to T
-                path = Utils.pathDataMinerHashrate(jObj)
-                lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-                with lock:
-                    with open(path, 'a', encoding='utf-8') as file:
-                        file.write(f"{Utils.nowUtc()};{hashRate}\n")
+                Utils.dataBinaryWriteFile(Utils.pathDataMinerHashrate(jObj), [hashRate])
             except Exception as e:
                 Utils.logger.error(f"MinerLuxor minerServiceGetData hashrate {jObj['uuid']} error {e}")
+
             try: # Temp
                 jObjRtr = MinerLuxor.cgmTemps(jObj)
-                #MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
                 temp = 0.0
                 if len(jObjRtr['TEMPS']) > 0:
                     temp1 = 0.0
@@ -197,11 +193,8 @@ class MinerLuxor(MinerUtils.MinerBase):
                         temp1 = jObjS['BottomLeft'] + jObjS['BottomRight'] + jObjS['TopLeft'] + jObjS['TopRight']
                     temp = temp + (temp1/4)
                     temp = round(temp / len(jObjRtr['TEMPS']),4)
-                    path = Utils.pathDataMinerTemp(jObj)
-                    lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-                    with lock:
-                        with open(path, 'a', encoding='utf-8') as file:
-                            file.write(f"{Utils.nowUtc()};{temp}\n")
+                    # The Temp data is 2 temp values, board and chip
+                    Utils.dataBinaryWriteFile(Utils.pathDataMinerTemp(jObj), [temp, -1])
             except Exception as e:
                 Utils.logger.error(f"MinerLuxor minerServiceGetData temp {jObj['uuid']} error {e}")
     @classmethod

@@ -1,5 +1,6 @@
 from ..utils import Utils
 from enum import Enum
+
 import json
 import mmap
 import os
@@ -7,59 +8,21 @@ import os
 class MinerUtils:
 
     @staticmethod
-    def binaryReadingFile(fileName, dateFrom, dateTo):
-        results = []
-        with open(fileName, 'r', encoding='utf-8') as file:
-            size = os.path.getsize(fileName)
-            with mmap.mmap(file.fileno(), length=0, access=mmap.ACCESS_READ) as mm:
-                start = 0
-                end = size
+    def binaryReadingFileStr(fileName: str, dateFrom: int, dateTo: int):
+        result = []
+        records = Utils.binaryReadingFile(fileName, dateFrom, dateTo)
+        for record in records:
+            if len(record) != 2:
+                Utils.logger.warning(f"binaryReadingFileStr {path}: unexpected data {record}.")
+                continue
+            
+            timestamp, values = record
+            line = f"{timestamp}"
+            for value in values:
+                line = line + f";{value}"
+            result.append(line)
+        return result
 
-                # find the start of the line
-                def findLineStart(pos):
-                    while pos > 0 and mm[pos - 1:pos] != b'\n':
-                        pos -= 1
-                    return pos
-
-                # Binary search to find first timestamp
-                posStart = None
-                while start < end:
-                    mid = (start+end) // 2
-                    lineStart = findLineStart(mid)
-                    mm.seek(lineStart)
-                    line = mm.readline().decode().strip()
-                    if not line:
-                        break
-                    try:
-                        timestamp = int(line.split(";")[0])
-                    except ValueError:
-                        break
-                    if timestamp < dateFrom:
-                        start = mm.tell()
-                    else:
-                        end = lineStart
-                        posStart = lineStart
-                if posStart is None:
-                    return []  # Nenhum dado no intervalo
-
-                # Lê linhas sequencialmente a partir da posição encontrada
-                mm.seek(posStart)
-                while True:
-                    line = mm.readline()
-                    if not line:
-                        break
-                    line = line.decode().strip()
-                    if not line:
-                        continue
-                    try:
-                        timestamp = int(line.split(";")[0])
-                        if timestamp > dateTo:
-                            break
-                        if dateFrom <= timestamp <= dateTo:
-                            results.append(line)
-                    except ValueError:
-                        continue
-        return results
 
     # Returns the miner JSON Object with same UUID
     @staticmethod
@@ -118,23 +81,18 @@ class MinerUtils:
         path = Utils.pathDataMinerHashrate(jObj)
         lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
         with lock:
-            result = MinerUtils.binaryReadingFile(path, dateFrom, dateTo)
+            result = MinerUtils.binaryReadingFileStr(path, dateFrom, dateTo)
         return "\n".join(result)
     @staticmethod
     def dataHashrateLast(jObj):
         if not isinstance(jObj, dict):
             jObj = MinerUtils.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerHashrate(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            with open(path, 'r', encoding='utf-8') as file:
-                # find the list line
-                lineLast = file.readlines()[-1]
-                timestamp, hashrate = lineLast.strip().split(';')
-
-                timestamp = int(timestamp)
-                hashrate = float(hashrate)                
-                return timestamp, hashrate
+        tupleData = Utils.dataBinaryReadLastLine(Utils.pathDataMinerHashrate(jObj))
+        if tupleData is None:
+            return None
+        else:
+            timestamp, dataValues = tupleData
+            return timestamp, dataValues[0]
     @staticmethod
     def dataHashrateLastJson(jObj):
         timestamp, hashrate = MinerUtils.dataHashrateLast(jObj)
@@ -148,24 +106,18 @@ class MinerUtils:
         path = Utils.pathDataMinerTemp(jObj)
         lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
         with lock:
-            result = MinerUtils.binaryReadingFile(path, dateFrom, dateTo)
+            result = MinerUtils.binaryReadingFileStr(path, dateFrom, dateTo)
         return "\n".join(result)
     @staticmethod
     def dataTemperatureLast(jObj):
         if not isinstance(jObj, dict):
             jObj = MinerUtils.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerTemp(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            with open(path, 'r', encoding='utf-8') as file:
-                # find the list line
-                lineLast = file.readlines()[-1]
-                timestamp, tBoard, tChip = lineLast.strip().split(';')
-
-                timestamp = int(timestamp)
-                tBoard = float(tBoard)
-                tChip = float(tChip)                
-                return timestamp, tBoard, tChip
+        tupleData = Utils.dataBinaryReadLastLine(Utils.pathDataMinerTemp(jObj))
+        if tupleData is None:
+            return None
+        else:
+            timestamp, dataValues = tupleData
+            return timestamp, dataValues[0], dataValues[1]
     @staticmethod
     def dataTemperatureLastJson(jObj):
         timestamp, tBoard, tChip = MinerUtils.dataTemperatureLast(jObj)
@@ -179,23 +131,18 @@ class MinerUtils:
         path = Utils.pathDataMinerTempSensor(jObj)
         lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
         with lock:
-            result = MinerUtils.binaryReadingFile(path, dateFrom, dateTo)
+            result = MinerUtils.binaryReadingFileStr(path, dateFrom, dateTo)
         return "\n".join(result)
     @staticmethod
     def dataTemperatureSensorLast(jObj):
         if not isinstance(jObj, dict):
             jObj = MinerUtils.dataAsJsonObjectUuid(jObj)
-        path = Utils.pathDataMinerTempSensor(jObj)
-        lock = Utils.getFileLock(path).gen_rlock() # lock for reading, method "rlock"
-        with lock:
-            with open(path, 'r', encoding='utf-8') as file:
-                # find the list line
-                lineLast = file.readlines()[-1]
-                timestamp, temp = lineLast.strip().split(';')
-
-                timestamp = int(timestamp)
-                temp = float(temp)
-                return timestamp, temp
+        tupleData = Utils.dataBinaryReadLastLine(Utils.pathDataMinerTempSensor(jObj))
+        if tupleData is None:
+            return None
+        else:
+            timestamp, dataValues = tupleData
+            return timestamp, dataValues[0]
     
     # Returns the miner.json full path, creates it if doesn't exists
     @staticmethod

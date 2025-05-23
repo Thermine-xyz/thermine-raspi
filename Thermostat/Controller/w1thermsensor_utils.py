@@ -35,13 +35,24 @@ class W1ThermSensorUtils:
         Check if a 1-Wire sensor is present in /sys/bus/w1/devices/.
         Returns True if at least one 28-XXXXXXXXXXXX device is found.
         """
+        lBool = False
         try:
             # Look for devices starting with '28-' (DS18B20 family)
             devices = glob.glob("/sys/bus/w1/devices/28-*")
-            return len(devices) > 0
+            lBool = len(devices) > 0
         except Exception as e:
             Utils.logger.error(f"W1ThermSensorUtils.is_w1_sensor_present error: {e}")
-            return False
+            pass
+        if lBool:
+            try:
+                from w1thermsensor import W1ThermSensor, KernelModuleLoadError, NoSensorFoundError, SensorNotReadyError
+                lBool = W1ThermSensor is not None
+            except ImportError as e:
+                Utils.logger.error(f"W1ThermSensorUtils.get_temperature Failed import sensor, error {e}")
+                lBool = False
+                pass
+        return lBool
+
 
     @staticmethod
     def loadW1Modules() -> bool:
@@ -73,45 +84,41 @@ class W1ThermSensorUtils:
                 Utils.logger.error(f"W1ThermSensorUtils.get_temperature Failed import sensor, error {e}")
                 W1ThermSensor = None
                 KernelModuleLoadError = NoSensorFoundError = SensorNotReadyError = Exceptionprint("getTemperature1")
-        if W1ThermSensorUtils.isW1SensorPresent() and W1ThermSensor is not None:
-            try:
-                # Ensure modules are loaded
-                if not W1ThermSensorUtils.loadW1Modules():
-                    Utils.logger.error("W1ThermSensorUtils.get_temperature Failed to load w1-gpio and w1-therm modules")
+            if W1ThermSensor is not None:
+                try:
+                    # Ensure modules are loaded
+                    if not W1ThermSensorUtils.loadW1Modules():
+                        Utils.logger.error("W1ThermSensorUtils.get_temperature Failed to load w1-gpio and w1-therm modules")
+                        return None
+                    sensor = W1ThermSensor()
+                    temp = sensor.get_temperature()
+                    return temp
+                except KernelModuleLoadError as e:
+                    Utils.logger.error(f"W1ThermSensorUtils.get_temperature Kernel module error: {e}")
+                    Utils.logger.error("W1ThermSensorUtils.get_temperature Ensure dtoverlay=w1-gpio is in /boot/config.txt")
                     return None
-                sensor = W1ThermSensor()
-                temp = sensor.get_temperature()
-                return temp
-            except KernelModuleLoadError as e:
-                Utils.logger.error(f"W1ThermSensorUtils.get_temperature Kernel module error: {e}")
-                Utils.logger.error("W1ThermSensorUtils.get_temperature Ensure dtoverlay=w1-gpio is in /boot/config.txt")
-                return None
-            except NoSensorFoundError as e:
-                Utils.logger.error(f"W1ThermSensorUtils.get_temperature No sensor found: {e}")
-                return None
-            except SensorNotReadyError as e:
-                Utils.logger.error(f"W1ThermSensorUtils.get_temperature Sensor not ready: {e}")
-                return None
-            except Exception as e:
-                Utils.logger.error(f"W1ThermSensorUtils.get_temperature Unexpected W1ThermSensor error: {e}")
-                return None
-        else:
-            Utils.logger.info("W1ThermSensorUtils.get_temperature No 1-Wire sensor detected, using mock sensor")
-            try:
-                sensor = MockW1ThermSensor()
-                temp = sensor.get_temperature()
-                return temp
-            except Exception as e:
-                Utils.logger.info(f"W1ThermSensorUtils.get_temperature Mock sensor error: {e}")
-                return None
+                except NoSensorFoundError as e:
+                    Utils.logger.error(f"W1ThermSensorUtils.get_temperature No sensor found: {e}")
+                    return None
+                except SensorNotReadyError as e:
+                    Utils.logger.error(f"W1ThermSensorUtils.get_temperature Sensor not ready: {e}")
+                    return None
+                except Exception as e:
+                    Utils.logger.error(f"W1ThermSensorUtils.get_temperature Unexpected W1ThermSensor error: {e}")
+                    return None
+            else:
+                Utils.logger.info("W1ThermSensorUtils.get_temperature No 1-Wire sensor detected, using mock sensor")
+                try:
+                    sensor = MockW1ThermSensor()
+                    temp = sensor.get_temperature()
+                    return temp
+                except Exception as e:
+                    Utils.logger.info(f"W1ThermSensorUtils.get_temperature Mock sensor error: {e}")
+                    return None
 
     @staticmethod
     def saveTempToDataFile(jObj):
         tSensor = W1ThermSensorUtils.getTemperature()
         if isinstance(tSensor, float):
             tSensor = round(tSensor,4)
-            path = Utils.pathDataMinerTempSensor(jObj)
-            lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-            with lock:
-                with open(path, 'a', encoding='utf-8') as file:
-                    file.write(f"{Utils.nowUtc()};{tSensor}\n")
+            Utils.dataBinaryWriteFile(Utils.pathDataMinerTempSensor(jObj), [tSensor])

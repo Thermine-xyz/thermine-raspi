@@ -172,6 +172,14 @@ class Miner:
         Utils.jsonCheckIsObj(jObj)
         minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
         minerCls.minerServiceGetData(jObj)
+        # Sensor temp
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False) and W1ThermSensorUtils.isW1SensorPresent():
+            """w1thermsensor"""
+            try: # Reads sensor temp if it found the sensor JSON obj
+                W1ThermSensorUtils.saveTempToDataFile(jObj)
+            except Exception as e:
+                Utils.logger.error(f"minerServiceGetData Sensor temp {jObj['uuid']} error {e}")
+                pass
         return None
     
     @staticmethod
@@ -186,13 +194,7 @@ class Miner:
 
         tsNow = Utils.nowUtc()
         # Reads from sensor or from miner
-        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
-            """w1thermsensor"""
-            try: # Reads sensor temp if it found the sensor JSON obj
-                W1ThermSensorUtils.saveTempToDataFile(jObj)
-            except Exception as e:
-                Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
-                pass
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False) and W1ThermSensorUtils.isW1SensorPresent():
             tsMiner, temp = MinerUtils.dataTemperatureSensorLast(jObj)
         else:
             tsMiner, tBoard, temp = MinerUtils.dataTemperatureLast(jObj)

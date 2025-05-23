@@ -121,11 +121,7 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
                     tBoard = tBoard + jObjS['board_temp']['degree_c']
                 hashRate = round((hashRate / len(jObjRtr['hashboards'])) / 1000,4)
                 tBoard = round(tBoard / len(jObjRtr['hashboards']),4)
-                path = Utils.pathDataMinerHashrate(jObj)
-                lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-                with lock:
-                    with open(path, 'a', encoding='utf-8') as file:
-                        file.write(f"{Utils.nowUtc()};{hashRate}\n")
+                Utils.dataBinaryWriteFile(Utils.pathDataMinerHashrate(jObj), [hashRate])
             except Exception as e:
                 Utils.logger.error(f"BraiinV1 minerServiceGetData hashrate {jObj['uuid']} error {e}")
                 pass
@@ -140,11 +136,7 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
                     tChip = jObjRtr['highest_temperature']['temperature']['degree_c']
                 else:
                     tChip = -1
-                path = Utils.pathDataMinerTemp(jObj)
-                lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-                with lock:
-                    with open(path, 'a', encoding='utf-8') as file:
-                        file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
+                Utils.dataBinaryWriteFile(Utils.pathDataMinerTemp(jObj), [tBoard, tChip])
             except Exception as e:
                 Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
                 pass

@@ -59,11 +59,23 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
     All gRPC methods
     """
     @staticmethod
+    def grpcAscconut(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'asccount')
+
+    @staticmethod
     def grpcConfig(jObj):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
         return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'config')
-    
+
+    @staticmethod
+    def grpcDevDetails(jObj):
+        Utils.jsonCheckIsObj(jObj)
+        Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
+        return MinerBraiinsS9.cgMinerRequest(jObj['ip'], 'devdetails')
+
     @staticmethod
     def grpcDevs(jObj, isOnlyData: bool = False):
         Utils.jsonCheckIsObj(jObj)
@@ -255,6 +267,17 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
         with MinerBraiinsS9.lockServiceBosminer:
             MinerBraiinsS9.sshCommand(jObj, "/etc/init.d/bosminer restart")
         return Utils.resultJsonOK()
+
+    @staticmethod
+    def sshUpTime(jObj) -> int:
+        """
+        Returns:
+            Int, started time in seconds
+        """
+        Utils.jsonCheckIsObj(jObj)
+        with MinerBraiinsS9.lockServiceBosminer:
+            startedTime = MinerBraiinsS9.sshCommand(jObj, "cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1")
+        return int(startedTime)
     """
     All SSH methods END
     """
@@ -363,11 +386,7 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
             for jObjS in jObjRtr['SUMMARY']:
                 hashRate = hashRate + jObjS['MHS 5s']
             hashRate = round((hashRate/1000)/1000,4)
-            path = Utils.pathDataMinerHashrate(jObj)
-            lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-            with lock:
-                with open(path, 'a', encoding='utf-8') as file:
-                    file.write(f"{Utils.nowUtc()};{hashRate}\n")
+            Utils.dataBinaryWriteFile(Utils.pathDataMinerHashrate(jObj), [hashRate])
         except Exception as e:
             Utils.logger.error(f"BraiinsS9 minerServiceGetData hashrate {jObj['uuid']} error {e}")
 
@@ -383,11 +402,7 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
                         tChip = tChip + jObjS['Chip']
                     tBoard = round(tBoard / len(jObjRtr['TEMPS']),4)
                     tChip = round(tChip / len(jObjRtr['TEMPS']),4)
-                    path = Utils.pathDataMinerTemp(jObj)
-                    lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
-                    with lock:
-                        with open(path, 'a', encoding='utf-8') as file:
-                            file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
+                    Utils.dataBinaryWriteFile(Utils.pathDataMinerTemp(jObj), [tBoard, tChip])
             except Exception as e:
                 Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
         return Utils.resultJsonOK()
