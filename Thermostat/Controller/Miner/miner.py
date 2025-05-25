@@ -9,6 +9,7 @@ from .miner_braiins_s9 import MinerBraiinsS9
 from .miner_braiins_v1 import MinerBraiinsV1
 from .miner_luxor import MinerLuxor
 from .miner_vnish import MinerVnish
+from ..w1thermsensor_utils import W1ThermSensorUtils
 
 from enum import Enum
 import json
@@ -157,6 +158,8 @@ class Miner:
             return MinerBraiinsV1.summary(jObj)
         elif fwtp == MinerUtils.CompatibleFirmware.braiinsS9:
             return MinerBraiinsS9.summary(jObj)
+        elif fwtp == MinerUtils.CompatibleFirmware.luxor:
+            return MinerLuxor.cgmConfig(jObj)
         else:
             return MinerVnish.summary(jObj)
     
@@ -184,6 +187,12 @@ class Miner:
         tsNow = Utils.nowUtc()
         # Reads from sensor or from miner
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            """w1thermsensor"""
+            try: # Reads sensor temp if it found the sensor JSON obj
+                W1ThermSensorUtils.saveTempToDataFile(jObj)
+            except Exception as e:
+                Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
+                pass
             tsMiner, temp = MinerUtils.dataTemperatureSensorLast(jObj)
         else:
             tsMiner, tBoard, temp = MinerUtils.dataTemperatureLast(jObj)

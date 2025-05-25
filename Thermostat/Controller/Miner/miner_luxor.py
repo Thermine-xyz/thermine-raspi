@@ -5,39 +5,29 @@ It uses CGMiner API integration https://github.com/ckolivas/cgminer/blob/master/
 from ..utils import Utils
 from .miner_utils import MinerUtils
 
-import asyncio
+import socket
 import json
+import requests
 
 class MinerLuxor(MinerUtils.MinerBase):
     """
     All CGMiner methods
     """
     @staticmethod
-    async def sendCommand(jObj, command):
-        """
-        Send a JSON command to the miner over TCP and return the response.
-        
-        Args:
-            ip (str): Miner IP address
-            port (int): Miner port (e.g., 4028)
-            command (dict): Command in JSON format
-        
-        Returns:
-            dict: Response from the miner, or None if an error occurs
-        """
+    def sendCommand(jObj, command):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-        try:
-            reader, writer = await asyncio.open_connection(jObj['ip'], 4028)
-            writer.write(json.dumps(command).encode() + b"\n")
-            await writer.drain()
-            data = await reader.read(4096)  # Buffer size for response
-            writer.close()
-            await writer.wait_closed()
-            return json.loads(data.decode())
-        except Exception as e:
-            print(f"Error connecting to {ip}:{port} - {e}")
-            return None
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((jObj['ip'], 4028))
+            command_json = json.dumps(command) + "\n"
+            s.sendall(command_json.encode('utf-8'))
+            response = ""
+            while True:
+                data = s.recv(4096).decode('utf-8')
+                if not data:
+                    break
+                response += data
+            return json.loads(response)
 
     @staticmethod
     def cgmCommand(jObj, command):
@@ -63,17 +53,47 @@ class MinerLuxor(MinerUtils.MinerBase):
         return jR
     @staticmethod
     def cgmCurtail(jObj, action):
-        sessionId = MinerLuxor.cgmSessionId(jObj)
+        sessionId = MinerLuxor.cgmSessionIdStr(jObj)
         command = { "command" : "curtail", "parameter" : sessionId + "," + action }
         jR = MinerLuxor.cgmCommand(jObj, command)
         Utils.jsonCheckKeyExists(jR, 'CURTAIL', True)
         return jR
     @staticmethod
+    def cgmLogon(jObj):
+        url = f"http://{jObj['ip']}:4028/log/live"
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            return response.json()
+
+    @staticmethod
+    def cgmLogs(jObj):
+        sessionId = MinerLuxor.cgmSessionIdStr(jObj)
+        command = { "command" : "logs", "parameter" : sessionId }
+        jR = MinerLuxor.cgmCommand(jObj, command)
+        return jR
+    @staticmethod
+    def cgmRebootDevice(jObj):
+        sessionId = MinerLuxor.cgmSessionIdStr(jObj)
+        command = { "command" : "rebootdevice", "parameter" : sessionId }
+        jR = MinerLuxor.cgmCommand(jObj, command)
+        return jR
+    @staticmethod
     def cgmSessionId(jObj):
         jR = MinerLuxor.cgmCommand(jObj, 'session')
         Utils.jsonCheckKeyExists(jR, 'SESSION', True)
-        Utils.jsonCheckKeyTypeStr(jR['SESSION'][0], 'SessionID', True, False)    
+        jR = jR['SESSION']
+        if not Utils.jsonCheckKeyTypeStr(jR[0], 'SessionID', False, False):
+            # There is no session yet, force one
+            jR = MinerLuxor.cgmLogon(jObj)
+        else:
+            jR = jR[0]
         return jR
+    @staticmethod
+    def cgmSessionIdStr(jObj) -> str:
+        jR = MinerLuxor.cgmSessionId(jObj)
+        return jR['SessionID']
     @staticmethod
     def cgmSummary(jObj):
         jR = MinerLuxor.cgmCommand(jObj, 'summary')
@@ -92,6 +112,7 @@ class MinerLuxor(MinerUtils.MinerBase):
     @staticmethod
     def cgmVersion(jObj):
         jR = MinerLuxor.cgmCommand(jObj, 'version')
+        print(f"{jR}")
         Utils.jsonCheckKeyExists(jR, 'VERSION', True)
         return jR
     """
@@ -106,7 +127,7 @@ class MinerLuxor(MinerUtils.MinerBase):
         # luxor CGHMiner version 3.7 expects STATUS and VERSION array
         jR = MinerLuxor.cgmVersion(jObj)
         Utils.jsonCheckKeyTypeStr(jR['STATUS'][0], 'Msg', True, False)
-        if not jR['STATUS'][0].lower().startswith('luxminer'): # Luxor replies a specific Msg value "LUXminer versions"
+        if not jR['STATUS'][0]['Msg'].lower().startswith('luxminer'): # Luxor replies a specific Msg value "LUXminer versions"
             Utils.throwExceptionInvalidValue(f"Miner is not LUXminer: {jR['STATUS'][0]['Msg']}")
         return None
     # Check if the miner is online, raises exception if NOT
@@ -121,9 +142,9 @@ class MinerLuxor(MinerUtils.MinerBase):
         jAry = jR['CONFIG']
         if not Utils.jsonCheckKeyExists(jAry[0], 'CurtailMode', False):
             return MinerUtils.MinerStatus.MinerUnknown
-        if jAry[0]['CurtailMode'] == 'WakeUp':
+        if jAry[0]['CurtailMode'] in ['WakeUp', 'None']:
             return MinerUtils.MinerStatus.MinerNormal
-        elif jAry[0]['Msg'] == 'Sleep':
+        elif jAry[0]['CurtailMode'] == 'Sleep':
             return MinerUtils.MinerStatus.MinerNotReady
         else:
             return MinerUtils.MinerStatus.MinerUnknown
@@ -167,7 +188,7 @@ class MinerLuxor(MinerUtils.MinerBase):
                 Utils.logger.error(f"MinerLuxor minerServiceGetData hashrate {jObj['uuid']} error {e}")
             try: # Temp
                 jObjRtr = MinerLuxor.cgmTemps(jObj)
-                MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
+                #MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
                 temp = 0.0
                 if len(jObjRtr['TEMPS']) > 0:
                     temp1 = 0.0

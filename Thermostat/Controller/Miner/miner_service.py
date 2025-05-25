@@ -17,9 +17,9 @@ class MinerService:
         self.lock = Utils.threadingLock()  # Thread-safe lock for jObj updates
         
         self.schedulerReadData = BackgroundScheduler()
-        self.schedulerReadData.add_job(self.taskReadData, 'interval', seconds=5)
+        self.schedulerReadData.add_job(self.taskReadData, 'interval', seconds=5, max_instances=1)
         self.schedulerThermalControl = BackgroundScheduler()
-        self.schedulerThermalControl.add_job(self.taskThermalControl, 'interval', seconds=5)
+        self.schedulerThermalControl.add_job(self.taskThermalControl, 'interval', seconds=5, max_instances=1)
 
     def dataHasChanged(self, event):
         event_action, jObj = checkEventData(event)

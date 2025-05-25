@@ -14,7 +14,6 @@ the gRPC API has only few "GET" metohds and a couple of "POST" ones
 
 from ..utils import Utils
 from .miner_utils import MinerUtils
-from ..w1thermsensor_utils import W1ThermSensorUtils
 
 import json
 import socket
@@ -391,15 +390,6 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
                             file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
             except Exception as e:
                 Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
-        
-        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
-            """w1thermsensor"""
-            try: # Reads sensor temp if it found the sensor JSON obj
-                W1ThermSensorUtils.saveTempToDataFile(jObj)
-            except Exception as e:
-                Utils.logger.error(f"BraiinsS9 minerServiceGetData temp {jObj['uuid']} error {e}")
-                pass
-
         return Utils.resultJsonOK()
 
     @classmethod

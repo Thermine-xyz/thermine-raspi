@@ -148,14 +148,6 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
             except Exception as e:
                 Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
                 pass
-
-        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
-            """w1thermsensor"""
-            try: # Reads sensor temp if it found the sensor JSON obj
-                W1ThermSensorUtils.saveTempToDataFile(jObj)
-            except Exception as e:
-                Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
-                pass
         return Utils.resultJsonOK()
 
     @classmethod

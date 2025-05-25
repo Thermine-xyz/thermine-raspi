@@ -70,7 +70,7 @@ def handle_get(path, headers):
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         return Miner.minerFirmware(sHeader), 200, 'application/json'
     elif path == "/Miner/Firmware/Compatibility/List":
-        enum_values = [firmware.value for firmware in Miner.CompatibleFirmware]
+        enum_values = [firmware.value for firmware in MinerUtils.CompatibleFirmware]
         return {"result": enum_values}, 200, 'application/json'
     elif path == "/Miner/Hashrate":
         sHeader = checkHeaderUuid(headers, raiseException=True)
