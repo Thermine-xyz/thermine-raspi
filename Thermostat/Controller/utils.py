@@ -176,7 +176,9 @@ class Utils:
         path = os.path.join(Path.home(),'Documents')
         path = os.path.join(path,'heater_control')
         if not os.path.exists(path):
-            Utils.throwExceptionResourceNotFound('user Documents path [' + path + ']')
+            os.makedirs(path, exist_ok=True)
+            if not os.path.exists(path):
+                Utils.throwExceptionResourceNotFound('user Documents path [' + path + ']')
         return path
 
     # Returns the config path, creates if doesn't exist

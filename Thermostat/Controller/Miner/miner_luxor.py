@@ -60,12 +60,12 @@ class MinerLuxor(MinerUtils.MinerBase):
         return jR
     @staticmethod
     def cgmLogon(jObj):
-        url = f"http://{jObj['ip']}:4028/log/live"
-
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            return response.json()
+        jR = MinerLuxor.cgmCommand(jObj, 'logon')
+        Utils.jsonCheckKeyExists(jR, 'SESSION', True)
+        jR = jR['SESSION']
+        Utils.jsonCheckKeyTypeStr(jR[0], 'SessionID', True, False)
+        jR = jR[0]
+        return jR
 
     @staticmethod
     def cgmLogs(jObj):
@@ -75,6 +75,7 @@ class MinerLuxor(MinerUtils.MinerBase):
         return jR
     @staticmethod
     def cgmRebootDevice(jObj):
+        # Reboot the device, it is brought ON with last status (sleep or wakeup)
         sessionId = MinerLuxor.cgmSessionIdStr(jObj)
         command = { "command" : "rebootdevice", "parameter" : sessionId }
         jR = MinerLuxor.cgmCommand(jObj, command)
@@ -112,7 +113,6 @@ class MinerLuxor(MinerUtils.MinerBase):
     @staticmethod
     def cgmVersion(jObj):
         jR = MinerLuxor.cgmCommand(jObj, 'version')
-        print(f"{jR}")
         Utils.jsonCheckKeyExists(jR, 'VERSION', True)
         return jR
     """
@@ -142,9 +142,9 @@ class MinerLuxor(MinerUtils.MinerBase):
         jAry = jR['CONFIG']
         if not Utils.jsonCheckKeyExists(jAry[0], 'CurtailMode', False):
             return MinerUtils.MinerStatus.MinerUnknown
-        if jAry[0]['CurtailMode'] in ['WakeUp', 'None']:
+        if jAry[0]['CurtailMode'] == 'None':
             return MinerUtils.MinerStatus.MinerNormal
-        elif jAry[0]['CurtailMode'] == 'Sleep':
+        elif jAry[0]['CurtailMode'] in ['WakeUp', 'Sleep']: # Based on Luxor documentation, if WakeUp, means still starting
             return MinerUtils.MinerStatus.MinerNotReady
         else:
             return MinerUtils.MinerStatus.MinerUnknown
@@ -161,6 +161,7 @@ class MinerLuxor(MinerUtils.MinerBase):
         return MinerLuxor.cgmCurtail(jObj, 'sleep')
     @staticmethod
     def resume(jObj):
+        # Luxor takes around 6 min to really work
         return MinerLuxor.cgmCurtail(jObj, 'wakeup')
     """
     All Thermine methods END
