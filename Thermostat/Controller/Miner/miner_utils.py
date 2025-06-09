@@ -69,8 +69,7 @@ class MinerUtils:
         result['hasrate'] = MinerUtils.dataHashrateLastJson(jObj)
         result['temp'] = MinerUtils.dataTemperatureLastJson(jObj)
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
-            timestamp, temp = MinerUtils.dataTemperatureSensorLast(jObj)
-            result['temp_sensor'] = {"timestamp" : timestamp, "temp" : temp}
+            result['temp_sensor'] = MinerUtils.dataTemperatureSensorLastJson(jObj)
         return result
 
     @staticmethod
@@ -143,6 +142,10 @@ class MinerUtils:
         else:
             timestamp, dataValues = tupleData
             return timestamp, dataValues[0]
+    @staticmethod
+    def dataTemperatureSensorLastJson(jObj):
+        timestamp, temp = MinerUtils.dataTemperatureSensorLast(jObj)
+        return { "timestamp" : timestamp, "temp" : temp}
     
     # Returns the miner.json full path, creates it if doesn't exists
     @staticmethod
@@ -250,9 +253,6 @@ class MinerUtils:
         def echo(cls, jObj):
             Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.echo')
         @classmethod
-        def status(cls, jObj):
-            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.status')
-        @classmethod
         def getToken(cls, jObj):
             Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.getToken')
         @classmethod
@@ -261,6 +261,9 @@ class MinerUtils:
         @classmethod
         def minerThermalControl(cls, jObj: dict, tCurrent: float):
             Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.minerThermalControl')
+        @classmethod
+        def status(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.status')
 
     @staticmethod
     def getMinerClass(firmware: str) -> MinerBase:

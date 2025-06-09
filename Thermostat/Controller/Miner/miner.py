@@ -170,8 +170,12 @@ class Miner:
     @staticmethod
     def minerServiceGetData(jObj):
         Utils.jsonCheckIsObj(jObj)
-        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
-        minerCls.minerServiceGetData(jObj)
+        try: # Hashrate(MHs)
+            minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+            minerCls.minerServiceGetData(jObj)
+        except Exception as e:
+            Utils.logger.error(f"minerServiceGetData {jObj['uuid']} error {e}")
+
         # Sensor temp
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False) and W1ThermSensorUtils.isW1SensorPresent():
             """w1thermsensor"""

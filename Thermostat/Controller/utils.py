@@ -156,16 +156,16 @@ class Utils:
         except Exception as e:
             raise RuntimeError(f"binaryReadingFile {path}: Failed to perform binary search on {path}: {e}")
     @staticmethod
-    def dataBinaryReadLastLine(path) -> tuple[int, list[float]]:
+    def dataBinaryReadLastLine(path: str) -> tuple[int, list[float]]:
         """
-        Reads the last record from a binary file with format: valueCount (int), timestamp (int), N doubles.
-        
+        Reads the last record from a binary file with format: count (int32), timestamp (int32), count doubles.
+    
         Args:
             path: Path to the binary file.
-        
+    
         Returns:
             Tuple containing (timestamp, double_values) of the last record, or None if invalid.
-        
+    
         Raises:
             RuntimeError: If file reading fails due to corruption or invalid format.
         """
@@ -173,77 +173,103 @@ class Utils:
         with lock:
             try:
                 with open(path, 'rb') as file:
-                    # Get file size
                     file_size = os.path.getsize(path)
-                    if file_size < 8:  # File must be bigger than the minimum expected size (count + timestamp)
+                    if file_size < 8:  # Minimum size for count (4) + timestamp (4)
                         Utils.logger.warning(f"dataBinaryReadLastLine {path}: File is empty or too small to contain a record.")
                         return None
-                    
-                    # Variables initialization, to find the last line
+    
                     last_record_offset = None
                     offset = 0
-                    
-                    # Reads file till last line
+    
                     while offset < file_size:
                         file.seek(offset)
-                        # Read valueCount (4 bytes)
                         count_data = file.read(4)
                         if len(count_data) != 4:
-                            Utils.logger.warning(f"dataBinaryReadLastLine {path}: Warning: Incomplete count data at offset {offset}")
+                            Utils.logger.warning(f"dataBinaryReadLastLine {path}: Incomplete count data at offset {offset}: {count_data.hex()}")
                             break
-                        
+    
                         try:
                             count = struct.unpack('i', count_data)[0]
                         except struct.error as e:
-                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking count at offset {offset}: {e}")
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking count at offset {offset}: {e}, bytes: {count_data.hex()}")
                             break
-                        
-                        # Validate valueCount
+    
                         if count < 1 or count > 1000:
-                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Invalid count value: {count} at offset {offset}")
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Invalid count value: {count} at offset {offset}, bytes: {count_data.hex()}")
                             break
-                        
-                        # Calculate size of line
-                        record_size = 4 + 4 + count * 8  # valueCount (4) + timestamp (4) + count doubles (8 each)
-                        
-                        # Checks if the line fits in the file
+    
+                        record_size = 8 + count * 8  # count (4) + timestamp (4) + count doubles
                         if offset + record_size > file_size:
-                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Warning: Incomplete record at offset {offset}, expected {record_size} bytes")
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Incomplete record at offset {offset}, expected {record_size} bytes, file size: {file_size}")
                             break
-                        
-                        # refresh the last valid line
+    
+                        timestamp_data = file.read(4)
+                        if len(timestamp_data) != 4:
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Incomplete timestamp data at offset {offset + 4}: {timestamp_data.hex()}")
+                            break
+    
+                        try:
+                            timestamp = struct.unpack('i', timestamp_data)[0]
+                        except struct.error as e:
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking timestamp at offset {offset + 4}: {e}, bytes: {timestamp_data.hex()}")
+                            break
+    
+                        double_values_data = file.read(count * 8)
+                        if len(double_values_data) != count * 8:
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Incomplete double values data at offset {offset + 8}: {double_values_data.hex()}")
+                            break
+    
+                        try:
+                            double_values = struct.unpack('d' * count, double_values_data)
+                        except struct.error as e:
+                            Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking double values at offset {offset + 8}: {e}, bytes: {double_values_data.hex()}")
+                            break
+    
                         last_record_offset = offset
-                        
-                        # Next line
                         offset += record_size
-                    
-                    # If didn't find any valid line
+    
                     if last_record_offset is None:
                         Utils.logger.warning(f"dataBinaryReadLastLine {path}: No valid record found in the file.")
                         return None
-                    
-                    # Reads the last line
+    
                     file.seek(last_record_offset)
                     count_data = file.read(4)
-                    count = struct.unpack('i', count_data)[0]
-                    data = file.read(4 + count * 8)  # timestamp (4) + count doubles
-                    if len(data) != 4 + count * 8:
-                        Utils.logger.warning(f"dataBinaryReadLastLine {path}: Warning: Incomplete last record at offset {last_record_offset}")
+                    if len(count_data) != 4:
+                        Utils.logger.error(f"dataBinaryReadLastLine {path}: Failed to re-read count at offset {last_record_offset}: {count_data.hex()}")
                         return None
-                    
-                    format_string = 'i' + 'd' * count  # timestamp como int
+    
+                    count = struct.unpack('i', count_data)[0]
+    
+                    timestamp_data = file.read(4)
+                    if len(timestamp_data) != 4:
+                        Utils.logger.error(f"dataBinaryReadLastLine {path}: Incomplete timestamp in last record at offset {last_record_offset + 4}: {timestamp_data.hex()}")
+                        return None
+    
                     try:
-                        values = struct.unpack(format_string, data)
-                        timestamp, *double_values = values
-                        Utils.logger.warning(f"dataBinaryReadLastLine {path}: Last record: Timestamp: {timestamp}, Values: {[f'{v:.4f}' for v in double_values]}")
+                        timestamp = struct.unpack('i', timestamp_data)[0]
+                    except struct.error as e:
+                        Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking timestamp at offset {last_record_offset + 4}: {e}, bytes: {timestamp_data.hex()}")
+                        return None
+    
+                    double_values_data = file.read(count * 8)
+                    if len(double_values_data) != count * 8:
+                        Utils.logger.error(f"dataBinaryReadLastLine {path}: Incomplete double values in last record at offset {last_record_offset + 8}: {double_values_data.hex()}")
+                        return None
+    
+                    try:
+                        double_values = struct.unpack('d' * count, double_values_data)
+                        Utils.logger.info(f"dataBinaryReadLastLine {path}: Last record: Timestamp: {timestamp}, Values: {[f'{v:.4f}' for v in double_values]}")
                         return timestamp, double_values
                     except struct.error as e:
-                        Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking last record at offset {last_record_offset}: {e}")
+                        Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking double values at offset {last_record_offset + 8}: {e}, bytes: {double_values_data.hex()}")
                         return None
-            
+    
+            except FileNotFoundError:
+                raise RuntimeError(f"dataBinaryReadLastLine {path}: File not found: {path}")
             except Exception as e:
                 raise RuntimeError(f"dataBinaryReadLastLine {path}: Failed to read last record from {path}: {e}")
 
+    
     @staticmethod
     def dataBinaryWriteFile(path, doubleValues: list[float]) -> None:
         """

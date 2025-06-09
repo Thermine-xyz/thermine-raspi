@@ -91,6 +91,14 @@ def handle_get(path, headers):
     elif path == "/Miner/Temperature/Last":
         sHeader = checkHeaderUuid(headers, raiseException=True)
         return MinerUtils.dataTemperatureLastJson(sHeader), 200, 'application/json'
+    elif path == "/Miner/Temperature/Sensor":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        dateFrom = checkHeaderDateFrom(headers)
+        dateTo = checkHeaderDateTo(headers) 
+        return MinerUtils.dataTemperatureSensor(sHeader, dateFrom, dateTo), 200, 'text/plain'
+    elif path == "/Miner/Temperature/Sensor/Last":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        return MinerUtils.dataTemperatureSensorLastJson(sHeader), 200, 'application/json'
 
     elif path.startswith("/Miner/BraiinsS9"):
         sHeader: str = headers.get('uuid')

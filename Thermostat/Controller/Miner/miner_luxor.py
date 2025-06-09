@@ -8,6 +8,7 @@ from .miner_utils import MinerUtils
 import socket
 import json
 import requests
+import time
 
 class MinerLuxor(MinerUtils.MinerBase):
     """
@@ -144,7 +145,9 @@ class MinerLuxor(MinerUtils.MinerBase):
             return MinerUtils.MinerStatus.MinerUnknown
         if jAry[0]['CurtailMode'] == 'None':
             return MinerUtils.MinerStatus.MinerNormal
-        elif jAry[0]['CurtailMode'] in ['WakeUp', 'Sleep']: # Based on Luxor documentation, if WakeUp, means still starting
+        if jAry[0]['CurtailMode'] == 'Sleep':
+            return MinerUtils.MinerStatus.MinerNotStarted
+        elif jAry[0]['CurtailMode'] == 'WakeUp': # Based on Luxor documentation, if WakeUp, means still starting
             return MinerUtils.MinerStatus.MinerNotReady
         else:
             return MinerUtils.MinerStatus.MinerUnknown
@@ -199,6 +202,7 @@ class MinerLuxor(MinerUtils.MinerBase):
                 Utils.logger.error(f"MinerLuxor minerServiceGetData temp {jObj['uuid']} error {e}")
     @classmethod
     def minerThermalControl(cls, jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
+        print("1")
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
             tTarget = float(jObj['sensor']['temp_target'])
         else:
@@ -206,19 +210,34 @@ class MinerLuxor(MinerUtils.MinerBase):
             Utils.jsonCheckKeyExists(jConfig, 'ChipHot', True)
             tTarget = float(jConfig['ChipHot'])
 
+        print("2")
         mStatus = MinerLuxor.status(jObj)
+        print(f"3 {tCurrent} {tTarget}")
 
         if tCurrent >= tTarget:
-            MinerLuxor.pause(jObj)
-            Utils.logger.warning(f"MinerLuxor.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
+            if mStatus == MinerUtils.MinerStatus.MinerNormal:
+                print("4")
+                MinerLuxor.pause(jObj)
+                Utils.logger.warning(f"MinerLuxor.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
+            print("5")
             return
-        if tCurrent <= tTarget-2 and mStatus == MinerUtils.MinerStatus.MinerNotReady:
-            MinerLuxor.resume(jObj)
+        if tCurrent <= tTarget-2 and mStatus in [MinerUtils.MinerStatus.MinerNotStarted, MinerUtils.MinerStatus.MinerNotReady]:
+            print("6")
+            try:
+                MinerLuxor.resume(jObj)
+            except Exception as e:
+                if "miner is already active" in str(e).lower():
+                    pass
+                else:
+                    raise
+            print("7")
             Utils.logger.warning(f"MinerLuxor.minerThermalControl {jObj['uuid']} Restarting, Temperature to low: Target {tTarget} Current {tCurrent}")
             # loop 5min or till the miner is OK
             started = time.time()
+            print("8")
             time30s = started
             while (time.time() - started) < (5 * 60): # 5 min looping
+                print("9")
                 if MinerLuxor.status(jObj) == MinerUtils.MinerStatus.MinerNormal:
                     break
                 if (time.time() - time30s) >= 30: # every 30 secs
