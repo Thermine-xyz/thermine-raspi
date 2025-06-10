@@ -262,6 +262,15 @@ class MinerUtils:
         def minerThermalControl(cls, jObj: dict, tCurrent: float):
             Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.minerThermalControl')
         @classmethod
+        def pause(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.pause')
+        @classmethod
+        def reboot(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.reboot')
+        @classmethod
+        def resume(cls, jObj):
+            Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.resume')
+        @classmethod
         def status(cls, jObj):
             Utils.throwExceptionResourceNotFound('Method not implemented MinerBase.status')
 

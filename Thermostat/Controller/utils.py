@@ -258,7 +258,7 @@ class Utils:
     
                     try:
                         double_values = struct.unpack('d' * count, double_values_data)
-                        Utils.logger.info(f"dataBinaryReadLastLine {path}: Last record: Timestamp: {timestamp}, Values: {[f'{v:.4f}' for v in double_values]}")
+                        # Utils.logger.info(f"dataBinaryReadLastLine {path}: Last record: Timestamp: {timestamp}, Values: {[f'{v:.4f}' for v in double_values]}")
                         return timestamp, double_values
                     except struct.error as e:
                         Utils.logger.error(f"dataBinaryReadLastLine {path}: Error unpacking double values at offset {last_record_offset + 8}: {e}, bytes: {double_values_data.hex()}")

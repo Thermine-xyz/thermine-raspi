@@ -174,7 +174,7 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
         elif path.endswith("/Restart"):
             return MinerBraiinsS9.sshRestart(jObj), 200, 'application/json'
         elif path.endswith("/Resume"):
-            return MinerBraiinsS9.sshResume(jObj), 200, 'application/json'
+            return MinerBraiinsS9.grpcResume(jObj), 200, 'application/json'
         elif path.endswith("/Summary"):
             return MinerBraiinsS9.grpcSummary(jObj), 200, 'application/json'
         elif path.endswith("/Stats"):
@@ -294,7 +294,16 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
     @classmethod
     def getToken(cls, jObj):
         MinerBraiinsS9.sshConfig(jObj)
-        return None    
+        return None
+    @classmethod
+    def pause(cls, jObj):
+        return MinerBraiinsS9.grpcPause(jObj)
+    @classmethod
+    def reboot(cls, jObj):
+        return MinerBraiinsS9.sshRestart(jObj)
+    @classmethod
+    def resume(cls, jObj):
+        return MinerBraiinsS9.grpcResume(jObj)
     # In case miner is paused, grpcTemps returns "Not Ready"
     @classmethod
     def status(cls, jObj):
@@ -420,8 +429,9 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
         mStatus = MinerBraiinsS9.status(jObj)
 
         if tCurrent >= tTarget:
-            MinerBraiinsS9.grpcPause(jObj)
-            Utils.logger.warning(f"MinerBraiinsS9.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
+            if mStatus == MinerUtils.MinerStatus.MinerNormal:
+                MinerBraiinsS9.grpcPause(jObj)
+                Utils.logger.warning(f"MinerBraiinsS9.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
             return
         if tCurrent <= tTarget-2 and mStatus == MinerUtils.MinerStatus.MinerNotReady:
             MinerBraiinsS9.sshRestart(jObj)

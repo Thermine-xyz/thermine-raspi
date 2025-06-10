@@ -15,7 +15,15 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
     def echo(cls, jObj):
         MinerBraiinsV1Proto.getApiVersion(jObj)
         return None
-    
+    @classmethod
+    def pause(cls, jObj):
+        return MinerBraiinsV1Proto.postPause(jObj)
+    @classmethod
+    def reboot(cls, jObj):
+        return MinerBraiinsV1Proto.postReboot(jObj)
+    @classmethod
+    def resume(cls, jObj):
+        return MinerBraiinsV1Proto.postResume(jObj)
     # In case miner is paused, grpcTemps returns "Not Ready"
     @classmethod
     def status(cls, jObj):

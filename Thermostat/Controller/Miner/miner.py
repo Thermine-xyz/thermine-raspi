@@ -61,40 +61,20 @@ class Miner:
     @staticmethod
     def httpHandlerBraiinsS9Patch(path, headers, s):
         jObj = MinerUtils.dataAsJsonObjectUuid(s)
-        if jObj == None: # didn't find the JSON object with same s=uuid
-            if isinstance(s, dict): # JSON object
-                jObj = s
-            else:
-                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerPatch(path, headers, jObj)
     @staticmethod
     def httpHandlerBraiinsS9Post(path, headers, s, contentStr):
         jObj = MinerUtils.dataAsJsonObjectUuid(s)
-        if jObj == None: # didn't find the JSON object with same s=uuid
-            if isinstance(s, dict): # JSON object
-                jObj = s
-            else:
-                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsS9.httpHandlerPost(path, headers, jObj, contentStr)
 
     # Handles HTTP request for BraiinsV1
     @staticmethod
     def httpHandlerBraiinsV1Get(path, headers, s):
         jObj = MinerUtils.dataAsJsonObjectUuid(s)
-        if jObj == None: # didn't find the JSON object with same s=uuid
-            if isinstance(s, dict): # JSON object
-                jObj = s
-            else:
-                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsV1.httpHandlerGet(path, headers, jObj)
     @staticmethod
     def httpHandlerBraiinsV1Post(path, headers, s, contentStr):
         jObj = MinerUtils.dataAsJsonObjectUuid(s)
-        if jObj == None: # didn't find the JSON object with same s=uuid
-            if isinstance(s, dict): # JSON object
-                jObj = s
-            else:
-                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
         return MinerBraiinsV1.httpHandlerPost(path, headers, jObj, contentStr)
 
     # Tries to connect to miner based on the firmware type
@@ -137,17 +117,40 @@ class Miner:
     # Tries to 'ping' the miner based on the firmware type
     @staticmethod
     def minerEcho(s):
-        if isinstance(s, dict): # JSON object
-            jObj = s
-        else:
-            jObj = MinerUtils.dataAsJsonObjectUuid(s)
-            if jObj == None: # didn't find the JSON object with same s=uuid
-                Utils.throwExceptionInvalidValue("Expect UUID string or JSON Object string")
-
+        jObj = MinerUtils.dataAsJsonObjectUuid(s)
         minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
         minerCls.echo(jObj)
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
+    
+    @staticmethod
+    def minerPause(s):
+        jObj = MinerUtils.dataAsJsonObjectUuid(s)
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        result = minerCls.pause(jObj)
+        if result is None:
+            return Utils.resultJsonOK()
+        else:
+            return result
+    @staticmethod
+    def minerReboot(s):
+        jObj = MinerUtils.dataAsJsonObjectUuid(s)
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        result = minerCls.reboot(jObj)
+        if result is None:
+            return Utils.resultJsonOK()
+        else:
+            return result
+    
+    @staticmethod
+    def minerResume(s):
+        jObj = MinerUtils.dataAsJsonObjectUuid(s)
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        result = minerCls.resume(jObj)
+        if result is None:
+            return Utils.resultJsonOK()
+        else:
+            return result
     
     @staticmethod
     def minerSummary(s):

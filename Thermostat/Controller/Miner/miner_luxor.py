@@ -202,7 +202,6 @@ class MinerLuxor(MinerUtils.MinerBase):
                 Utils.logger.error(f"MinerLuxor minerServiceGetData temp {jObj['uuid']} error {e}")
     @classmethod
     def minerThermalControl(cls, jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
-        print("1")
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
             tTarget = float(jObj['sensor']['temp_target'])
         else:
@@ -210,16 +209,12 @@ class MinerLuxor(MinerUtils.MinerBase):
             Utils.jsonCheckKeyExists(jConfig, 'ChipHot', True)
             tTarget = float(jConfig['ChipHot'])
 
-        print("2")
         mStatus = MinerLuxor.status(jObj)
-        print(f"3 {tCurrent} {tTarget}")
 
         if tCurrent >= tTarget:
             if mStatus == MinerUtils.MinerStatus.MinerNormal:
-                print("4")
                 MinerLuxor.pause(jObj)
                 Utils.logger.warning(f"MinerLuxor.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
-            print("5")
             return
         if tCurrent <= tTarget-2 and mStatus in [MinerUtils.MinerStatus.MinerNotStarted, MinerUtils.MinerStatus.MinerNotReady]:
             print("6")

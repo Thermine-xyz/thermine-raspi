@@ -169,5 +169,14 @@ def handle_post(path, headers, post_data):
             Utils.throwExceptionHttpMissingHeader('uuid or miner-json')
         contentStr = post_data.decode('utf-8')
         return Miner.httpHandlerBraiinsV1Post(path, headers, sHeader, contentStr)
+    elif path == "/Miner/Pause":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        return Miner.minerPause(sHeader), 200, 'application/json'
+    elif path == "/Miner/Reboot":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        return Miner.minerReboot(sHeader), 200, 'application/json'
+    elif path == "/Miner/Resume":
+        sHeader = checkHeaderUuid(headers, raiseException=True)
+        return Miner.minerResume(sHeader), 200, 'application/json'
     else:
         return 'Not found', 400, 'text/html' 
