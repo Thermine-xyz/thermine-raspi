@@ -159,10 +159,10 @@ class MinerLuxor(MinerUtils.MinerBase):
     All Thermine methods
     here are all methods that manage data to return default JSONs for the API
     """
-    @staticmethod
+    @classmethod
     def pause(jObj):
         return MinerLuxor.cgmCurtail(jObj, 'sleep')
-    @staticmethod
+    @classmethod
     def resume(jObj):
         # Luxor takes around 6 min to really work
         return MinerLuxor.cgmCurtail(jObj, 'wakeup')

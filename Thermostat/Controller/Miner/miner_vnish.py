@@ -18,7 +18,22 @@ class MinerVnish(MinerUtils.MinerBase):
         Utils.jsonCheckKeyTypeStr(jR['info'], 'title', True, False)
         if jR['info']['title'].lower() != 'https':
             Utils.throwExceptionInvalidValue("Miner is not xminer-api")
-
+    # Get the token from miner, param jObj: a miner JSON Object with IP and password
+    @classmethod
+    def getToken(cls, jObj):
+        Utils.jsonCheckKeyTypeStr(jObj, 'password', True, False)
+        jR = MinerVnish.httpCommand(jObj, 'unlock', {"pw": jObj['password']})
+        Utils.jsonCheckKeyTypeStr(jR, 'token', True, False)
+        return {"token": jR['token']}
+    @classmethod
+    def pause(jObj):
+        return MinerVnish.httpCommandAuth(jObj, 'mining/pause', [])
+    @classmethod
+    def reboot(jObj):
+        return MinerVnish.httpCommandAuth(jObj, 'mining/restart', [])
+    @classmethod
+    def resume(jObj):
+        return MinerVnish.httpCommandAuth(jObj, 'mining/resume', [])
     # In case miner is paused, grpcTemps returns "Not Ready"
     @classmethod
     def status(cls, jObj):
@@ -35,14 +50,6 @@ class MinerVnish(MinerUtils.MinerBase):
                 return MinerUtils.MinerStatus.MinerUnknown
         else:
             return MinerUtils.MinerStatus.MinerUnknown
-
-    # Get the token from miner, param jObj: a miner JSON Object with IP and password
-    @classmethod
-    def getToken(cls, jObj):
-        Utils.jsonCheckKeyTypeStr(jObj, 'password', True, False)
-        jR = MinerVnish.httpCommand(jObj, 'unlock', {"pw": jObj['password']})
-        Utils.jsonCheckKeyTypeStr(jR, 'token', True, False)
-        return {"token": jR['token']}
     """
     Inherited methods END
     """
@@ -70,23 +77,11 @@ class MinerVnish(MinerUtils.MinerBase):
     @staticmethod
     def httpCommandAuth(jObj, context: str, payload: dict, headers: dict):
         """run authenticated commands"""
+        token = MinerVnish.getToken(jObj)
+        headers['Authorization'] = token['token']
+        return MinerVnish.httpCommand(jObj, context, payload, headers)
     """
     HTTP methods
-    """
-    
-    
-    """
-    All Thermine methods
-    here are all methods that manage data to return default JSONs for the API
-    """
-    @staticmethod
-    def pause(jObj):
-        return MinerLuxor.cgmCurtail(jObj, 'sleep')
-    @staticmethod
-    def resume(jObj):
-        return MinerLuxor.cgmCurtail(jObj, 'wakeup')
-    """
-    All Thermine methods END
     """
 
     """
