@@ -178,7 +178,7 @@ def checkEventData(event):
 # Convenience functions
 def start():
     """Start the MinerServiceManager."""
-    miner_service_manager.start()
+    #miner_service_manager.start()
 
 def startThread():
     """Start the MinerServiceManager in a thread."""

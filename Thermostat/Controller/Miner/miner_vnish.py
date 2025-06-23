@@ -12,17 +12,18 @@ class MinerVnish(MinerUtils.MinerBase):
     @classmethod
     def echo(cls, jObj):
         """ Based on official doc (https://vnish.group/en/faq-vnish-en/#api) """
-        jR = MinerVnish.httpCommand(jObj, 'docs')
+        jR = MinerVnish.httpCommand(jObj, 'docs/api-doc.json')
         Utils.jsonCheckKeyExists(jR, 'info', True)
         Utils.jsonCheckIsObj(jR['info'], True)
         Utils.jsonCheckKeyTypeStr(jR['info'], 'title', True, False)
-        if jR['info']['title'].lower() != 'https':
+        if jR['info']['title'].lower() != 'xminer-api':
             Utils.throwExceptionInvalidValue("Miner is not xminer-api")
     # Get the token from miner, param jObj: a miner JSON Object with IP and password
     @classmethod
     def getToken(cls, jObj):
+        print(f"getToken 1 {e}")
         Utils.jsonCheckKeyTypeStr(jObj, 'password', True, False)
-        jR = MinerVnish.httpCommand(jObj, 'unlock', {"pw": jObj['password']})
+        jR = MinerVnish.httpCommandApi(jObj, 'unlock', {"pw": jObj['password']})
         Utils.jsonCheckKeyTypeStr(jR, 'token', True, False)
         return {"token": jR['token']}
     @classmethod
@@ -37,7 +38,7 @@ class MinerVnish(MinerUtils.MinerBase):
     # In case miner is paused, grpcTemps returns "Not Ready"
     @classmethod
     def status(cls, jObj):
-        jR = MinerVnish.httpCommand(jObj, 'status')
+        jR = MinerVnish.httpCommandApi(jObj, 'status')
         print(f"status {jR}")
         if Utils.jsonCheckKeyExists(jR, 'status', False):
             if jR['status'] == 'MINER_STATUS_NORMAL':
@@ -58,28 +59,29 @@ class MinerVnish(MinerUtils.MinerBase):
     HTTP methods
     """
     @staticmethod
-    def httpCommand(jObj, context: str, payload: dict, headers: dict):
+    def httpCommand(jObj, context: str, payload: dict = None, headers: dict = None):
         try:
             Utils.jsonCheckIsObj(jObj, True)
             Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-            endpoint = f"http://{jObj['ip']}/api/v1/" + context
+            endpoint = f"http://{jObj['ip']}/" + context
 
             if payload is None:
                 response = requests.get(endpoint, headers=headers)
             else:
                 response = requests.post(endpoint, headers=headers, json=payload)
             response.raise_for_status()
-            # based on vnish swagger doc, reponse should be 200 and a JSON object
-            Utils.jsonCheckIsObj(response.text, True)
             return response.json()
         except Exception as e:
             raise Exception(f"MinerVnish httpGetCommand {context}: {e}")
+    @staticmethod
+    def httpCommandApi(jObj, context: str, payload: dict = None, headers: dict = None):
+        return MinerVnish.httpCommand(jObj, "api/v1/" + context, payload, headers)
     @staticmethod
     def httpCommandAuth(jObj, context: str, payload: dict, headers: dict):
         """run authenticated commands"""
         token = MinerVnish.getToken(jObj)
         headers['Authorization'] = token['token']
-        return MinerVnish.httpCommand(jObj, context, payload, headers)
+        return MinerVnish.httpCommandApi(jObj, context, payload, headers)
     """
     HTTP methods
     """
@@ -90,7 +92,7 @@ class MinerVnish(MinerUtils.MinerBase):
     # Get data from miner and save it locally
     @classmethod
     def minerServiceGetData(cls, jObj):
-        mStatus : MinerUtils.MinerStatus = MinerBraiinsV1.status(jObj)
+        mStatus : MinerUtils.MinerStatus = MinerVnish.status(jObj)
         if mStatus == MinerUtils.MinerStatus.MinerNormal:
             try: # Hashrate(THs) and Board temp
                 jObjRtr = MinerBraiinsV1Proto.minerGetHashboards(jObj)
