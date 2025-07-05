@@ -21,7 +21,6 @@ class MinerVnish(MinerUtils.MinerBase):
     # Get the token from miner, param jObj: a miner JSON Object with IP and password
     @classmethod
     def getToken(cls, jObj):
-        print(f"getToken 1 {e}")
         Utils.jsonCheckKeyTypeStr(jObj, 'password', True, False)
         jR = MinerVnish.httpCommandApi(jObj, 'unlock', {"pw": jObj['password']})
         Utils.jsonCheckKeyTypeStr(jR, 'token', True, False)
@@ -37,15 +36,15 @@ class MinerVnish(MinerUtils.MinerBase):
         return MinerVnish.httpCommandAuth(jObj, 'mining/resume', [])
     # In case miner is paused, grpcTemps returns "Not Ready"
     @classmethod
-    def status(cls, jObj):
+    def status(jObj):
         jR = MinerVnish.httpCommandApi(jObj, 'status')
         print(f"status {jR}")
-        if Utils.jsonCheckKeyExists(jR, 'status', False):
-            if jR['status'] == 'MINER_STATUS_NORMAL':
+        if Utils.jsonCheckKeyExists(jR, 'miner_state', False):
+            if jR['miner_state'] == 'MINER_STATUS_NORMAL':
                 return MinerUtils.MinerStatus.MinerNormal
-            if jR['status'] == 'MINER_STATUS_NOT_STARTED':
+            if jR['miner_state'] == 'MINER_STATUS_NOT_STARTED':
                 return MinerUtils.MinerStatus.MinerNotStarted
-            elif jR['status'] == 'Not ready':
+            elif jR['miner_state'] == 'stopped':
                 return MinerUtils.MinerStatus.MinerNotReady
             else:
                 return MinerUtils.MinerStatus.MinerUnknown
@@ -87,48 +86,89 @@ class MinerVnish(MinerUtils.MinerBase):
     """
 
     """
+    xminer-api methods
+    """
+    @staticmethod
+    def xminerApiChainsGetMiner(jObj):
+        jR = MinerVnish.httpCommandApi(jObj, 'chains')
+        print(f"xminerApiChainsGetMiner {jR}")
+        return jR
+
+    @staticmethod
+    def xminerApiGetMinerInfo(jObj):
+        jR = MinerVnish.httpCommandApi(jObj, 'info')
+        print(f"xminerApiGetMinerInfo {jR}")
+        return jR
+
+    @staticmethod
+    def xminerApiGetSummary(jObj):
+        jR = MinerVnish.httpCommandApi(jObj, 'summary')
+        print(f"xminerApiGetSummary {jR}")
+        return jR
+    @staticmethod
+    def xminerApiGetSummaryPerf(jObj):
+        jR = MinerVnish.httpCommandApi(jObj, 'perf-summary')
+        print(f"xminerApiGetSummaryPerf {jR}")
+        return jR
+    """
+    xminer-api methods
+    """
+
+    """
     MinerService
     """
     # Get data from miner and save it locally
     @classmethod
     def minerServiceGetData(cls, jObj):
+        print('minerServiceGetData checking values')
+        # check if the status is same result as expected
+        MinerVnish.status(jObj)
+        # check if result has hr_realtime and temps as expected
+        MinerVnish.xminerApiChainsGetMiner(jObj)
+        # check if the result has hr_measure as expected
+        MinerVnish.xminerApiGetMinerInfo(jObj)
+        return
         mStatus : MinerUtils.MinerStatus = MinerVnish.status(jObj)
         if mStatus == MinerUtils.MinerStatus.MinerNormal:
             try: # Hashrate(THs) and Board temp
-                jObjRtr = MinerBraiinsV1Proto.minerGetHashboards(jObj)
+                jObjRtr = MinerVnish.xminerApiChainsGetMiner(jObj)
                 hashRate = 0.0
                 tBoard = 0.0
-                for jObjS in jObjRtr['hashboards']:
-                    hashRate = hashRate + jObjS['stats']['real_hashrate']['last_5s']['gigahash_per_second']
-                    tBoard = tBoard + jObjS['board_temp']['degree_c']
-                hashRate = round((hashRate / len(jObjRtr['hashboards'])) / 1000,4)
-                tBoard = round(tBoard / len(jObjRtr['hashboards']),4)
+                for jObjS in jObjRtr:
+                    hashRate = hashRate + jObjS['hr_realtime']
+                    for jObjT in jObjS['chips']:
+                        tBoard = tBoard + jObjT['temp']['degree_c']
+                    if len(jObjS['chips']) > 0:
+                        tBoard = round(tBoard / len(jObjS['chips']),4)
+                hashRate = round((hashRate / len(jObjRtr)),4)
+                tBoard = round(tBoard / len(jObjRtr),4)
+                
+                # Must check the hashrate measure system, force Tera
+                jObjRtr = MinerVnish.xminerApiGetMinerInfo(jObj)
+                if jObjRtr['hr_measure'] == 'GH/s':
+                    hashRate = round(hashRate / 1000,4)
+                elif jObjRtr['hr_measure'] == 'EH/s':
+                    hashRate = hashRate * 1000
+                else:
+                    Utils.throwExceptionInvalidValue(f"MinerVnish minerServiceGetData hr_measure {jObjRtr['hr_measure']}")
+                
                 path = Utils.pathDataMinerHashrate(jObj)
                 lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
                 with lock:
                     with open(path, 'a', encoding='utf-8') as file:
                         file.write(f"{Utils.nowUtc()};{hashRate}\n")
             except Exception as e:
-                Utils.logger.error(f"BraiinV1 minerServiceGetData hashrate {jObj['uuid']} error {e}")
+                Utils.logger.error(f"MinerVnish minerServiceGetData hashrate {jObj['uuid']} error {e}")
                 pass
 
-            try: # Chip temp
-                jObjRtr = MinerBraiinsV1Proto.getCoolingState(jObj)
-                tChip = 0.0
-                if (
-                    Utils.jsonCheckKeyExists(jObjRtr, 'highest_temperature', False) and
-                    jObjRtr['highest_temperature']['location'] == "SENSOR_LOCATION_CHIP"
-                ):
-                    tChip = jObjRtr['highest_temperature']['temperature']['degree_c']
-                else:
-                    tChip = -1
+            try: # Chip temp                
                 path = Utils.pathDataMinerTemp(jObj)
                 lock = Utils.getFileLock(path).gen_wlock() # lock for reading, method "wlock"
                 with lock:
                     with open(path, 'a', encoding='utf-8') as file:
-                        file.write(f"{Utils.nowUtc()};{tBoard};{tChip}\n")
+                        file.write(f"{Utils.nowUtc()};{tBoard}\n")
             except Exception as e:
-                Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
+                Utils.logger.error(f"MinerVnish minerServiceGetData temp {jObj['uuid']} error {e}")
                 pass
 
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
@@ -136,24 +176,31 @@ class MinerVnish(MinerUtils.MinerBase):
             try: # Reads sensor temp if it found the sensor JSON obj
                 W1ThermSensorUtils.saveTempToDataFile(jObj)
             except Exception as e:
-                Utils.logger.error(f"BraiinsV1 minerServiceGetData temp {jObj['uuid']} error {e}")
+                Utils.logger.error(f"MinerVnish minerServiceGetData temp {jObj['uuid']} error {e}")
                 pass
         return Utils.resultJsonOK()
 
     @classmethod
     def minerThermalControl(cls, jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
-        mStatus : MinerUtils.MinerStatus = MinerBraiinsV1.status(jObj)
+        print('minerThermalControl checking values')
+        # check if the status is same result as expected
+        MinerVnish.status(jObj)
+        # we use Summary OR SummaryPref?
+        MinerVnish.xminerApiGetSummary(jObj)
+        MinerVnish.xminerApiGetSummaryPerf(jObj)
+        return
+        mStatus : MinerUtils.MinerStatus = MinerVnish.status(jObj)
         if mStatus in [MinerUtils.MinerStatus.MinerNotReady, MinerUtils.MinerStatus.MinerUnknown]:
-            Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} miner status {mStatus}")
+            Utils.logger.warning(f"MinerVnish minerThermalControl {jObj['uuid']} miner status {mStatus}")
             return None
         
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
             tTarget = float(jObj['sensor']['temp_target'])
         else:
-            jConfig = MinerBraiinsV1Proto.getConfiguration(jObj)            
-            Utils.jsonCheckKeyExists(jConfig, 'temperature', True)
-            Utils.jsonCheckKeyExists(jConfig['temperature'], 'target_temperature', True)
-            tTarget = float(jConfig['temperature']['target_temperature'])
+            jConfig = MinerVnish.xminerApiGetSummaryPerf(jObj)            
+            Utils.jsonCheckKeyExists(jConfig, 'preset_switcher', True)
+            Utils.jsonCheckKeyExists(jConfig['preset_switcher'], 'decrease_temp', True)
+            tTarget = float(jConfig['preset_switcher']['decrease_temp'])
 
         if not Utils.jsonCheckKeyExists(jObj, 'runControl', False):
             jObj['runControl'] = {}
@@ -164,14 +211,14 @@ class MinerVnish(MinerUtils.MinerBase):
             jObj['runControl']['thermal_last_cmd'] = 'START'
             event = {"action":"update","data":jObj}
             Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
-            MinerBraiinsV1Proto.postStart(jObj)
-            Utils.logger.info(f"BraiinsV1 minerThermalControl {jObj['uuid']} Temperature too low {tTarget}/{tCurrent}ºC, mining started")
+            MinerVnish.resume(jObj)
+            Utils.logger.info(f"MinerVnish minerThermalControl {jObj['uuid']} Temperature too low {tTarget}/{tCurrent}ºC, mining resumed")
         elif tCurrent >= tTarget and mStatus == MinerUtils.MinerStatus.MinerNormal: 
             jObj['runControl']['thermal_last_cmd'] = 'STOP'
             event = {"action":"update","data":jObj}
             Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
-            MinerBraiinsV1Proto.postStop(jObj)
-            Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} Temperature too high {tTarget}/{tCurrent}ºC, mining stopped")
+            MinerVnish.pause(jObj)
+            Utils.logger.warning(f"MinerVnish minerThermalControl {jObj['uuid']} Temperature too high {tTarget}/{tCurrent}ºC, mining paused")
         return None
     """
     MinerService END
