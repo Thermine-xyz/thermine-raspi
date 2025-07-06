@@ -84,6 +84,7 @@ class Miner:
         #Utils.jsonCheckKeyTypeStr(jObj, 'uuid', True, False)
         # It is expected to have jObj with the miners data
         minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        print(f"minerAuth {jObj['fwtp']}")
         minerCls.getToken(jObj)        
         # Returns OK if no error was raised
         return Utils.resultJsonOK()
