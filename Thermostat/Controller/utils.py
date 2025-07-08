@@ -169,6 +169,8 @@ class Utils:
         Raises:
             RuntimeError: If file reading fails due to corruption or invalid format.
         """
+        if not os.path.exists(path):
+            return None
         lock = Utils.getFileLock(path).gen_wlock()
         with lock:
             try:
