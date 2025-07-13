@@ -24,34 +24,58 @@ syntax = "proto3";
 
 package braiins.bos.v1;
 
+import "bos/v1/units.proto";
+
 option go_package = "github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1";
 
-// Request for login action.
-message LoginRequest {
-  string username = 1;
-  string password = 2;
+message UInt32Constraints {
+  uint32 default = 1;
+  uint32 min = 2;
+  uint32 max = 3;
 }
 
-// Response for login action.
-message LoginResponse {
-  // Token to be used for authentication
-  string token = 1;
-  // Authentication token validity/timeout in seconds.
-  // Token validity refreshed to this value with each request.
-  uint32 timeout_s = 2;
+message DoubleConstraints {
+  double default = 1;
+  double min = 2;
+  double max = 3;
 }
 
-// Request for set password action.
-message SetPasswordRequest {
-  optional string password = 1;
+message PowerConstraints {
+  braiins.bos.v1.Power default = 1;
+  braiins.bos.v1.Power min = 2;
+  braiins.bos.v1.Power max = 3;
 }
 
-// Response for set password action.
-message SetPasswordResponse {}
+message HashrateConstraints {
+  braiins.bos.v1.TeraHashrate default = 1;
+  braiins.bos.v1.TeraHashrate min = 2;
+  braiins.bos.v1.TeraHashrate max = 3;
+}
 
-service AuthenticationService {
-  // Method to login and retrieve authentication token
-  rpc Login(LoginRequest) returns (LoginResponse);
-  // Method to set password
-  rpc SetPassword(SetPasswordRequest) returns (SetPasswordResponse);
+message TemperatureConstraints {
+  braiins.bos.v1.Temperature default = 1;
+  braiins.bos.v1.Temperature min = 2;
+  braiins.bos.v1.Temperature max = 3;
+}
+
+message BooleanConstraint {
+  bool default = 1;
+}
+
+message DurationConstraints {
+  braiins.bos.v1.Hours default = 1;
+  braiins.bos.v1.Hours min = 2;
+  braiins.bos.v1.Hours max = 3;
+}
+
+message FrequencyConstraints {
+  braiins.bos.v1.Frequency default = 1;
+  braiins.bos.v1.Frequency min = 2;
+  braiins.bos.v1.Frequency max = 3;
+}
+
+message VoltageConstraints {
+  braiins.bos.v1.Voltage default = 1;
+  braiins.bos.v1.Voltage min = 2;
+  braiins.bos.v1.Voltage max = 3;
 }

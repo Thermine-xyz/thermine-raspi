@@ -46,16 +46,6 @@ enum Platform {
   PLATFORM_STM32MP157C_II2_BMM1 = 8;
 }
 
-// Control board soc family “CVITEK”, “BBB”, “AML”, “ZYNQ”, "BRAIINS"
-enum ControlBoardSocFamily {
-  CONTROL_BOARD_SOC_FAMILY_UNSPECIFIED = 0;
-  CONTROL_BOARD_SOC_FAMILY_CVITEK = 1;
-  CONTROL_BOARD_SOC_FAMILY_BBB = 2;
-  CONTROL_BOARD_SOC_FAMILY_AML = 3;
-  CONTROL_BOARD_SOC_FAMILY_ZYNQ = 4;
-  CONTROL_BOARD_SOC_FAMILY_BRAIINS = 5;
-}
-
 // BOS modes enumeration
 enum BosMode {
   BOS_MODE_UNSPECIFIED = 0;
@@ -149,21 +139,6 @@ message GetMinerStatusResponse {
 
 message GetMinerDetailsRequest {}
 
-message PsuInfo {
-  // PSU hardware version identifier
-  optional google.protobuf.UInt32Value version = 1;
-  // PSU firmware version identifier
-  optional google.protobuf.UInt32Value fw_version = 2;
-  // PSU serial number (e.g. "DGAH335BDJDJG0782")
-  optional string serial_number = 3;
-  // PSU model/version name in human-readable form (e.g. "APW121215b")
-  optional string model_name = 4;
-  // Minimal voltage that can be set in volts
-  optional braiins.bos.v1.Voltage min_voltage = 5;
-  // Maximal voltage that can be set in volts
-  optional braiins.bos.v1.Voltage max_voltage = 6;
-}
-
 // Structure to handle system details
 message GetMinerDetailsResponse {
   // Miner ID
@@ -192,12 +167,6 @@ message GetMinerDetailsResponse {
   MinerStatus status = 12;
   // Kernel version
   string kernel_version = 13;
-  // PSU details
-  optional PsuInfo psu_info = 14;
-  // Control board soc family
-  ControlBoardSocFamily control_board_soc_family = 15;
-  // Miner serial number
-  optional string serial_number = 16;
 }
 
 message MinerPowerStats {
@@ -245,16 +214,6 @@ message Hashboard {
   braiins.bos.v1.WorkSolverStats stats = 8;
   // Hashboard model
   optional string model = 9;
-  // Lowest inlet temperature
-  braiins.bos.v1.Temperature lowest_inlet_temp = 10;
-  // Highest outlet temperature
-  braiins.bos.v1.Temperature highest_outlet_temp = 11;
-  // Hashboard serial number
-  optional string serial_number = 12;
-  // Hashboard board name
-  optional string board_name = 13;
-  // Hashboard chip type
-  optional string chip_type = 14;
 }
 
 // Enumeration for support archive format

@@ -68,11 +68,19 @@ sudo apt install -y python3-pip<br />
 
 In case you need to re-compile the .proto files to Python, please follow as bellow:<br />
 
-protoc -I=proto -I=/usr/include --python_out=. proto/bos/v1/*.proto
-python3 -m grpc_tools.protoc -I=proto -I=/usr/include --python_out=. --grpc_python_out=. proto/bos/v1/*.proto
+https://github.com/braiins/bos-plus-api
+Version **1.6.0**
 
-protoc -I=proto -I=/usr/include --python_out=. proto/bos/v1/*.proto
-python3 -m grpc_tools.protoc -I=proto -I=/usr/include --python_out=. --grpc_python_out=. proto/bos/v1/*.proto
+To re-create the py files:
+from same folder as "proto" folder, run
+protoc -I=proto -I=/usr/include --python_out=. --experimental_allow_proto3_optional proto/bos/*.proto
+protoc -I=proto -I=/usr/include --python_out=. --experimental_allow_proto3_optional proto/bos/v1/*.proto
+
+python -m grpc_tools.protoc -Iproto --python_out=. --grpc_python_out=. proto/bos/version.proto
+python -m grpc_tools.protoc -Iproto/bos/v1 --python_out=. --grpc_python_out=. authentication.proto
+
+copy the result .py files to your desired folder
+rename the import to "from . import fileName" 
 
 ## Sensor DS1820
 python -m pip install w1thermsensor

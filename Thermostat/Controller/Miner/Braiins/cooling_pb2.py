@@ -27,7 +27,7 @@ from . import constraints_pb2 as bos_dot_v1_dot_constraints__pb2
 from . import units_pb2 as bos_dot_v1_dot_units__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x62os/v1/cooling.proto\x12\x0e\x62raiins.bos.v1\x1a\x13\x62os/v1/common.proto\x1a\x18\x62os/v1/constraints.proto\x1a\x12\x62os/v1/units.proto\"\xd6\x02\n\x0f\x43oolingAutoMode\x12\x37\n\x12target_temperature\x18\x01 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x34\n\x0fhot_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x1a\n\rmin_fan_speed\x18\x04 \x01(\rH\x00\x88\x01\x01\x12\x1a\n\rmax_fan_speed\x18\x05 \x01(\rH\x01\x88\x01\x01\x12\"\n\x15minimum_required_fans\x18\x06 \x01(\rH\x02\x88\x01\x01\x42\x10\n\x0e_min_fan_speedB\x10\n\x0e_max_fan_speedB\x18\n\x16_minimum_required_fans\"\xae\x02\n\x11\x43oolingManualMode\x12\x1c\n\x0f\x66\x61n_speed_ratio\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x34\n\x0fhot_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x37\n\x12target_temperature\x18\x04 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\"\n\x15minimum_required_fans\x18\x05 \x01(\rH\x01\x88\x01\x01\x42\x12\n\x10_fan_speed_ratioB\x18\n\x16_minimum_required_fans\"K\n\x13\x43oolingDisabledMode\x12\x1c\n\x0f\x66\x61n_speed_ratio\x18\x01 \x01(\x01H\x00\x88\x01\x01:\x02\x18\x01\x42\x12\n\x10_fan_speed_ratio\"\xc1\x01\n\x14\x43oolingImmersionMode\x12\x34\n\x0fhot_temperature\x18\x01 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x37\n\x12target_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\"\xbd\x01\n\x10\x43oolingHydroMode\x12\x34\n\x0fhot_temperature\x18\x01 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x37\n\x12target_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\"\xf1\x02\n\x14\x43oolingConfiguration\x12&\n\x15minimum_required_fans\x18\x01 \x01(\rB\x02\x18\x01H\x01\x88\x01\x01\x12/\n\x04\x61uto\x18\x02 \x01(\x0b\x32\x1f.braiins.bos.v1.CoolingAutoModeH\x00\x12\x33\n\x06manual\x18\x03 \x01(\x0b\x32!.braiins.bos.v1.CoolingManualModeH\x00\x12;\n\x08\x64isabled\x18\x04 \x01(\x0b\x32#.braiins.bos.v1.CoolingDisabledModeB\x02\x18\x01H\x00\x12\x39\n\timmersion\x18\x05 \x01(\x0b\x32$.braiins.bos.v1.CoolingImmersionModeH\x00\x12\x31\n\x05hydro\x18\x06 \x01(\x0b\x32 .braiins.bos.v1.CoolingHydroModeH\x00\x42\x06\n\x04modeB\x18\n\x16_minimum_required_fans\"\x8d\x04\n\x12\x43oolingConstraints\x12\x39\n\x14\x64\x65\x66\x61ult_cooling_mode\x18\x01 \x01(\x0e\x32\x1b.braiins.bos.v1.CoolingMode\x12\x42\n\x12target_temperature\x18\x02 \x01(\x0b\x32&.braiins.bos.v1.TemperatureConstraints\x12?\n\x0fhot_temperature\x18\x03 \x01(\x0b\x32&.braiins.bos.v1.TemperatureConstraints\x12\x45\n\x15\x64\x61ngerous_temperature\x18\x04 \x01(\x0b\x32&.braiins.bos.v1.TemperatureConstraints\x12:\n\x0f\x66\x61n_speed_ratio\x18\x05 \x01(\x0b\x32!.braiins.bos.v1.DoubleConstraints\x12@\n\x15minimum_required_fans\x18\x06 \x01(\x0b\x32!.braiins.bos.v1.UInt32Constraints\x12\x38\n\rmin_fan_speed\x18\x07 \x01(\x0b\x32!.braiins.bos.v1.UInt32Constraints\x12\x38\n\rmax_fan_speed\x18\x08 \x01(\x0b\x32!.braiins.bos.v1.UInt32Constraints\"s\n\x08\x46\x61nState\x12\x15\n\x08position\x18\x01 \x01(\rH\x00\x88\x01\x01\x12\x0b\n\x03rpm\x18\x02 \x01(\r\x12\x1f\n\x12target_speed_ratio\x18\x03 \x01(\x01H\x01\x88\x01\x01\x42\x0b\n\t_positionB\x15\n\x13_target_speed_ratio\"\x8f\x01\n\x11TemperatureSensor\x12\x0f\n\x02id\x18\x01 \x01(\rH\x00\x88\x01\x01\x12\x30\n\x08location\x18\x02 \x01(\x0e\x32\x1e.braiins.bos.v1.SensorLocation\x12\x30\n\x0btemperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.TemperatureB\x05\n\x03_id\"\x18\n\x16GetCoolingStateRequest\"\x81\x01\n\x17GetCoolingStateResponse\x12&\n\x04\x66\x61ns\x18\x01 \x03(\x0b\x32\x18.braiins.bos.v1.FanState\x12>\n\x13highest_temperature\x18\x02 \x01(\x0b\x32!.braiins.bos.v1.TemperatureSensor\"i\n\x17SetImmersionModeRequest\x12/\n\x0bsave_action\x18\x01 \x01(\x0e\x32\x1a.braiins.bos.v1.SaveAction\x12\x1d\n\x15\x65nable_immersion_mode\x18\x02 \x01(\x08\"2\n\x18SetImmersionModeResponse\x12\x16\n\x0eimmersion_mode\x18\x01 \x01(\x08\"\xa4\x02\n\x15SetCoolingModeRequest\x12/\n\x0bsave_action\x18\x01 \x01(\x0e\x32\x1a.braiins.bos.v1.SaveAction\x12/\n\x04\x61uto\x18\x02 \x01(\x0b\x32\x1f.braiins.bos.v1.CoolingAutoModeH\x00\x12\x33\n\x06manual\x18\x03 \x01(\x0b\x32!.braiins.bos.v1.CoolingManualModeH\x00\x12\x39\n\timmersion\x18\x04 \x01(\x0b\x32$.braiins.bos.v1.CoolingImmersionModeH\x00\x12\x31\n\x05hydro\x18\x05 \x01(\x0b\x32 .braiins.bos.v1.CoolingHydroModeH\x00\x42\x06\n\x04mode\"\xf4\x01\n\x16SetCoolingModeResponse\x12/\n\x04\x61uto\x18\x01 \x01(\x0b\x32\x1f.braiins.bos.v1.CoolingAutoModeH\x00\x12\x33\n\x06manual\x18\x02 \x01(\x0b\x32!.braiins.bos.v1.CoolingManualModeH\x00\x12\x39\n\timmersion\x18\x03 \x01(\x0b\x32$.braiins.bos.v1.CoolingImmersionModeH\x00\x12\x31\n\x05hydro\x18\x04 \x01(\x0b\x32 .braiins.bos.v1.CoolingHydroModeH\x00\x42\x06\n\x04mode*\xae\x01\n\x0b\x43oolingMode\x12\x1c\n\x18\x43OOLING_MODE_UNSPECIFIED\x10\x00\x12\x15\n\x11\x43OOLING_MODE_AUTO\x10\x01\x12\x17\n\x13\x43OOLING_MODE_MANUAL\x10\x02\x12\x1d\n\x15\x43OOLING_MODE_DISABLED\x10\x03\x1a\x02\x08\x01\x12\x1a\n\x16\x43OOLING_MODE_IMMERSION\x10\x04\x12\x16\n\x12\x43OOLING_MODE_HYDRO\x10\x05*d\n\x0eSensorLocation\x12\x1f\n\x1bSENSOR_LOCATION_UNSPECIFIED\x10\x00\x12\x18\n\x14SENSOR_LOCATION_CHIP\x10\x01\x12\x17\n\x13SENSOR_LOCATION_PCB\x10\x02\x32\xc1\x02\n\x0e\x43oolingService\x12\x62\n\x0fGetCoolingState\x12&.braiins.bos.v1.GetCoolingStateRequest\x1a\'.braiins.bos.v1.GetCoolingStateResponse\x12j\n\x10SetImmersionMode\x12\'.braiins.bos.v1.SetImmersionModeRequest\x1a(.braiins.bos.v1.SetImmersionModeResponse\"\x03\x88\x02\x01\x12_\n\x0eSetCoolingMode\x12%.braiins.bos.v1.SetCoolingModeRequest\x1a&.braiins.bos.v1.SetCoolingModeResponseB=Z;github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x62os/v1/cooling.proto\x12\x0e\x62raiins.bos.v1\x1a\x13\x62os/v1/common.proto\x1a\x18\x62os/v1/constraints.proto\x1a\x12\x62os/v1/units.proto\"u\n\tPauseMode\x12-\n\x04\x61uto\x18\x01 \x01(\x0b\x32\x1d.braiins.bos.v1.AutoPauseModeH\x00\x12\x31\n\x06manual\x18\x02 \x01(\x0b\x32\x1f.braiins.bos.v1.ManualPauseModeH\x00\x42\x06\n\x04mode\"\x0f\n\rAutoPauseMode\"a\n\x0fManualPauseMode\x12+\n\x1epause_cooldown_fan_speed_ratio\x18\x01 \x01(\x01H\x00\x88\x01\x01\x42!\n\x1f_pause_cooldown_fan_speed_ratio\"\x99\x03\n\x0f\x43oolingAutoMode\x12\x37\n\x12target_temperature\x18\x01 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x34\n\x0fhot_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x1a\n\rmin_fan_speed\x18\x04 \x01(\rH\x00\x88\x01\x01\x12\x1a\n\rmax_fan_speed\x18\x05 \x01(\rH\x01\x88\x01\x01\x12\"\n\x15minimum_required_fans\x18\x06 \x01(\rH\x02\x88\x01\x01\x12\x32\n\npause_mode\x18\x07 \x01(\x0b\x32\x19.braiins.bos.v1.PauseModeH\x03\x88\x01\x01\x42\x10\n\x0e_min_fan_speedB\x10\n\x0e_max_fan_speedB\x18\n\x16_minimum_required_fansB\r\n\x0b_pause_mode\"\xf1\x02\n\x11\x43oolingManualMode\x12\x1c\n\x0f\x66\x61n_speed_ratio\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x34\n\x0fhot_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x37\n\x12target_temperature\x18\x04 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\"\n\x15minimum_required_fans\x18\x05 \x01(\rH\x01\x88\x01\x01\x12\x32\n\npause_mode\x18\x06 \x01(\x0b\x32\x19.braiins.bos.v1.PauseModeH\x02\x88\x01\x01\x42\x12\n\x10_fan_speed_ratioB\x18\n\x16_minimum_required_fansB\r\n\x0b_pause_mode\"K\n\x13\x43oolingDisabledMode\x12\x1c\n\x0f\x66\x61n_speed_ratio\x18\x01 \x01(\x01H\x00\x88\x01\x01:\x02\x18\x01\x42\x12\n\x10_fan_speed_ratio\"\xc1\x01\n\x14\x43oolingImmersionMode\x12\x34\n\x0fhot_temperature\x18\x01 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x37\n\x12target_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\"\xbd\x01\n\x10\x43oolingHydroMode\x12\x34\n\x0fhot_temperature\x18\x01 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12:\n\x15\x64\x61ngerous_temperature\x18\x02 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\x12\x37\n\x12target_temperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.Temperature\"\xf1\x02\n\x14\x43oolingConfiguration\x12&\n\x15minimum_required_fans\x18\x01 \x01(\rB\x02\x18\x01H\x01\x88\x01\x01\x12/\n\x04\x61uto\x18\x02 \x01(\x0b\x32\x1f.braiins.bos.v1.CoolingAutoModeH\x00\x12\x33\n\x06manual\x18\x03 \x01(\x0b\x32!.braiins.bos.v1.CoolingManualModeH\x00\x12;\n\x08\x64isabled\x18\x04 \x01(\x0b\x32#.braiins.bos.v1.CoolingDisabledModeB\x02\x18\x01H\x00\x12\x39\n\timmersion\x18\x05 \x01(\x0b\x32$.braiins.bos.v1.CoolingImmersionModeH\x00\x12\x31\n\x05hydro\x18\x06 \x01(\x0b\x32 .braiins.bos.v1.CoolingHydroModeH\x00\x42\x06\n\x04modeB\x18\n\x16_minimum_required_fans\"\xd8\x04\n\x12\x43oolingConstraints\x12\x39\n\x14\x64\x65\x66\x61ult_cooling_mode\x18\x01 \x01(\x0e\x32\x1b.braiins.bos.v1.CoolingMode\x12\x42\n\x12target_temperature\x18\x02 \x01(\x0b\x32&.braiins.bos.v1.TemperatureConstraints\x12?\n\x0fhot_temperature\x18\x03 \x01(\x0b\x32&.braiins.bos.v1.TemperatureConstraints\x12\x45\n\x15\x64\x61ngerous_temperature\x18\x04 \x01(\x0b\x32&.braiins.bos.v1.TemperatureConstraints\x12:\n\x0f\x66\x61n_speed_ratio\x18\x05 \x01(\x0b\x32!.braiins.bos.v1.DoubleConstraints\x12@\n\x15minimum_required_fans\x18\x06 \x01(\x0b\x32!.braiins.bos.v1.UInt32Constraints\x12\x38\n\rmin_fan_speed\x18\x07 \x01(\x0b\x32!.braiins.bos.v1.UInt32Constraints\x12\x38\n\rmax_fan_speed\x18\x08 \x01(\x0b\x32!.braiins.bos.v1.UInt32Constraints\x12I\n\x1epause_cooldown_fan_speed_ratio\x18\t \x01(\x0b\x32!.braiins.bos.v1.DoubleConstraints\"s\n\x08\x46\x61nState\x12\x15\n\x08position\x18\x01 \x01(\rH\x00\x88\x01\x01\x12\x0b\n\x03rpm\x18\x02 \x01(\r\x12\x1f\n\x12target_speed_ratio\x18\x03 \x01(\x01H\x01\x88\x01\x01\x42\x0b\n\t_positionB\x15\n\x13_target_speed_ratio\"\x8f\x01\n\x11TemperatureSensor\x12\x0f\n\x02id\x18\x01 \x01(\rH\x00\x88\x01\x01\x12\x30\n\x08location\x18\x02 \x01(\x0e\x32\x1e.braiins.bos.v1.SensorLocation\x12\x30\n\x0btemperature\x18\x03 \x01(\x0b\x32\x1b.braiins.bos.v1.TemperatureB\x05\n\x03_id\"\x18\n\x16GetCoolingStateRequest\"\x81\x01\n\x17GetCoolingStateResponse\x12&\n\x04\x66\x61ns\x18\x01 \x03(\x0b\x32\x18.braiins.bos.v1.FanState\x12>\n\x13highest_temperature\x18\x02 \x01(\x0b\x32!.braiins.bos.v1.TemperatureSensor\"i\n\x17SetImmersionModeRequest\x12/\n\x0bsave_action\x18\x01 \x01(\x0e\x32\x1a.braiins.bos.v1.SaveAction\x12\x1d\n\x15\x65nable_immersion_mode\x18\x02 \x01(\x08\"2\n\x18SetImmersionModeResponse\x12\x16\n\x0eimmersion_mode\x18\x01 \x01(\x08\"\xa4\x02\n\x15SetCoolingModeRequest\x12/\n\x0bsave_action\x18\x01 \x01(\x0e\x32\x1a.braiins.bos.v1.SaveAction\x12/\n\x04\x61uto\x18\x02 \x01(\x0b\x32\x1f.braiins.bos.v1.CoolingAutoModeH\x00\x12\x33\n\x06manual\x18\x03 \x01(\x0b\x32!.braiins.bos.v1.CoolingManualModeH\x00\x12\x39\n\timmersion\x18\x04 \x01(\x0b\x32$.braiins.bos.v1.CoolingImmersionModeH\x00\x12\x31\n\x05hydro\x18\x05 \x01(\x0b\x32 .braiins.bos.v1.CoolingHydroModeH\x00\x42\x06\n\x04mode\"\xf4\x01\n\x16SetCoolingModeResponse\x12/\n\x04\x61uto\x18\x01 \x01(\x0b\x32\x1f.braiins.bos.v1.CoolingAutoModeH\x00\x12\x33\n\x06manual\x18\x02 \x01(\x0b\x32!.braiins.bos.v1.CoolingManualModeH\x00\x12\x39\n\timmersion\x18\x03 \x01(\x0b\x32$.braiins.bos.v1.CoolingImmersionModeH\x00\x12\x31\n\x05hydro\x18\x04 \x01(\x0b\x32 .braiins.bos.v1.CoolingHydroModeH\x00\x42\x06\n\x04mode*\xae\x01\n\x0b\x43oolingMode\x12\x1c\n\x18\x43OOLING_MODE_UNSPECIFIED\x10\x00\x12\x15\n\x11\x43OOLING_MODE_AUTO\x10\x01\x12\x17\n\x13\x43OOLING_MODE_MANUAL\x10\x02\x12\x1d\n\x15\x43OOLING_MODE_DISABLED\x10\x03\x1a\x02\x08\x01\x12\x1a\n\x16\x43OOLING_MODE_IMMERSION\x10\x04\x12\x16\n\x12\x43OOLING_MODE_HYDRO\x10\x05*d\n\x0eSensorLocation\x12\x1f\n\x1bSENSOR_LOCATION_UNSPECIFIED\x10\x00\x12\x18\n\x14SENSOR_LOCATION_CHIP\x10\x01\x12\x17\n\x13SENSOR_LOCATION_PCB\x10\x02\x32\xc1\x02\n\x0e\x43oolingService\x12\x62\n\x0fGetCoolingState\x12&.braiins.bos.v1.GetCoolingStateRequest\x1a\'.braiins.bos.v1.GetCoolingStateResponse\x12j\n\x10SetImmersionMode\x12\'.braiins.bos.v1.SetImmersionModeRequest\x1a(.braiins.bos.v1.SetImmersionModeResponse\"\x03\x88\x02\x01\x12_\n\x0eSetCoolingMode\x12%.braiins.bos.v1.SetCoolingModeRequest\x1a&.braiins.bos.v1.SetCoolingModeResponseB=Z;github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -45,40 +45,46 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_COOLINGCONFIGURATION'].fields_by_name['disabled']._serialized_options = b'\030\001'
   _globals['_COOLINGSERVICE'].methods_by_name['SetImmersionMode']._loaded_options = None
   _globals['_COOLINGSERVICE'].methods_by_name['SetImmersionMode']._serialized_options = b'\210\002\001'
-  _globals['_COOLINGMODE']._serialized_start=3245
-  _globals['_COOLINGMODE']._serialized_end=3419
-  _globals['_SENSORLOCATION']._serialized_start=3421
-  _globals['_SENSORLOCATION']._serialized_end=3521
-  _globals['_COOLINGAUTOMODE']._serialized_start=108
-  _globals['_COOLINGAUTOMODE']._serialized_end=450
-  _globals['_COOLINGMANUALMODE']._serialized_start=453
-  _globals['_COOLINGMANUALMODE']._serialized_end=755
-  _globals['_COOLINGDISABLEDMODE']._serialized_start=757
-  _globals['_COOLINGDISABLEDMODE']._serialized_end=832
-  _globals['_COOLINGIMMERSIONMODE']._serialized_start=835
-  _globals['_COOLINGIMMERSIONMODE']._serialized_end=1028
-  _globals['_COOLINGHYDROMODE']._serialized_start=1031
-  _globals['_COOLINGHYDROMODE']._serialized_end=1220
-  _globals['_COOLINGCONFIGURATION']._serialized_start=1223
-  _globals['_COOLINGCONFIGURATION']._serialized_end=1592
-  _globals['_COOLINGCONSTRAINTS']._serialized_start=1595
-  _globals['_COOLINGCONSTRAINTS']._serialized_end=2120
-  _globals['_FANSTATE']._serialized_start=2122
-  _globals['_FANSTATE']._serialized_end=2237
-  _globals['_TEMPERATURESENSOR']._serialized_start=2240
-  _globals['_TEMPERATURESENSOR']._serialized_end=2383
-  _globals['_GETCOOLINGSTATEREQUEST']._serialized_start=2385
-  _globals['_GETCOOLINGSTATEREQUEST']._serialized_end=2409
-  _globals['_GETCOOLINGSTATERESPONSE']._serialized_start=2412
-  _globals['_GETCOOLINGSTATERESPONSE']._serialized_end=2541
-  _globals['_SETIMMERSIONMODEREQUEST']._serialized_start=2543
-  _globals['_SETIMMERSIONMODEREQUEST']._serialized_end=2648
-  _globals['_SETIMMERSIONMODERESPONSE']._serialized_start=2650
-  _globals['_SETIMMERSIONMODERESPONSE']._serialized_end=2700
-  _globals['_SETCOOLINGMODEREQUEST']._serialized_start=2703
-  _globals['_SETCOOLINGMODEREQUEST']._serialized_end=2995
-  _globals['_SETCOOLINGMODERESPONSE']._serialized_start=2998
-  _globals['_SETCOOLINGMODERESPONSE']._serialized_end=3242
-  _globals['_COOLINGSERVICE']._serialized_start=3524
-  _globals['_COOLINGSERVICE']._serialized_end=3845
+  _globals['_COOLINGMODE']._serialized_start=3689
+  _globals['_COOLINGMODE']._serialized_end=3863
+  _globals['_SENSORLOCATION']._serialized_start=3865
+  _globals['_SENSORLOCATION']._serialized_end=3965
+  _globals['_PAUSEMODE']._serialized_start=107
+  _globals['_PAUSEMODE']._serialized_end=224
+  _globals['_AUTOPAUSEMODE']._serialized_start=226
+  _globals['_AUTOPAUSEMODE']._serialized_end=241
+  _globals['_MANUALPAUSEMODE']._serialized_start=243
+  _globals['_MANUALPAUSEMODE']._serialized_end=340
+  _globals['_COOLINGAUTOMODE']._serialized_start=343
+  _globals['_COOLINGAUTOMODE']._serialized_end=752
+  _globals['_COOLINGMANUALMODE']._serialized_start=755
+  _globals['_COOLINGMANUALMODE']._serialized_end=1124
+  _globals['_COOLINGDISABLEDMODE']._serialized_start=1126
+  _globals['_COOLINGDISABLEDMODE']._serialized_end=1201
+  _globals['_COOLINGIMMERSIONMODE']._serialized_start=1204
+  _globals['_COOLINGIMMERSIONMODE']._serialized_end=1397
+  _globals['_COOLINGHYDROMODE']._serialized_start=1400
+  _globals['_COOLINGHYDROMODE']._serialized_end=1589
+  _globals['_COOLINGCONFIGURATION']._serialized_start=1592
+  _globals['_COOLINGCONFIGURATION']._serialized_end=1961
+  _globals['_COOLINGCONSTRAINTS']._serialized_start=1964
+  _globals['_COOLINGCONSTRAINTS']._serialized_end=2564
+  _globals['_FANSTATE']._serialized_start=2566
+  _globals['_FANSTATE']._serialized_end=2681
+  _globals['_TEMPERATURESENSOR']._serialized_start=2684
+  _globals['_TEMPERATURESENSOR']._serialized_end=2827
+  _globals['_GETCOOLINGSTATEREQUEST']._serialized_start=2829
+  _globals['_GETCOOLINGSTATEREQUEST']._serialized_end=2853
+  _globals['_GETCOOLINGSTATERESPONSE']._serialized_start=2856
+  _globals['_GETCOOLINGSTATERESPONSE']._serialized_end=2985
+  _globals['_SETIMMERSIONMODEREQUEST']._serialized_start=2987
+  _globals['_SETIMMERSIONMODEREQUEST']._serialized_end=3092
+  _globals['_SETIMMERSIONMODERESPONSE']._serialized_start=3094
+  _globals['_SETIMMERSIONMODERESPONSE']._serialized_end=3144
+  _globals['_SETCOOLINGMODEREQUEST']._serialized_start=3147
+  _globals['_SETCOOLINGMODEREQUEST']._serialized_end=3439
+  _globals['_SETCOOLINGMODERESPONSE']._serialized_start=3442
+  _globals['_SETCOOLINGMODERESPONSE']._serialized_end=3686
+  _globals['_COOLINGSERVICE']._serialized_start=3968
+  _globals['_COOLINGSERVICE']._serialized_end=4289
 # @@protoc_insertion_point(module_scope)

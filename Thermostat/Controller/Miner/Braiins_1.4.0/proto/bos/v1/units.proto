@@ -26,32 +26,45 @@ package braiins.bos.v1;
 
 option go_package = "github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1";
 
-// Request for login action.
-message LoginRequest {
-  string username = 1;
-  string password = 2;
+message MegaHashrate {
+  double megahash_per_second = 1;
 }
 
-// Response for login action.
-message LoginResponse {
-  // Token to be used for authentication
-  string token = 1;
-  // Authentication token validity/timeout in seconds.
-  // Token validity refreshed to this value with each request.
-  uint32 timeout_s = 2;
+message GigaHashrate {
+  double gigahash_per_second = 1;
 }
 
-// Request for set password action.
-message SetPasswordRequest {
-  optional string password = 1;
+message TeraHashrate {
+  double terahash_per_second = 1;
 }
 
-// Response for set password action.
-message SetPasswordResponse {}
+message Frequency {
+  double hertz = 1;
+}
 
-service AuthenticationService {
-  // Method to login and retrieve authentication token
-  rpc Login(LoginRequest) returns (LoginResponse);
-  // Method to set password
-  rpc SetPassword(SetPasswordRequest) returns (SetPasswordResponse);
+message Voltage {
+  double volt = 1;
+}
+
+message Power {
+  uint64 watt = 1;
+}
+
+message PowerEfficiency {
+  double joule_per_terahash = 1;
+}
+
+message Temperature {
+  double degree_c = 1;
+}
+
+// Structure representing Basis Points
+message BasesPoints {
+  // A basis point is one hundredth of 1 percentage point.
+  // For example: 1bps = 0.01%, 250bps = 2.5%
+  uint32 bsp = 1;
+}
+
+message Hours {
+  uint32 hours = 1;
 }

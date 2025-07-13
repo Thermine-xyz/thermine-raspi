@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from bos.v1 import license_pb2 as bos_dot_v1_dot_license__pb2
+from . import authentication_pb2 as bos_dot_v1_dot_authentication__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in bos/v1/license_pb2_grpc.py depends on'
+        + f' but the generated code in bos/v1/authentication_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class LicenseServiceStub(object):
+class AuthenticationServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,59 +34,61 @@ class LicenseServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetLicenseState = channel.unary_unary(
-                '/braiins.bos.v1.LicenseService/GetLicenseState',
-                request_serializer=bos_dot_v1_dot_license__pb2.GetLicenseStateRequest.SerializeToString,
-                response_deserializer=bos_dot_v1_dot_license__pb2.GetLicenseStateResponse.FromString,
+        self.Login = channel.unary_unary(
+                '/braiins.bos.v1.AuthenticationService/Login',
+                request_serializer=bos_dot_v1_dot_authentication__pb2.LoginRequest.SerializeToString,
+                response_deserializer=bos_dot_v1_dot_authentication__pb2.LoginResponse.FromString,
                 _registered_method=True)
-        self.ApplyContractKey = channel.unary_unary(
-                '/braiins.bos.v1.LicenseService/ApplyContractKey',
-                request_serializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyRequest.SerializeToString,
-                response_deserializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyResponse.FromString,
+        self.SetPassword = channel.unary_unary(
+                '/braiins.bos.v1.AuthenticationService/SetPassword',
+                request_serializer=bos_dot_v1_dot_authentication__pb2.SetPasswordRequest.SerializeToString,
+                response_deserializer=bos_dot_v1_dot_authentication__pb2.SetPasswordResponse.FromString,
                 _registered_method=True)
 
 
-class LicenseServiceServicer(object):
+class AuthenticationServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetLicenseState(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def Login(self, request, context):
+        """Method to login and retrieve authentication token
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ApplyContractKey(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def SetPassword(self, request, context):
+        """Method to set password
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_LicenseServiceServicer_to_server(servicer, server):
+def add_AuthenticationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetLicenseState': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetLicenseState,
-                    request_deserializer=bos_dot_v1_dot_license__pb2.GetLicenseStateRequest.FromString,
-                    response_serializer=bos_dot_v1_dot_license__pb2.GetLicenseStateResponse.SerializeToString,
+            'Login': grpc.unary_unary_rpc_method_handler(
+                    servicer.Login,
+                    request_deserializer=bos_dot_v1_dot_authentication__pb2.LoginRequest.FromString,
+                    response_serializer=bos_dot_v1_dot_authentication__pb2.LoginResponse.SerializeToString,
             ),
-            'ApplyContractKey': grpc.unary_unary_rpc_method_handler(
-                    servicer.ApplyContractKey,
-                    request_deserializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyRequest.FromString,
-                    response_serializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyResponse.SerializeToString,
+            'SetPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetPassword,
+                    request_deserializer=bos_dot_v1_dot_authentication__pb2.SetPasswordRequest.FromString,
+                    response_serializer=bos_dot_v1_dot_authentication__pb2.SetPasswordResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'braiins.bos.v1.LicenseService', rpc_method_handlers)
+            'braiins.bos.v1.AuthenticationService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('braiins.bos.v1.LicenseService', rpc_method_handlers)
+    server.add_registered_method_handlers('braiins.bos.v1.AuthenticationService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class LicenseService(object):
+class AuthenticationService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetLicenseState(request,
+    def Login(request,
             target,
             options=(),
             channel_credentials=None,
@@ -99,9 +101,9 @@ class LicenseService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/braiins.bos.v1.LicenseService/GetLicenseState',
-            bos_dot_v1_dot_license__pb2.GetLicenseStateRequest.SerializeToString,
-            bos_dot_v1_dot_license__pb2.GetLicenseStateResponse.FromString,
+            '/braiins.bos.v1.AuthenticationService/Login',
+            bos_dot_v1_dot_authentication__pb2.LoginRequest.SerializeToString,
+            bos_dot_v1_dot_authentication__pb2.LoginResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -113,7 +115,7 @@ class LicenseService(object):
             _registered_method=True)
 
     @staticmethod
-    def ApplyContractKey(request,
+    def SetPassword(request,
             target,
             options=(),
             channel_credentials=None,
@@ -126,9 +128,9 @@ class LicenseService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/braiins.bos.v1.LicenseService/ApplyContractKey',
-            bos_dot_v1_dot_license__pb2.ApplyContractKeyRequest.SerializeToString,
-            bos_dot_v1_dot_license__pb2.ApplyContractKeyResponse.FromString,
+            '/braiins.bos.v1.AuthenticationService/SetPassword',
+            bos_dot_v1_dot_authentication__pb2.SetPasswordRequest.SerializeToString,
+            bos_dot_v1_dot_authentication__pb2.SetPasswordResponse.FromString,
             options,
             channel_credentials,
             insecure,

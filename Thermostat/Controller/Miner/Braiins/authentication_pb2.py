@@ -22,10 +22,9 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x62os/v1/authentication.proto\x12\x0e\x62raiins.bos.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"1\n\rLoginResponse\x12\r\n\x05token\x18\x01 \x01(\t\x12\x11\n\ttimeout_s\x18\x02 \x01(\r\"8\n\x12SetPasswordRequest\x12\x15\n\x08password\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_password\"\x15\n\x13SetPasswordResponse2\xb5\x01\n\x15\x41uthenticationService\x12\x44\n\x05Login\x12\x1c.braiins.bos.v1.LoginRequest\x1a\x1d.braiins.bos.v1.LoginResponse\x12V\n\x0bSetPassword\x12\".braiins.bos.v1.SetPasswordRequest\x1a#.braiins.bos.v1.SetPasswordResponseB=Z;github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x62os/v1/authentication.proto\x12\x0e\x62raiins.bos.v1\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"1\n\rLoginResponse\x12\r\n\x05token\x18\x01 \x01(\t\x12\x11\n\ttimeout_s\x18\x02 \x01(\r\"8\n\x12SetPasswordRequest\x12\x15\n\x08password\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_password\"\x15\n\x13SetPasswordResponse2\xb5\x01\n\x15\x41uthenticationService\x12\x44\n\x05Login\x12\x1c.braiins.bos.v1.LoginRequest\x1a\x1d.braiins.bos.v1.LoginResponse\x12V\n\x0bSetPassword\x12\".braiins.bos.v1.SetPasswordRequest\x1a#.braiins.bos.v1.SetPasswordResponseB=Z;github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,14 +32,14 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'bos.v1.authentication_pb2',
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z;github.com/braiins/bos-plus-api/braiins/bos/v1;bos_proto_v1'
-  _globals['_LOGINREQUEST']._serialized_start=80
-  _globals['_LOGINREQUEST']._serialized_end=130
-  _globals['_LOGINRESPONSE']._serialized_start=132
-  _globals['_LOGINRESPONSE']._serialized_end=181
-  _globals['_SETPASSWORDREQUEST']._serialized_start=183
-  _globals['_SETPASSWORDREQUEST']._serialized_end=239
-  _globals['_SETPASSWORDRESPONSE']._serialized_start=241
-  _globals['_SETPASSWORDRESPONSE']._serialized_end=262
-  _globals['_AUTHENTICATIONSERVICE']._serialized_start=265
-  _globals['_AUTHENTICATIONSERVICE']._serialized_end=446
+  _globals['_LOGINREQUEST']._serialized_start=47
+  _globals['_LOGINREQUEST']._serialized_end=97
+  _globals['_LOGINRESPONSE']._serialized_start=99
+  _globals['_LOGINRESPONSE']._serialized_end=148
+  _globals['_SETPASSWORDREQUEST']._serialized_start=150
+  _globals['_SETPASSWORDREQUEST']._serialized_end=206
+  _globals['_SETPASSWORDRESPONSE']._serialized_start=208
+  _globals['_SETPASSWORDRESPONSE']._serialized_end=229
+  _globals['_AUTHENTICATIONSERVICE']._serialized_start=232
+  _globals['_AUTHENTICATIONSERVICE']._serialized_end=413
 # @@protoc_insertion_point(module_scope)

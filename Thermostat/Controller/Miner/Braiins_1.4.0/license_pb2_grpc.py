@@ -39,23 +39,12 @@ class LicenseServiceStub(object):
                 request_serializer=bos_dot_v1_dot_license__pb2.GetLicenseStateRequest.SerializeToString,
                 response_deserializer=bos_dot_v1_dot_license__pb2.GetLicenseStateResponse.FromString,
                 _registered_method=True)
-        self.ApplyContractKey = channel.unary_unary(
-                '/braiins.bos.v1.LicenseService/ApplyContractKey',
-                request_serializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyRequest.SerializeToString,
-                response_deserializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyResponse.FromString,
-                _registered_method=True)
 
 
 class LicenseServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetLicenseState(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def ApplyContractKey(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -68,11 +57,6 @@ def add_LicenseServiceServicer_to_server(servicer, server):
                     servicer.GetLicenseState,
                     request_deserializer=bos_dot_v1_dot_license__pb2.GetLicenseStateRequest.FromString,
                     response_serializer=bos_dot_v1_dot_license__pb2.GetLicenseStateResponse.SerializeToString,
-            ),
-            'ApplyContractKey': grpc.unary_unary_rpc_method_handler(
-                    servicer.ApplyContractKey,
-                    request_deserializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyRequest.FromString,
-                    response_serializer=bos_dot_v1_dot_license__pb2.ApplyContractKeyResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -102,33 +86,6 @@ class LicenseService(object):
             '/braiins.bos.v1.LicenseService/GetLicenseState',
             bos_dot_v1_dot_license__pb2.GetLicenseStateRequest.SerializeToString,
             bos_dot_v1_dot_license__pb2.GetLicenseStateResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def ApplyContractKey(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/braiins.bos.v1.LicenseService/ApplyContractKey',
-            bos_dot_v1_dot_license__pb2.ApplyContractKeyRequest.SerializeToString,
-            bos_dot_v1_dot_license__pb2.ApplyContractKeyResponse.FromString,
             options,
             channel_credentials,
             insecure,
