@@ -28,6 +28,7 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
     @classmethod
     def status(cls, jObj):
         jMDetails = MinerBraiinsV1Proto.minerGetDetails(jObj)
+        print(f"status {jMDetails}")
         Utils.jsonCheckIsObj(jMDetails, True)
         if Utils.jsonCheckKeyExists(jMDetails, 'status', False):
             if jMDetails['status'] == 'MINER_STATUS_NORMAL':

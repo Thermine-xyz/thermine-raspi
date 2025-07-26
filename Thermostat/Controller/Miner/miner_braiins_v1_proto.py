@@ -144,15 +144,21 @@ class MinerBraiinsV1Proto:
     def getJwtTokenStr(jObj):
         Utils.jsonCheckIsObj(jObj)
         Utils.jsonCheckKeyTypeStr(jObj, 'ip', True, False)
-        Utils.jsonCheckKeyTypeStr(jObj, 'username', True, False)
-        Utils.jsonCheckKeyTypeStr(jObj, 'password', True, False)
+        if not Utils.jsonCheckKeyTypeStr(jObj, 'username', False, False):
+            user = 'root'
+        else:
+            user = jObj['username']
+        if not Utils.jsonCheckKeyTypeStr(jObj, 'password', False, False):
+            lPass = ''
+        else:
+            lPass = jObj['password']
         channel = Utils.grpcChannel(Utils.minerIpBraiinsV1(jObj))
         try:
             stub = authentication_pb2_grpc.AuthenticationServiceStub(channel)
             
             request = authentication_pb2.LoginRequest(
-                username=jObj['username'],
-                password=jObj['password']
+                username=user,
+                password=lPass
             )
             
             response = stub.Login(request)
