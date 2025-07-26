@@ -217,7 +217,7 @@ class MinerLuxor(MinerUtils.MinerBase):
                 Utils.logger.warning(f"MinerLuxor.minerThermalControl {jObj['uuid']} Pausing, Temperature to high: Target {tTarget} Current {tCurrent}")
             return
         if tCurrent <= tTarget-2 and mStatus in [MinerUtils.MinerStatus.MinerNotStarted, MinerUtils.MinerStatus.MinerNotReady]:
-            print("6")
+            print("minerThermalControl Resume")
             try:
                 MinerLuxor.resume(jObj)
             except Exception as e:

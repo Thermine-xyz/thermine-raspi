@@ -38,7 +38,6 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
         MINER_STATUS_RESTRICTED (5) # The miner is operational but running in a restricted mode, possibly with reduced performance or limited functionality. This could be due to power limits, user-configured restrictions, or partial hardware failures (e.g., some hashboards disabled).
         """
         jMDetails = MinerBraiinsV1Proto.minerGetDetails(jObj)
-        print(f"status {jMDetails}")
         Utils.jsonCheckIsObj(jMDetails, True)
         if Utils.jsonCheckKeyExists(jMDetails, 'status', False):
             if jMDetails['status'] == 'MINER_STATUS_NORMAL':
@@ -164,6 +163,7 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
     @classmethod
     def minerThermalControl(cls, jObj: dict, tCurrent: float): # tCurrent=current temperature, from miner OR sensor
         mStatus : MinerUtils.MinerStatus = MinerBraiinsV1.status(jObj)
+        print(f"minerThermalControl status {mStatus}")
         if mStatus in [MinerUtils.MinerStatus.MinerNotReady, MinerUtils.MinerStatus.MinerUnknown]:
             Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} miner status {mStatus}")
             return None
@@ -181,17 +181,20 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
         if not Utils.jsonCheckKeyExists(jObj['runControl'], 'thermal_last_cmd', False):
             jObj['runControl']['thermal_last_cmd'] = None
         thermalLastCmd = jObj['runControl']['thermal_last_cmd']
-        if tCurrent <= tTarget - 2 and mStatus != MinerUtils.MinerStatus.MinerNormal and thermalLastCmd != 'START':
-            jObj['runControl']['thermal_last_cmd'] = 'START'
+        print(f"minerThermalControl runControl {jObj['runControl']}")
+        if tCurrent <= tTarget - 2 and mStatus != MinerUtils.MinerStatus.MinerNormal and thermalLastCmd != 'RESUME':
+            print(f"minerThermalControl Resume")
+            jObj['runControl']['thermal_last_cmd'] = 'RESUME'
             event = {"action":"update","data":jObj}
             Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
-            MinerBraiinsV1Proto.postStart(jObj)
+            MinerBraiinsV1Proto.postResume(jObj)
             Utils.logger.info(f"BraiinsV1 minerThermalControl {jObj['uuid']} Temperature too low {tTarget}/{tCurrent}ºC, mining started")
         elif tCurrent >= tTarget and mStatus == MinerUtils.MinerStatus.MinerNormal: 
-            jObj['runControl']['thermal_last_cmd'] = 'STOP'
+            print(f"minerThermalControl status Pause")
+            jObj['runControl']['thermal_last_cmd'] = 'PAUSE'
             event = {"action":"update","data":jObj}
             Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
-            MinerBraiinsV1Proto.postStop(jObj)
+            MinerBraiinsV1Proto.postPause(jObj)
             Utils.logger.warning(f"BraiinsV1 minerThermalControl {jObj['uuid']} Temperature too high {tTarget}/{tCurrent}ºC, mining stopped")
         return None
     """
