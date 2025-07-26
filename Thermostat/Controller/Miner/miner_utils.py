@@ -238,9 +238,9 @@ class MinerUtils:
                 Utils.throwExceptionInvalidValue(f"We are not compatible with this Firmware yet: {param}")
 
     class MinerStatus(Enum):
-        MinerNormal = 'MINER_STATUS_NORMAL'
+        MinerNormal = 'MINER_STATUS_NORMAL' # mining and ok
         MinerNotReady = 'MINER_STATUS_NOT_READY'
-        MinerNotStarted = 'MINER_STATUS_NOT_STARTED'
+        MinerNotStarted = 'MINER_STATUS_NOT_STARTED' # Usually paused
         MinerUnknown = 'MINER_STATUS_UNKNOWN'
 
         

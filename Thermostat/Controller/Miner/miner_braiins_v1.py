@@ -27,15 +27,25 @@ class MinerBraiinsV1(MinerUtils.MinerBase):
     # In case miner is paused, grpcTemps returns "Not Ready"
     @classmethod
     def status(cls, jObj):
+        """
+        All status from Braiins V1 proto 1.6.0
+        
+        MINER_STATUS_UNSPECIFIED (0) # This is a default or undefined state, typically used when the miner's status is not explicitly set or cannot be determined. It may indicate an error in retrieving the status, an uninitialized miner, or a state that doesn't fit other categories.
+        MINER_STATUS_NOT_STARTED (1) # The miner is powered on but has not yet started its mining operations. This could occur during initial boot, configuration, or when the mining software (e.g., BOSminer) is not yet running.
+        MINER_STATUS_NORMAL (2) # The miner is fully operational and actively mining, performing hash calculations and communicating with a mining pool. This is the expected state during normal operation with no issues.
+        MINER_STATUS_PAUSED (3) # The miner has temporarily stopped mining operations, but the system is still powered on and capable of resuming. This could be due to a user-initiated pause, thermal throttling, or a temporary issue like pool connectivity loss.
+        MINER_STATUS_SUSPENDED (4) # The miner is in a suspended state, likely due to a critical issue such as hardware faults, overheating, or a system-level intervention that prevents mining. Unlike PAUSED, this state may require manual intervention to resume.
+        MINER_STATUS_RESTRICTED (5) # The miner is operational but running in a restricted mode, possibly with reduced performance or limited functionality. This could be due to power limits, user-configured restrictions, or partial hardware failures (e.g., some hashboards disabled).
+        """
         jMDetails = MinerBraiinsV1Proto.minerGetDetails(jObj)
         print(f"status {jMDetails}")
         Utils.jsonCheckIsObj(jMDetails, True)
         if Utils.jsonCheckKeyExists(jMDetails, 'status', False):
             if jMDetails['status'] == 'MINER_STATUS_NORMAL':
                 return MinerUtils.MinerStatus.MinerNormal
-            if jMDetails['status'] == 'MINER_STATUS_NOT_STARTED':
+            if jMDetails['status'] in ['MINER_STATUS_PAUSED', 'MINER_STATUS_NOT_STARTED', 'MINER_STATUS_RESTRICTED']:
                 return MinerUtils.MinerStatus.MinerNotStarted
-            elif jMDetails['status'] == 'Not ready':
+            elif jMDetails['status'] == 'MINER_STATUS_SUSPENDED':
                 return MinerUtils.MinerStatus.MinerNotReady
             else:
                 return MinerUtils.MinerStatus.MinerUnknown
