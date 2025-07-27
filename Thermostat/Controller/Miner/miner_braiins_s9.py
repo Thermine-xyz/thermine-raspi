@@ -316,7 +316,20 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
         if Utils.jsonCheckKeyExists(jAry[0], 'STATUS', False) and jAry[0]['STATUS'] == 'S':
             return MinerUtils.MinerStatus.MinerNormal
         elif Utils.jsonCheckKeyExists(jAry[0], 'Msg', False) and jAry[0]['Msg'] == 'Not ready':
-            return MinerUtils.MinerStatus.MinerNotReady
+            try: # In case of S9 is "Not Ready" it might mean it is paused, in this case, it returns low Hashrate
+                jObjRtr = MinerBraiinsS9.grpcSummary(jObj)
+                MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
+                hashRate = 0.0
+                for jObjS in jObjRtr['SUMMARY']:
+                    hashRate = hashRate + jObjS['MHS 5s']
+                hashRate = round((hashRate/1000)/1000,4)
+                if hashRate > 0:
+                    return MinerUtils.MinerStatus.MinerNotStarted
+                else:
+                    return MinerUtils.MinerStatus.MinerNotReady
+            except Exception as e:
+                Utils.logger.error(f"miner_braiins_s9 status error {e}")
+                return MinerUtils.MinerStatus.MinerNotReady
         else:
             return MinerUtils.MinerStatus.MinerUnknown
     """
@@ -388,18 +401,19 @@ class MinerBraiinsS9(MinerUtils.MinerBase):
     # Get data from miner and save it locally
     @classmethod
     def minerServiceGetData(cls, jObj):
-        try: # Hashrate(MHs)
-            jObjRtr = MinerBraiinsS9.grpcSummary(jObj)
-            MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
-            hashRate = 0.0
-            for jObjS in jObjRtr['SUMMARY']:
-                hashRate = hashRate + jObjS['MHS 5s']
-            hashRate = round((hashRate/1000)/1000,4)
-            Utils.dataBinaryWriteFile(Utils.pathDataMinerHashrate(jObj), [hashRate])
-        except Exception as e:
-            Utils.logger.error(f"BraiinsS9 minerServiceGetData hashrate {jObj['uuid']} error {e}")
+        mStatus : MinerUtils.MinerStatus = MinerBraiinsS9.status(jObj)
+        if mStatus == MinerUtils.MinerStatus.MinerNormal:
+            try: # Hashrate(MHs)
+                jObjRtr = MinerBraiinsS9.grpcSummary(jObj)
+                MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)
+                hashRate = 0.0
+                for jObjS in jObjRtr['SUMMARY']:
+                    hashRate = hashRate + jObjS['MHS 5s']
+                hashRate = round((hashRate/1000)/1000,4)
+                Utils.dataBinaryWriteFile(Utils.pathDataMinerHashrate(jObj), [hashRate])
+            except Exception as e:
+                Utils.logger.error(f"BraiinsS9 minerServiceGetData hashrate {jObj['uuid']} error {e}")
 
-        if MinerBraiinsS9.status(jObj) == MinerUtils.MinerStatus.MinerNormal:        
             try: # Temp
                 jObjRtr = MinerBraiinsS9.grpcTemps(jObj)
                 MinerBraiinsS9.cgCheckStatusResponse(jObjRtr)

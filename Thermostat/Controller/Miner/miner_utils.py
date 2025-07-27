@@ -66,10 +66,31 @@ class MinerUtils:
         if not isinstance(jObj, dict):
             jObj = MinerUtils.dataAsJsonObjectUuid(jObj)
         result = {}
-        result['hasrate'] = MinerUtils.dataHashrateLastJson(jObj)
-        result['temp'] = MinerUtils.dataTemperatureLastJson(jObj)
+        try:
+            minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+            result['status'] = f"{minerCls.status(jObj)}"
+        except Exception as e:
+            result['status'] = f"{e}"
+            Utils.logger.error(f"dataCurrentStatus dataHashrateLastJson error {e}")
+            pass # Do nothing, keep looping
+        try:
+            result['hasrate'] = MinerUtils.dataHashrateLastJson(jObj)
+        except Exception as e:
+            Utils.logger.error(f"dataCurrentStatus dataHashrateLastJson error {e}")
+            pass # Do nothing, keep looping
+        try:
+            result['temp'] = MinerUtils.dataTemperatureLastJson(jObj)
+        except Exception as e:
+            Utils.logger.error(f"dataCurrentStatus dataTemperatureLastJson error {e}")
+            pass # Do nothing, keep looping
+
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
-            result['temp_sensor'] = MinerUtils.dataTemperatureSensorLastJson(jObj)
+            try:
+                result['temp_sensor'] = MinerUtils.dataTemperatureSensorLastJson(jObj)
+            except Exception as e:
+                Utils.logger.error(f"dataCurrentStatus dataTemperatureSensorLastJson error {e}")
+                pass # Do nothing, keep looping
+
         return result
 
     @staticmethod
