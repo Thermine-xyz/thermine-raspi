@@ -14,6 +14,8 @@ This is a list of firmware compatibility we tested already!
 ### Process diagram of Thermine-raspi service
 
 <img src="https://github.com/Thermine-xyz/thermine-raspi/blob/main/Planning,%20files%20and%20stuff/Raspi%20Process%20Diagram.drawio.png?raw=true" alt="image" />
+The process diagram file can be found on [link](https://github.com/Thermine-xyz/thermine-raspi/blob/main/Planning%2C%20files%20and%20stuff/Raspi%20Process%20Diagram.drawio)<br />
+Can be loadded and edited on [diagrams.net](https://app.diagrams.net/)<br />
 
 ## Environment config
 
