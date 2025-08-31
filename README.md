@@ -9,6 +9,11 @@ This is a list of firmware compatibility we tested already!
 | S9 | Braiins<br>[Luxor](https://docs.luxor.tech/firmware/compatibility/)<br>[Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/)| [22.08.1](https://feeds.braiins-os.com/22.08.1/)<br>3.7<br>3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;❌<br>&nbsp;&nbsp;&nbsp;&nbsp;❌ |
 | S19k Pro | [Braiins V1](https://academy.braiins.com/en/braiins-os/papi-tool-grpcurl/overview/)<br>[Luxor](https://docs.luxor.tech/firmware/compatibility/)<br>[Vnish](https://vnish-firmware.com/en/razgon-antminer-s19-s19i-s19pro-s19j-t19/)| [proto 1.6.0, BOS 25.05](https://github.com/braiins/bos-plus-api)<br>3.7<br>v1.2.6-rc3 | &nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;✔️ |
 
+## For Data Collaborators
+
+### Process diagram of Thermine-raspi service
+
+<img src="https://github.com/Thermine-xyz/thermine-raspi/blob/main/Planning,%20files%20and%20stuff/Raspi%20Process%20Diagram.drawio.png?raw=true" alt="image" />
 
 ## Environment config
 
@@ -68,7 +73,7 @@ sudo apt install -y python3-protobuf<br />
 sudo apt install -y python3-pip<br />
 
 In case you need to re-compile the .proto files to Python, please follow as bellow:<br />
-Check [README](https://github.com/igorbastosib/thermine-raspi/blob/main/Thermostat/Controller/Miner/Braiins/README.md)
+Check [README](hhttps://github.com/Thermine-xyz/thermine-raspi/blob/main/Thermostat/Controller/Miner/Braiins/README.md)
 
 ## Sensor DS1820
 python -m pip install w1thermsensor
