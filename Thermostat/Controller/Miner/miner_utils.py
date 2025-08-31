@@ -4,6 +4,7 @@ from enum import Enum
 import json
 import mmap
 import os
+#import traceback
 
 class MinerUtils:
 
@@ -225,7 +226,7 @@ class MinerUtils:
             Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
             MinerUtils.setData(jAry)
         else:
-            Utils.throwExceptionInvalidValue(json.dumps(jData));
+            Utils.throwExceptionInvalidValue(json.dumps(jData))
             
     # Returns the full JSON Array as string
     @staticmethod
@@ -233,7 +234,7 @@ class MinerUtils:
         try:
             jData = json.loads(jStr)
         except Exception as e:
-            Utils.throwExceptionInvalidValue(jStr);
+            Utils.throwExceptionInvalidValue(jStr)
         MinerUtils.setData(jData)
 
     class CompatibleFirmware(Enum):
