@@ -147,7 +147,7 @@ def handle_post(path, headers, post_data):
     
     elif path == "/Miner":
         contentStr = post_data.decode('utf-8')
-        MinerUtils.setDataStr(contentStr);
+        MinerUtils.setDataStr(contentStr)
         return Utils.resultJsonOK(), 200, 'application/json'
     elif path == "/Miner/Auth":
         json_data = json.loads(post_data.decode('utf-8'))
