@@ -95,6 +95,19 @@ class MinerUtils:
         return result
 
     @staticmethod
+    def dataDeleteByUuid(uuid: str):
+        if not isinstance(uuid, str):
+            Utils.throwExceptionInvalidValue(f"dataDeleteByUuid uuid {uuid}")
+        # Find the current uuid, if doesn't, raises exception
+        jObj = MinerUtils.dataAsJsonObjectUuid(uuid)
+        jAry = MinerUtils.dataAsJson()
+        jAryR = [obj for obj in jAry if obj.get("uuid") != uuid]
+        MinerUtils.setData(jAryR)
+        action = "delete"
+        event = {"action":action,"data":jObj}
+        Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
+
+    @staticmethod
     def dataHashrate(jObj, dateFrom, dateTo):
         result = []
         if not isinstance(jObj, dict):

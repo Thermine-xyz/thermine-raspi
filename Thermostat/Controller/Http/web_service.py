@@ -58,6 +58,32 @@ class HttpHandler(http.server.BaseHTTPRequestHandler):
         else:
             self.wfile.write(json.dumps(response_data).encode('utf-8'))
 
+    def do_DELETE(self):
+        try:
+            # If not public paths, check authentication
+            if self.path not in ['/NoPublicPathYet']:
+                if not checkAuthentication(self.headers):
+                    self.send_response_generic(403, 'text/html', 'Forbidden', self.path)
+                    return
+            
+            response_data, status_code, content_type = web_service_handler.handle_del(self.path, self.headers)
+
+            if response_data is None:  # In case no content response
+                self.send_response(status_code)
+                self.send_header('Content-type', content_type)
+                self.end_headers()
+                return
+
+            self.send_response_generic(status_code, content_type, response_data, self.path)
+
+        except HttpException as httpExc:
+            response = {"error": f"{str(httpExc.message)}"}
+            self.send_response_generic(httpExc.status_code, 'application/json', response, self.path)
+        except Exception as e:
+            error_msg = str(e)
+            response = {"error": f"{self.path} {error_msg}"}
+            self.send_response_generic(500, 'application/json', response, self.path)
+
     def do_GET(self):
         try:
             # If not public paths, check authentication

@@ -33,10 +33,12 @@ def checkHeaderMinerJson(headers, raiseException=False) -> str:
     return header
 
 def handle_del(path, headers):
+    print('1')
     if path == "/Miner":
-        contentStr = post_data.decode('utf-8')
-        Miner.setDataStr(contentStr);
-        return Utils.resultJsonOK(), 200, 'application/json'
+        sHeader: str = headers.get('uuid')
+        if sHeader is None:
+            Utils.throwExceptionHttpMissingHeader('uuid')
+        return MinerUtils.dataDeleteByUuid(sHeader), 204, 'application/json'
 
 def handle_get(path, headers):
     if path == "/Echo":
