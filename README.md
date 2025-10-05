@@ -13,7 +13,6 @@ Follow the list of firmware compatibility:
 
 #### Legend
 ✔️ - tested and working<br />
-❌ - tested and NOT working<br />
 🟧 - NOT tested<br />
 
 #### Warning ⚠️⚠️⚠️
