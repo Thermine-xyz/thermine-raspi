@@ -2,17 +2,22 @@
 
 ## Compatibility
 
-This is a list of firmware compatibility we tested already!
+Follow the list of firmware compatibility:
 
-| Miner | Firmware | Version | Status |
-| ---- | ---- | ---- | ---- |
-| S9 | Braiins<br>[Luxor](https://docs.luxor.tech/firmware/compatibility/)<br>[Vnish](https://vnish-firmware.com/en/razgon-antminer-s9-s9i-s9j/)| [22.08.1](https://feeds.braiins-os.com/22.08.1/)<br>3.7<br>3.9.0 | &nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;❌<br>&nbsp;&nbsp;&nbsp;&nbsp;❌ |
-| S19k Pro | [Braiins V1](https://academy.braiins.com/en/braiins-os/papi-tool-grpcurl/overview/)<br>[Luxor](https://docs.luxor.tech/firmware/compatibility/)<br>[Vnish](https://vnish-firmware.com/en/razgon-antminer-s19-s19i-s19pro-s19j-t19/)<br>[Whatsminer](https://www.whatsminer.com/src/views/firmware-download.html#Document)| [proto 1.6.0, BOS 25.05](https://github.com/braiins/bos-plus-api)<br>3.7<br>v1.2.6-rc3<br>[20240722.07.51.RE](https://aws-microbt-com-bucket.s3.us-west-2.amazonaws.com/1729070366369python-whatsminer-api-3.0.0.zip) | &nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;✔️<br>&nbsp;&nbsp;&nbsp;&nbsp;🟧 |
+| Firmware | Version | Status |
+| ---- | ---- | ---- |
+| [Braiins V1](https://academy.braiins.com/en/braiins-os/papi-tool-grpcurl/overview/) | [proto 1.6.0, BOS 25.05](https://github.com/braiins/bos-plus-api) | &nbsp;&nbsp;&nbsp;&nbsp;✔️ |
+| [Luxor](https://docs.luxor.tech/firmware/compatibility/) | 3.7 | &nbsp;&nbsp;&nbsp;&nbsp;✔️ |
+| [Vnish](https://vnish-firmware.com/en/razgon-antminer-s19-s19i-s19pro-s19j-t19/) | v1.2.6-rc3 | &nbsp;&nbsp;&nbsp;&nbsp;✔️ |
+| [Whatsminer](https://www.whatsminer.com/src/views/firmware-download.html#Document) | [20240722.07.51.RE](https://aws-microbt-com-bucket.s3.us-west-2.amazonaws.com/1729070366369python-whatsminer-api-3.0.0.zip) | &nbsp;&nbsp;&nbsp;&nbsp;🟧 |
 
-### Legend
+#### Legend
 ✔️ - tested and working<br />
 ❌ - tested and NOT working<br />
 🟧 - NOT tested<br />
+
+#### Warning ⚠️⚠️⚠️
+S9 working only with Firmware Braiins [22.08.1](https://feeds.braiins-os.com/22.08.1/)
 
 ## For Data Collaborators
 
