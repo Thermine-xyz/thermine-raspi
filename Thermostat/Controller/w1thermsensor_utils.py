@@ -53,7 +53,6 @@ class W1ThermSensorUtils:
                 pass
         return lBool
 
-
     @staticmethod
     def loadW1Modules() -> bool:
         """

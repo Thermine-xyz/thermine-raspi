@@ -193,22 +193,66 @@ class Miner:
     @staticmethod
     def minerThermalControl(jObj):
         Utils.jsonCheckIsObj(jObj)
-        if (
-            not Utils.jsonCheckKeyExists(jObj, 'do_thermal_control', False) or
-            not isinstance(jObj['do_thermal_control'], bool) or
-            jObj['do_thermal_control'] == False
-        ): # do nothing it is not configured to do thermal control
-            return
 
-        tsNow = Utils.nowUtc()
+        if (
+            (not Utils.jsonCheckKeyExists(jObj, 'do_thermal_control', False)) or
+            (not isinstance(jObj['do_thermal_control'], bool)) or
+            (not (jObj['do_thermal_control'] == True))
+        ):
+            return None
+
+        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
+        mStatus : MinerUtils.MinerStatus = minerCls.status(jObj)
+        print(f"MinerService.minerThermalControl status {mStatus}")
+        if mStatus in [MinerUtils.MinerStatus.MinerNotReady, MinerUtils.MinerStatus.MinerUnknown]:
+            Utils.logger.warning(f"MinerService.minerThermalControl {jObj['uuid']} miner status {mStatus}")
+            return None
+        if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
+            tTarget = float(jObj['sensor']['temp_target'])
+        else: # Runs only if it is sensor, improve it later to use miner config
+            return None
+            """jConfig = MinerBraiinsV1Proto.getConfiguration(jObj)            
+            Utils.jsonCheckKeyExists(jConfig, 'temperature', True)
+            Utils.jsonCheckKeyExists(jConfig['temperature'], 'target_temperature', True)
+            tTarget = float(jConfig['temperature']['target_temperature'])"""
+                
+        if not Utils.jsonCheckKeyExists(jObj, 'runControl', False):
+            jObj['runControl'] = {}
+        if not Utils.jsonCheckKeyExists(jObj['runControl'], 'thermal_last_cmd', False):
+            jObj['runControl']['thermal_last_cmd'] = None
+        thermalLastCmd = jObj['runControl']['thermal_last_cmd']
+        print(f"MinerService.minerThermalControl runControl {jObj['runControl']}")
+        
+        if not W1ThermSensorUtils.isW1SensorPresent():
+            Utils.logger.warning(f"MinerService.minerThermalControl {jObj['uuid']} Sensor not found")
+            return None
+        
         # Reads from sensor or from miner
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False) and W1ThermSensorUtils.isW1SensorPresent():
             tsMiner, temp = MinerUtils.dataTemperatureSensorLast(jObj)
         else:
             tsMiner, tBoard, temp = MinerUtils.dataTemperatureLast(jObj)
-        minerCls = MinerUtils.getMinerClass(jObj['fwtp'])
-        minerCls.minerThermalControl(jObj, temp)
+        
+        if (Utils.nowUtc() - tsMiner) > 30:
+            Utils.logger.warning(f"MinerService.minerThermalControl {jObj['uuid']} old reading {tsMiner}")
+            return None
+        
+        if tCurrent <= tTarget - 2 and mStatus != MinerUtils.MinerStatus.MinerNormal and thermalLastCmd != 'RESUME':
+            print(f"MinerService.minerThermalControl Resume")
+            jObj['runControl']['thermal_last_cmd'] = 'RESUME'
+            event = {"action":"update","data":jObj}
+            Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
+            minerCls.resume(jObj)
+            Utils.logger.info(f"MinerService.minerThermalControl {jObj['uuid']} Temperature too low {tTarget}/{tCurrent}ºC, mining started")
+        elif tCurrent >= tTarget and mStatus == MinerUtils.MinerStatus.MinerNormal: 
+            print(f"MinerService.minerThermalControl status Pause")
+            jObj['runControl']['thermal_last_cmd'] = 'PAUSE'
+            event = {"action":"update","data":jObj}
+            Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
+            minerCls.pause(jObj)
+            Utils.logger.warning(f"MinerService.minerThermalControl {jObj['uuid']} Temperature too high {tTarget}/{tCurrent}ºC, mining stopped")
         return None
+
     """
     MinerService END
     """

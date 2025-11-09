@@ -75,25 +75,31 @@ class MinerUtils:
             Utils.logger.error(f"dataCurrentStatus dataHashrateLastJson error {e}")
             pass # Do nothing, keep looping
         try:
-            result['hasrate'] = MinerUtils.dataHashrateLastJson(jObj)
-            if (Utils.nowUtc() - result['hasrate']['timestamp']) > 60:
-                result['hasrate_old'] = result.pop('hasrate')
+            jObjResult = MinerUtils.dataHashrateLastJson(jObj)
+            if jObjResult is not None:
+                result['hasrate'] = jObjResult
+                if (Utils.nowUtc() - result['hasrate']['timestamp']) > 60:
+                    result['hasrate_old'] = result.pop('hasrate')
         except Exception as e:
             Utils.logger.error(f"dataCurrentStatus dataHashrateLastJson error {e}")
             pass # Do nothing, keep looping
         try:
-            result['temp'] = MinerUtils.dataTemperatureLastJson(jObj)
-            if (Utils.nowUtc() - result['temp']['timestamp']) > 60:
-                result['temp_old'] = result.pop('temp')
+            jObjResult = MinerUtils.dataTemperatureLastJson(jObj)
+            if jObjResult is not None:
+                result['temp'] = jObjResult
+                if (Utils.nowUtc() - result['temp']['timestamp']) > 60:
+                    result['temp_old'] = result.pop('temp')
         except Exception as e:
             Utils.logger.error(f"dataCurrentStatus dataTemperatureLastJson error {e}")
             pass # Do nothing, keep looping
 
         if Utils.jsonCheckKeyExists(jObj, 'sensor', False):
             try:
-                result['temp_sensor'] = MinerUtils.dataTemperatureSensorLastJson(jObj)
-                if (Utils.nowUtc() - result['temp_sensor']['timestamp']) > 60:
-                    result['temp_sensor_old'] = result.pop('temp_sensor')
+                jObjResult = MinerUtils.dataTemperatureSensorLastJson(jObj)
+                if jObjResult is not None:
+                    result['temp_sensor'] = jObjResult
+                    if (Utils.nowUtc() - result['temp_sensor']['timestamp']) > 60:
+                        result['temp_sensor_old'] = result.pop('temp_sensor')
             except Exception as e:
                 Utils.logger.error(f"dataCurrentStatus dataTemperatureSensorLastJson error {e}")
                 pass # Do nothing, keep looping
@@ -185,7 +191,10 @@ class MinerUtils:
             return timestamp, dataValues[0]
     @staticmethod
     def dataTemperatureSensorLastJson(jObj):
-        timestamp, temp = MinerUtils.dataTemperatureSensorLast(jObj)
+        result = MinerUtils.dataTemperatureSensorLast(jObj)
+        if result is None:
+            return None
+        timestamp, temp = result
         return { "timestamp" : timestamp, "temp" : temp}
     
     # Returns the miner.json full path, creates it if doesn't exists

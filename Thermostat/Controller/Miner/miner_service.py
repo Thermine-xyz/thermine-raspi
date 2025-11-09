@@ -69,7 +69,6 @@ class MinerService:
         except Exception as e:
             Utils.logger.error(f"MinerService.taskReadData Miner.minerServiceGetData {uuid} error {e}")
             pass # Do nothing, keep looping
-
     def taskThermalControl(self):
         with self.lock:
             uuid = self.jObj.get('uuid', 'unknown')
