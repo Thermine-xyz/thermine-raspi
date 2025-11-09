@@ -22,8 +22,8 @@ class MinerService:
             'interval',
             id=f"schedulerReadData{self.jObj['uuid']}",
             seconds=5,
-            max_instances=1,
-            misfire_grace_time=180,
+            max_instances=3,
+            misfire_grace_time=30,
             coalesce=True,
             replace_existing=True)
         self.schedulerThermalControl = BackgroundScheduler()
@@ -32,8 +32,8 @@ class MinerService:
             'interval',
             id=f"schedulerThermalControl{self.jObj['uuid']}",
             seconds=5,
-            max_instances=1,
-            misfire_grace_time=180,
+            max_instances=3,
+            misfire_grace_time=30,
             coalesce=True,
             replace_existing=True)
 

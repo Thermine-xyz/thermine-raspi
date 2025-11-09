@@ -237,14 +237,14 @@ class Miner:
             Utils.logger.warning(f"MinerService.minerThermalControl {jObj['uuid']} old reading {tsMiner}")
             return None
         
-        if tCurrent <= tTarget - 2 and mStatus != MinerUtils.MinerStatus.MinerNormal and thermalLastCmd != 'RESUME':
+        if temp <= tTarget - 2 and mStatus != MinerUtils.MinerStatus.MinerNormal and thermalLastCmd != 'RESUME':
             print(f"MinerService.minerThermalControl Resume")
             jObj['runControl']['thermal_last_cmd'] = 'RESUME'
             event = {"action":"update","data":jObj}
             Utils.pubsub_instance.publish(Utils.PubSub.TOPIC_DATA_HAS_CHANGED, event)
             minerCls.resume(jObj)
             Utils.logger.info(f"MinerService.minerThermalControl {jObj['uuid']} Temperature too low {tTarget}/{tCurrent}ºC, mining started")
-        elif tCurrent >= tTarget and mStatus == MinerUtils.MinerStatus.MinerNormal: 
+        elif temp >= tTarget and mStatus == MinerUtils.MinerStatus.MinerNormal: 
             print(f"MinerService.minerThermalControl status Pause")
             jObj['runControl']['thermal_last_cmd'] = 'PAUSE'
             event = {"action":"update","data":jObj}
